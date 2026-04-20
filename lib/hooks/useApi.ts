@@ -49,7 +49,9 @@ export async function apiPut(url: string, body: any) {
 
 export async function apiDelete(url: string) {
   const res = await fetch(url, { method: "DELETE" });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Erreur serveur");
-  return data;
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({ error: "Erreur serveur" }));
+    throw new Error(data.error || "Erreur serveur");
+  }
+  return res.json().catch(() => ({}));
 }

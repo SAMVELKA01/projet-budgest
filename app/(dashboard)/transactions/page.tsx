@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import { apiPost, apiDelete } from "@/lib/hooks/useApi";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 interface Transaction {
   _id: string;
@@ -26,6 +27,7 @@ export default function TransactionsPage() {
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({
     name: "", amount: "", type: "depense",
     category: "Alimentation", method: "Carte Débit", date: "",
@@ -67,10 +69,15 @@ export default function TransactionsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer cette transaction ?")) return;
-    await apiDelete(`/api/transactions/${id}`);
-    fetchTransactions();
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    try {
+      await apiDelete(`/api/transactions/${deleteId}`);
+      setDeleteId(null);
+      fetchTransactions();
+    } catch (err: any) {
+      alert(err.message);
+    }
   };
 
   const filtered = transactions;
@@ -82,21 +89,14 @@ export default function TransactionsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-
-      {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
-            Historique des Transactions
-          </h1>
+          <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Historique des Transactions</h1>
           <p className="text-tertiary text-sm mt-1">Gérez et analysez vos flux financiers avec précision.</p>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2"
-        >
-          <Plus size={16} />
-          Ajouter une transaction
+        <button onClick={() => setShowModal(true)}
+          className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2">
+          <Plus size={16} /> Ajouter une transaction
         </button>
       </div>
 
@@ -109,31 +109,22 @@ export default function TransactionsPage() {
         ].map((kpi) => (
           <div key={kpi.label} className="bg-white border border-border rounded-2xl p-5">
             <p className="text-xs font-semibold text-tertiary uppercase tracking-wide mb-2">{kpi.label}</p>
-            <p className={`text-2xl font-bold ${kpi.color}`} style={{ fontFamily: "var(--font-heading)" }}>
-              {kpi.value}
-            </p>
+            <p className={`text-2xl font-bold ${kpi.color}`} style={{ fontFamily: "var(--font-heading)" }}>{kpi.value}</p>
           </div>
         ))}
       </div>
 
       {/* Table */}
       <div className="bg-white border border-border rounded-2xl p-5">
-
-        {/* Filtres */}
         <div className="flex items-center gap-3 mb-5 flex-wrap">
           {[
             { value: category, options: categories, onChange: setCategory },
             { value: type, options: types, onChange: setType },
           ].map((filter, i) => (
-            <select
-              key={i}
-              value={filter.value}
+            <select key={i} value={filter.value}
               onChange={(e) => { filter.onChange(e.target.value); setPage(1); }}
-              className="text-sm border border-border rounded-lg px-3 py-2 text-primary bg-neutral outline-none focus:border-secondary transition-colors cursor-pointer"
-            >
-              {filter.options.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
+              className="text-sm border border-border rounded-lg px-3 py-2 text-primary bg-neutral outline-none focus:border-secondary transition-colors cursor-pointer">
+              {filter.options.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
             </select>
           ))}
           <span className="text-xs text-tertiary ml-auto">
@@ -141,14 +132,12 @@ export default function TransactionsPage() {
           </span>
         </div>
 
-        {/* En-têtes */}
         <div className="grid grid-cols-6 gap-4 px-4 py-2 mb-1">
           {["DATE", "DESCRIPTION", "CATÉGORIE", "MÉTHODE", "MONTANT", ""].map((h) => (
             <span key={h} className="text-xs font-semibold text-tertiary uppercase tracking-wide">{h}</span>
           ))}
         </div>
 
-        {/* Lignes */}
         {loading ? (
           <div className="py-12 text-center">
             <div className="w-6 h-6 border-2 border-secondary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
@@ -169,19 +158,15 @@ export default function TransactionsPage() {
                   </div>
                   <span className="text-sm font-medium text-primary truncate">{t.name}</span>
                 </div>
-                <span className={`text-xs font-semibold px-2 py-1 rounded-lg w-fit ${
-                  t.type === "revenu" ? "bg-success/10 text-success" : "bg-secondary/10 text-secondary"
-                }`}>
+                <span className={`text-xs font-semibold px-2 py-1 rounded-lg w-fit ${t.type === "revenu" ? "bg-success/10 text-success" : "bg-secondary/10 text-secondary"}`}>
                   {t.category}
                 </span>
                 <span className="text-xs text-tertiary">{t.method}</span>
                 <span className={`text-sm font-bold ${t.amount > 0 ? "text-success" : "text-danger"}`}>
                   {t.amount > 0 ? "+" : ""}{t.amount.toFixed(2)} €
                 </span>
-                <button
-                  onClick={() => handleDelete(t._id)}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-tertiary hover:text-danger hover:bg-danger/10 transition-colors"
-                >
+                <button onClick={() => setDeleteId(t._id)}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-tertiary hover:text-danger hover:bg-danger/10 transition-colors">
                   <X size={14} />
                 </button>
               </div>
@@ -189,82 +174,56 @@ export default function TransactionsPage() {
           </div>
         )}
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-5 pt-4 border-t border-border">
-            <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="text-sm text-tertiary px-4 py-2 rounded-lg border border-border hover:bg-neutral transition-colors disabled:opacity-40"
-            >
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              className="text-sm text-tertiary px-4 py-2 rounded-lg border border-border hover:bg-neutral transition-colors disabled:opacity-40">
               ← Précédent
             </button>
             <div className="flex gap-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${
-                    page === p ? "bg-primary text-white" : "text-tertiary hover:bg-neutral border border-border"
-                  }`}
-                >
+                <button key={p} onClick={() => setPage(p)}
+                  className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${page === p ? "bg-primary text-white" : "text-tertiary hover:bg-neutral border border-border"}`}>
                   {p}
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="text-sm text-tertiary px-4 py-2 rounded-lg border border-border hover:bg-neutral transition-colors disabled:opacity-40"
-            >
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+              className="text-sm text-tertiary px-4 py-2 rounded-lg border border-border hover:bg-neutral transition-colors disabled:opacity-40">
               Suivant →
             </button>
           </div>
         )}
       </div>
 
-      {/* Modal */}
+      {/* Modal ajout */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
-                Nouvelle transaction
-              </h2>
+              <h2 className="text-lg font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Nouvelle transaction</h2>
               <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-lg bg-neutral flex items-center justify-center text-tertiary hover:text-primary transition-colors">
                 <X size={16} />
               </button>
             </div>
-
             <div className="flex flex-col gap-4">
               <div>
                 <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Description</label>
-                <input
-                  type="text"
-                  placeholder="Ex: Supermarché"
-                  value={form.name}
+                <input type="text" placeholder="Ex: Supermarché" value={form.name}
                   onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
-                />
+                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Montant (€)</label>
-                  <input
-                    type="number"
-                    placeholder="0.00"
-                    value={form.amount}
+                  <input type="number" placeholder="0.00" value={form.amount}
                     onChange={(e) => setForm(f => ({ ...f, amount: e.target.value }))}
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
-                  />
+                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Type</label>
-                  <select
-                    value={form.type}
-                    onChange={(e) => setForm(f => ({ ...f, type: e.target.value }))}
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white"
-                  >
+                  <select value={form.type} onChange={(e) => setForm(f => ({ ...f, type: e.target.value }))}
+                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white">
                     <option value="depense">Dépense</option>
                     <option value="revenu">Revenu</option>
                   </select>
@@ -272,22 +231,16 @@ export default function TransactionsPage() {
               </div>
               <div>
                 <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Catégorie</label>
-                <select
-                  value={form.category}
-                  onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))}
-                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white"
-                >
+                <select value={form.category} onChange={(e) => setForm(f => ({ ...f, category: e.target.value }))}
+                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white">
                   {categories.slice(1).map(c => <option key={c}>{c}</option>)}
                 </select>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Méthode</label>
-                  <select
-                    value={form.method}
-                    onChange={(e) => setForm(f => ({ ...f, method: e.target.value }))}
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white"
-                  >
+                  <select value={form.method} onChange={(e) => setForm(f => ({ ...f, method: e.target.value }))}
+                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white">
                     {["Carte Débit", "Carte Crédit", "Virement SEPA", "Prélèvement", "Espèces", "Apple Pay"].map(m => (
                       <option key={m}>{m}</option>
                     ))}
@@ -295,25 +248,16 @@ export default function TransactionsPage() {
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Date</label>
-                  <input
-                    type="date"
-                    value={form.date}
+                  <input type="date" value={form.date}
                     onChange={(e) => setForm(f => ({ ...f, date: e.target.value }))}
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
-                  />
+                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
                 </div>
               </div>
             </div>
-
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowModal(false)} className="flex-1 border border-border text-tertiary py-3 rounded-xl text-sm font-semibold hover:bg-neutral transition-colors">
-                Annuler
-              </button>
-              <button
-                onClick={handleAdd}
-                disabled={saving}
-                className="flex-1 bg-primary text-white py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60"
-              >
+              <button onClick={() => setShowModal(false)} className="flex-1 border border-border text-tertiary py-3 rounded-xl text-sm font-semibold hover:bg-neutral transition-colors">Annuler</button>
+              <button onClick={handleAdd} disabled={saving}
+                className="flex-1 bg-primary text-white py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60">
                 {saving ? "Ajout..." : "Ajouter →"}
               </button>
             </div>
@@ -321,6 +265,15 @@ export default function TransactionsPage() {
         </div>
       )}
 
+      {/* Modal confirmation suppression */}
+      {deleteId && (
+        <ConfirmModal
+          title="Supprimer la transaction ?"
+          message="Cette action est irréversible. La transaction sera définitivement supprimée."
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteId(null)}
+        />
+      )}
     </div>
   );
 }

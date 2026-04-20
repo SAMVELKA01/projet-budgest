@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, X, Target, TrendingUp, Wallet, Trophy } from "lucide-react";
+import { Plus, X, Target, TrendingUp, Wallet, Trophy, Pencil } from "lucide-react";
 import { apiPost, apiPut, apiDelete } from "@/lib/hooks/useApi";
+import ConfirmModal from "@/components/ui/ConfirmModal";
 
 interface Objectif {
   _id: string;
@@ -14,11 +15,16 @@ interface Objectif {
   colorHex: string;
 }
 
+const emojis = ["🎯", "✈️", "💻", "🚗", "🏠", "🎓", "💍", "🏖️", "🛡️", "🏦"];
+const colors = ["#3B82F6", "#10B981", "#F59E0B", "#8B5CF6", "#EC4899", "#EF4444", "#64748B", "#06B6D4"];
+
 export default function ObjectifsPage() {
   const [objectifs, setObjectifs] = useState<Objectif[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editingObjectif, setEditingObjectif] = useState<Objectif | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [addAmount, setAddAmount] = useState("");
   const [form, setForm] = useState({ title: "", emoji: "🎯", target: "", saved: "", deadline: "", colorHex: "#3B82F6" });
@@ -36,17 +42,46 @@ export default function ObjectifsPage() {
 
   useEffect(() => { fetchObjectifs(); }, []);
 
-  const handleAdd = async () => {
+  const openCreate = () => {
+    setEditingObjectif(null);
+    setForm({ title: "", emoji: "🎯", target: "", saved: "", deadline: "", colorHex: "#3B82F6" });
+    setShowModal(true);
+  };
+
+  const openEdit = (o: Objectif) => {
+    setEditingObjectif(o);
+    setForm({
+      title: o.title,
+      emoji: o.emoji,
+      target: String(o.target),
+      saved: String(o.saved),
+      deadline: o.deadline.split("T")[0],
+      colorHex: o.colorHex,
+    });
+    setShowModal(true);
+  };
+
+  const handleSave = async () => {
     if (!form.title || !form.target || !form.deadline) return;
     setSaving(true);
     try {
-      await apiPost("/api/objectifs", {
-        ...form,
-        target: parseFloat(form.target),
-        saved: parseFloat(form.saved || "0"),
-      });
+      if (editingObjectif) {
+        await apiPut(`/api/objectifs/${editingObjectif._id}`, {
+          title: form.title,
+          emoji: form.emoji,
+          target: parseFloat(form.target),
+          saved: parseFloat(form.saved || "0"),
+          deadline: form.deadline,
+          colorHex: form.colorHex,
+        });
+      } else {
+        await apiPost("/api/objectifs", {
+          ...form,
+          target: parseFloat(form.target),
+          saved: parseFloat(form.saved || "0"),
+        });
+      }
       setShowModal(false);
-      setForm({ title: "", emoji: "🎯", target: "", saved: "", deadline: "", colorHex: "#3B82F6" });
       fetchObjectifs();
     } catch (err: any) {
       alert(err.message);
@@ -63,9 +98,10 @@ export default function ObjectifsPage() {
     fetchObjectifs();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Supprimer cet objectif ?")) return;
-    await apiDelete(`/api/objectifs/${id}`);
+  const handleDelete = async () => {
+    if (!deleteId) return;
+    await apiDelete(`/api/objectifs/${deleteId}`);
+    setDeleteId(null);
     fetchObjectifs();
   };
 
@@ -89,11 +125,12 @@ export default function ObjectifsPage() {
           <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Objectifs d'épargne</h1>
           <p className="text-tertiary text-sm mt-1">Fixez des objectifs et atteignez l'équilibre financier.</p>
         </div>
-        <button onClick={() => setShowModal(true)} className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2">
+        <button onClick={openCreate} className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2">
           <Plus size={16} /> Nouvel objectif
         </button>
       </div>
 
+      {/* KPIs */}
       <div className="grid grid-cols-4 gap-4">
         {[
           { label: "Objectifs actifs", value: `${objectifs.length}`, sub: `${completed} complété${completed > 1 ? "s" : ""}`, icon: Target, iconColor: "text-secondary", iconBg: "bg-secondary/10" },
@@ -114,10 +151,10 @@ export default function ObjectifsPage() {
         ))}
       </div>
 
+      {/* Cards */}
       {loading ? (
         <div className="py-12 text-center">
           <div className="w-6 h-6 border-2 border-secondary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-          <p className="text-sm text-tertiary">Chargement...</p>
         </div>
       ) : objectifs.length === 0 ? (
         <div className="bg-white border border-border rounded-2xl py-12 text-center">
@@ -130,7 +167,8 @@ export default function ObjectifsPage() {
             const status = getStatus(o);
             const isSelected = selectedId === o._id;
             return (
-              <div key={o._id} onClick={() => setSelectedId(isSelected ? null : o._id)}
+              <div key={o._id}
+                onClick={() => setSelectedId(isSelected ? null : o._id)}
                 className="bg-white border border-border rounded-2xl p-5 cursor-pointer hover:border-secondary/40 transition-all"
                 style={{ borderColor: isSelected ? o.colorHex : undefined }}>
                 <div className="flex items-start justify-between mb-4">
@@ -142,14 +180,19 @@ export default function ObjectifsPage() {
                       <p className="text-xs text-tertiary mt-0.5">Échéance : {new Date(o.deadline).toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
                     <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg ${status.bg} ${status.color}`}>{status.label}</span>
-                    <button onClick={(e) => { e.stopPropagation(); handleDelete(o._id); }}
+                    <button onClick={(e) => { e.stopPropagation(); openEdit(o); }}
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-tertiary hover:text-secondary hover:bg-secondary/10 transition-colors">
+                      <Pencil size={13} />
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); setDeleteId(o._id); }}
                       className="w-7 h-7 rounded-lg flex items-center justify-center text-tertiary hover:text-danger hover:bg-danger/10 transition-colors">
                       <X size={14} />
                     </button>
                   </div>
                 </div>
+
                 <div className="flex justify-between items-end mb-3">
                   <div>
                     <p className="text-xs text-tertiary mb-1">Épargné</p>
@@ -160,6 +203,7 @@ export default function ObjectifsPage() {
                     <p className="text-xl font-bold text-tertiary" style={{ fontFamily: "var(--font-heading)" }}>{o.target.toLocaleString()} €</p>
                   </div>
                 </div>
+
                 <div className="w-full bg-neutral rounded-full h-2.5 mb-2">
                   <div className="h-2.5 rounded-full transition-all" style={{ width: `${pct}%`, background: o.colorHex }} />
                 </div>
@@ -167,6 +211,7 @@ export default function ObjectifsPage() {
                   <span className="text-xs font-semibold" style={{ color: o.colorHex }}>{pct.toFixed(0)}%</span>
                   <span className="text-xs text-tertiary">{o.saved >= o.target ? "Objectif atteint 🎉" : `${(o.target - o.saved).toLocaleString()} € restant`}</span>
                 </div>
+
                 {isSelected && (
                   <div className="mt-4 pt-4 border-t border-border flex gap-2" onClick={e => e.stopPropagation()}>
                     <input type="number" placeholder="Montant à ajouter (€)" value={addAmount}
@@ -184,12 +229,17 @@ export default function ObjectifsPage() {
         </div>
       )}
 
+      {/* Modal créer/modifier */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Nouvel objectif</h2>
-              <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-lg bg-neutral flex items-center justify-center text-tertiary hover:text-primary transition-colors"><X size={16} /></button>
+              <h2 className="text-lg font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
+                {editingObjectif ? "Modifier l'objectif" : "Nouvel objectif"}
+              </h2>
+              <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-lg bg-neutral flex items-center justify-center text-tertiary hover:text-primary transition-colors">
+                <X size={16} />
+              </button>
             </div>
             <div className="flex flex-col gap-4">
               <div>
@@ -197,6 +247,27 @@ export default function ObjectifsPage() {
                 <input type="text" placeholder="Ex: Vacances été" value={form.title}
                   onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))}
                   className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Emoji</label>
+                <div className="flex gap-2 flex-wrap">
+                  {emojis.map(e => (
+                    <button key={e} onClick={() => setForm(f => ({ ...f, emoji: e }))}
+                      className={`w-9 h-9 rounded-lg flex items-center justify-center text-lg transition-colors ${form.emoji === e ? "bg-secondary/20 border-2 border-secondary" : "bg-neutral border border-border"}`}>
+                      {e}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Couleur</label>
+                <div className="flex gap-2">
+                  {colors.map(c => (
+                    <button key={c} onClick={() => setForm(f => ({ ...f, colorHex: c }))}
+                      className="w-8 h-8 rounded-full transition-all"
+                      style={{ background: c, outline: form.colorHex === c ? `3px solid ${c}` : "none", outlineOffset: "2px" }} />
+                  ))}
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -221,12 +292,23 @@ export default function ObjectifsPage() {
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setShowModal(false)} className="flex-1 border border-border text-tertiary py-3 rounded-xl text-sm font-semibold hover:bg-neutral transition-colors">Annuler</button>
-              <button onClick={handleAdd} disabled={saving} className="flex-1 bg-primary text-white py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60">
-                {saving ? "Création..." : "Créer →"}
+              <button onClick={handleSave} disabled={saving}
+                className="flex-1 bg-primary text-white py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60">
+                {saving ? "Sauvegarde..." : editingObjectif ? "Modifier →" : "Créer →"}
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Confirm suppression */}
+      {deleteId && (
+        <ConfirmModal
+          title="Supprimer l'objectif ?"
+          message="Cette action est irréversible. L'objectif et sa progression seront définitivement supprimés."
+          onConfirm={handleDelete}
+          onCancel={() => setDeleteId(null)}
+        />
       )}
     </div>
   );

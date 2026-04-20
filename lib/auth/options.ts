@@ -13,18 +13,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-
         await connectDB();
-
         const user = await User.findOne({ email: credentials.email });
         if (!user) return null;
-
-        const isValid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        );
+        const isValid = await bcrypt.compare(credentials.password as string, user.password);
         if (!isValid) return null;
-
         return {
           id: user._id.toString(),
           name: user.name,
@@ -34,6 +27,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -55,5 +49,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
-  session: { strategy: "jwt" },
+  trustHost: true,
 });
