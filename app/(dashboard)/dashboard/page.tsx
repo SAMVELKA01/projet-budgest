@@ -1,56 +1,101 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { TrendingUp, TrendingDown, Wallet, AlertTriangle, ArrowUpRight, ArrowDownRight } from "lucide-react";
 
-const transactions = [
-  { name: "Monoprix Paris", category: "Alimentation", date: "24 Oct 2024", method: "Visa •••• 4242", amount: -88.20 },
-  { name: "Virement Salaire", category: "Revenus", date: "23 Oct 2024", method: "Virement SEPA", amount: 3280.00 },
-  { name: "EDF Électricité", category: "Logement", date: "22 Oct 2024", method: "Prélèvement", amount: -112.50 },
-  { name: "Total Station", category: "Transport", date: "21 Oct 2024", method: "Visa •••• 4242", amount: -55.00 },
-  { name: "Netflix Premium", category: "Abonnements", date: "19 Oct 2024", method: "Carte Débit", amount: -17.99 },
-];
+interface Stats {
+  solde: number;
+  revenus: number;
+  depenses: number;
+  evolutionRevenus: number;
+  evolutionDepenses: number;
+  depensesByCategory: Record<string, number>;
+  monthlyEvolution: { month: string; revenus: number; depenses: number }[];
+  recentTransactions: {
+    _id: string;
+    name: string;
+    category: string;
+    date: string;
+    method: string;
+    amount: number;
+  }[];
+}
 
-const barData = [
-  { month: "Avr", revenus: 3200, depenses: 1800 },
-  { month: "Mai", revenus: 4100, depenses: 2050 },
-  { month: "Jun", revenus: 3200, depenses: 1750 },
-  { month: "Jul", revenus: 3200, depenses: 2400 },
-  { month: "Aoû", revenus: 3800, depenses: 2200 },
-  { month: "Sep", revenus: 3200, depenses: 1900 },
-  { month: "Oct", revenus: 4820, depenses: 2140 },
-];
-
-const repartition = [
-  { label: "Logement", pct: 45, colorHex: "#3B82F6" },
-  { label: "Alimentation", pct: 32, colorHex: "#10B981" },
-  { label: "Autres", pct: 23, colorHex: "#F59E0B" },
-];
-
-const maxVal = Math.max(...barData.map(d => Math.max(d.revenus, d.depenses)));
+const repartitionColors: Record<string, string> = {
+  Logement: "#3B82F6",
+  Alimentation: "#10B981",
+  Transport: "#F59E0B",
+  Loisirs: "#8B5CF6",
+  Abonnements: "#EC4899",
+  Santé: "#64748B",
+};
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [loading, setLoading] = useState(true);
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
+
+  useEffect(() => {
+  fetch("/api/dashboard/stats")
+    .then(r => {
+      if (!r.ok) return null;
+      return r.json();
+    })
+    .then(data => {
+      if (data) setStats(data);
+      setLoading(false);
+    })
+    .catch(() => setLoading(false));
+}, []);
+
+  const maxVal = stats?.monthlyEvolution
+  ? Math.max(...stats.monthlyEvolution.map(d => Math.max(d.revenus, d.depenses)))
+  : 0;
+
+const repartition = stats?.depensesByCategory
+  ? Object.entries(stats.depensesByCategory)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([label, amount]) => ({
+      label,
+      amount: amount as number,
+      pct: Math.round(((amount as number) / (stats.depenses || 1)) * 100),
+      colorHex: repartitionColors[label] || "#64748B",
+    }))
+  : [];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-2 border-secondary border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-tertiary">Chargement de vos données...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
 
       {/* Alerte */}
-      <div className="bg-warning/10 border border-warning/30 rounded-2xl px-5 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-warning/20 flex items-center justify-center shrink-0">
-            <AlertTriangle size={16} className="text-warning" />
+      {stats && stats.evolutionDepenses > 10 && (
+        <div className="bg-warning/10 border border-warning/30 rounded-2xl px-5 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-warning/20 flex items-center justify-center shrink-0">
+              <AlertTriangle size={16} className="text-warning" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-primary">Attention, vos dépenses augmentent ce mois-ci</p>
+              <p className="text-xs text-tertiary mt-0.5">+{stats.evolutionDepenses}% par rapport au mois dernier</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-semibold text-primary">Attention, vos dépenses augmentent ce mois-ci</p>
-            <p className="text-xs text-tertiary mt-0.5">Logement dépassé de 62€ · Transport à 81% du budget</p>
-          </div>
+          <Link href="/transactions" className="text-xs font-semibold text-warning no-underline hover:underline whitespace-nowrap">
+            Voir les détails →
+          </Link>
         </div>
-        <Link href="/transactions" className="text-xs font-semibold text-warning no-underline hover:underline whitespace-nowrap">
-          Voir les détails →
-        </Link>
-      </div>
+      )}
 
       {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">
@@ -62,13 +107,11 @@ export default function DashboardPage() {
             </div>
           </div>
           <p className="text-3xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
-            12 450,20 €
+            {stats?.solde.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
           </p>
           <div className="flex items-center gap-1.5 mt-2">
-            <div className="flex items-center gap-1 text-success">
-              <ArrowUpRight size={13} />
-              <span className="text-xs font-semibold">+2,4%</span>
-            </div>
+            <ArrowUpRight size={13} className="text-success" />
+            <span className="text-xs font-semibold text-success">{stats?.evolutionRevenus}%</span>
             <span className="text-xs text-tertiary">depuis le mois dernier</span>
           </div>
         </div>
@@ -81,11 +124,11 @@ export default function DashboardPage() {
             </div>
           </div>
           <p className="text-3xl font-bold text-success" style={{ fontFamily: "var(--font-heading)" }}>
-            4 820,00 €
+            {stats?.revenus.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
           </p>
           <div className="flex items-center gap-1.5 mt-2">
-            <span className="text-xs text-tertiary">Objectif atteint à</span>
-            <span className="text-xs font-semibold text-success">84%</span>
+            <span className="text-xs font-semibold text-success">+{stats?.evolutionRevenus}%</span>
+            <span className="text-xs text-tertiary">vs mois dernier</span>
           </div>
         </div>
 
@@ -97,14 +140,12 @@ export default function DashboardPage() {
             </div>
           </div>
           <p className="text-3xl font-bold text-danger" style={{ fontFamily: "var(--font-heading)" }}>
-            2 140,55 €
+            {stats?.depenses.toLocaleString("fr-FR", { minimumFractionDigits: 2 })} €
           </p>
           <div className="flex items-center gap-1.5 mt-2">
-            <div className="flex items-center gap-1 text-danger">
-              <ArrowDownRight size={13} />
-              <span className="text-xs font-semibold">+15%</span>
-            </div>
-            <span className="text-xs text-tertiary">vs le mois dernier</span>
+            <ArrowDownRight size={13} className="text-danger" />
+            <span className="text-xs font-semibold text-danger">+{stats?.evolutionDepenses}%</span>
+            <span className="text-xs text-tertiary">vs mois dernier</span>
           </div>
         </div>
       </div>
@@ -130,20 +171,19 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Tooltip */}
           <div className="h-5 mb-3">
-            {hoveredBar !== null && (
+            {hoveredBar !== null && stats && (
               <p className="text-xs text-tertiary">
-                {barData[hoveredBar].month} —{" "}
-                <span className="text-success font-semibold">{barData[hoveredBar].revenus.toLocaleString()} €</span>
+                {stats.monthlyEvolution[hoveredBar]?.month} —{" "}
+                <span className="text-success font-semibold">{stats.monthlyEvolution[hoveredBar]?.revenus.toLocaleString()} €</span>
                 {" · "}
-                <span className="text-danger font-semibold">{barData[hoveredBar].depenses.toLocaleString()} €</span>
+                <span className="text-danger font-semibold">{stats.monthlyEvolution[hoveredBar]?.depenses.toLocaleString()} €</span>
               </p>
             )}
           </div>
 
           <div className="flex items-end gap-3" style={{ height: "140px" }}>
-            {barData.map((d, i) => (
+            {stats?.monthlyEvolution.map((d, i) => (
               <div
                 key={i}
                 className="flex-1 flex flex-col items-center gap-1 cursor-pointer"
@@ -154,14 +194,14 @@ export default function DashboardPage() {
                   <div
                     className="flex-1 rounded-t-md transition-all"
                     style={{
-                      height: `${(d.revenus / maxVal) * 100}%`,
+                      height: `${maxVal > 0 ? (d.revenus / maxVal) * 100 : 0}%`,
                       background: hoveredBar === i ? "#10B981" : "rgba(16,185,129,0.4)",
                     }}
                   />
                   <div
                     className="flex-1 rounded-t-md transition-all"
                     style={{
-                      height: `${(d.depenses / maxVal) * 100}%`,
+                      height: `${maxVal > 0 ? (d.depenses / maxVal) * 100 : 0}%`,
                       background: hoveredBar === i ? "#EF4444" : "rgba(239,68,68,0.35)",
                     }}
                   />
@@ -177,27 +217,30 @@ export default function DashboardPage() {
           <h3 className="font-bold text-primary mb-4" style={{ fontFamily: "var(--font-heading)" }}>
             Répartition
           </h3>
-
-          {/* Cercle SVG */}
           <div className="flex justify-center mb-5">
             <div className="relative w-32 h-32">
               <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
                 <circle cx="18" cy="18" r="15.9" fill="none" stroke="#F1F5F9" strokeWidth="3.5" />
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#3B82F6" strokeWidth="3.5"
-                  strokeDasharray="45 55" strokeLinecap="round" />
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#10B981" strokeWidth="3.5"
-                  strokeDasharray="32 68" strokeDashoffset="-45" strokeLinecap="round" />
-                <circle cx="18" cy="18" r="15.9" fill="none" stroke="#F59E0B" strokeWidth="3.5"
-                  strokeDasharray="23 77" strokeDashoffset="-77" strokeLinecap="round" />
+                {repartition.map((item, i) => {
+                  const offset = repartition.slice(0, i).reduce((s, r) => s + r.pct, 0);
+                  return (
+                    <circle key={item.label} cx="18" cy="18" r="15.9" fill="none"
+                      stroke={item.colorHex} strokeWidth="3.5"
+                      strokeDasharray={`${item.pct} ${100 - item.pct}`}
+                      strokeDashoffset={`-${offset}`}
+                      strokeLinecap="round"
+                    />
+                  );
+                })}
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-base font-bold text-primary">2 140€</span>
+                <span className="text-base font-bold text-primary">
+                  {stats?.depenses.toLocaleString()} €
+                </span>
                 <span className="text-xs text-tertiary">total</span>
               </div>
             </div>
           </div>
-
-          {/* Légende */}
           <div className="flex flex-col gap-3">
             {repartition.map((item) => (
               <div key={item.label} className="flex items-center justify-between">
@@ -228,31 +271,42 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        <div className="divide-y divide-border">
-          {transactions.map((t, i) => (
-            <div key={i} className="flex items-center gap-4 px-5 py-3.5 hover:bg-neutral/50 transition-colors">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shrink-0"
-                style={{
-                  background: t.amount > 0 ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.1)",
-                  color: t.amount > 0 ? "#10B981" : "#EF4444",
-                }}>
-                {t.name[0]}
+        {stats?.recentTransactions.length === 0 ? (
+          <div className="px-5 py-10 text-center">
+            <p className="text-sm text-tertiary">Aucune transaction pour le moment.</p>
+            <Link href="/transactions" className="text-xs text-secondary font-semibold no-underline hover:underline mt-2 inline-block">
+              Ajouter une transaction →
+            </Link>
+          </div>
+        ) : (
+          <div className="divide-y divide-border">
+            {stats?.recentTransactions.map((t) => (
+              <div key={t._id} className="flex items-center gap-4 px-5 py-3.5 hover:bg-neutral/50 transition-colors">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shrink-0"
+                  style={{
+                    background: t.amount > 0 ? "rgba(16,185,129,0.12)" : "rgba(239,68,68,0.1)",
+                    color: t.amount > 0 ? "#10B981" : "#EF4444",
+                  }}>
+                  {t.name[0]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-primary truncate">{t.name}</p>
+                  <p className="text-xs text-tertiary">
+                    {new Date(t.date).toLocaleDateString("fr-FR")} · {t.method}
+                  </p>
+                </div>
+                <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg ${
+                  t.category === "Revenus" ? "bg-success/10 text-success" : "bg-secondary/10 text-secondary"
+                }`}>
+                  {t.category}
+                </span>
+                <span className={`text-sm font-bold w-24 text-right shrink-0 ${t.amount > 0 ? "text-success" : "text-danger"}`}>
+                  {t.amount > 0 ? "+" : ""}{t.amount.toFixed(2)} €
+                </span>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-primary truncate">{t.name}</p>
-                <p className="text-xs text-tertiary">{t.date} · {t.method}</p>
-              </div>
-              <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg ${
-                t.category === "Revenus" ? "bg-success/10 text-success" : "bg-secondary/10 text-secondary"
-              }`}>
-                {t.category}
-              </span>
-              <span className={`text-sm font-bold w-24 text-right shrink-0 ${t.amount > 0 ? "text-success" : "text-danger"}`}>
-                {t.amount > 0 ? "+" : ""}{t.amount.toFixed(2)} €
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
     </div>

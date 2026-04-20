@@ -1,86 +1,97 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { apiPut } from "@/lib/hooks/useApi";
 
 export default function ParametresPage() {
-  const [nom, setNom] = useState("Jean Dupont");
-  const [email, setEmail] = useState("jean.dupont@exemple.com");
+  const { data: session, update } = useSession();
+  const [nom, setNom] = useState("");
+  const [email, setEmail] = useState("");
   const [devise, setDevise] = useState("EUR");
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState("");
   const [notifications, setNotifications] = useState({
     depassement: true,
     recap: true,
     objectifs: false,
   });
 
+  useEffect(() => {
+    if (session?.user) {
+      setNom(session.user.name || "");
+      setEmail(session.user.email || "");
+      setDevise((session.user as any).devise || "EUR");
+    }
+  }, [session]);
+
+  const handleSaveProfil = async () => {
+    setSaving(true);
+    setSuccess("");
+    try {
+      await apiPut(`/api/users/profile`, { name: nom, devise });
+      await update({ name: nom, devise });
+      setSuccess("Profil mis à jour avec succès !");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6 max-w-3xl">
-
-      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
-          Paramètres
-        </h1>
+        <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Paramètres</h1>
         <p className="text-tertiary text-sm mt-1">Gérez votre profil et vos préférences.</p>
       </div>
 
+      {success && (
+        <div className="bg-success/10 border border-success/20 rounded-xl px-4 py-3">
+          <p className="text-sm text-success font-medium">{success}</p>
+        </div>
+      )}
+
       {/* Profil */}
       <div className="bg-white border border-border rounded-2xl p-6">
-        <h2 className="text-base font-bold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>
-          Informations personnelles
-        </h2>
-
+        <h2 className="text-base font-bold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>Informations personnelles</h2>
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center text-white text-xl font-bold shrink-0">
-            {nom.split(" ").map(n => n[0]).join("")}
+          <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+            {nom.split(" ").map(n => n[0]).join("").toUpperCase()}
           </div>
           <div>
             <p className="text-sm font-semibold text-primary">{nom}</p>
             <p className="text-xs text-tertiary">{email}</p>
-            <button className="text-xs text-secondary font-semibold mt-1 hover:underline">
-              Changer la photo
-            </button>
           </div>
         </div>
-
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Nom complet</label>
-              <input
-                type="text"
-                value={nom}
-                onChange={(e) => setNom(e.target.value)}
-                className="w-full border border-border rounded-lg px-4 py-3 text-sm text-primary outline-none focus:border-secondary transition-colors"
-              />
+              <input type="text" value={nom} onChange={(e) => setNom(e.target.value)}
+                className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
             </div>
             <div>
               <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full border border-border rounded-lg px-4 py-3 text-sm text-primary outline-none focus:border-secondary transition-colors"
-              />
+              <input type="email" value={email} disabled
+                className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none bg-neutral text-tertiary cursor-not-allowed" />
             </div>
           </div>
-
           <div>
             <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Devise</label>
-            <select
-              value={devise}
-              onChange={(e) => setDevise(e.target.value)}
-              className="w-full border border-border rounded-lg px-4 py-3 text-sm text-primary outline-none focus:border-secondary transition-colors bg-white"
-            >
+            <select value={devise} onChange={(e) => setDevise(e.target.value)}
+              className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white">
               <option value="EUR">Euro (€)</option>
               <option value="USD">Dollar ($)</option>
               <option value="GBP">Livre sterling (£)</option>
               <option value="XOF">Franc CFA (FCFA)</option>
             </select>
           </div>
-
           <div className="flex justify-end">
-            <button className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors">
-              Sauvegarder
+            <button onClick={handleSaveProfil} disabled={saving}
+              className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60">
+              {saving ? "Sauvegarde..." : "Sauvegarder"}
             </button>
           </div>
         </div>
@@ -88,23 +99,20 @@ export default function ParametresPage() {
 
       {/* Mot de passe */}
       <div className="bg-white border border-border rounded-2xl p-6">
-        <h2 className="text-base font-bold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>
-          Sécurité
-        </h2>
-
+        <h2 className="text-base font-bold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>Sécurité</h2>
         <div className="flex flex-col gap-4">
           <div>
             <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Mot de passe actuel</label>
-            <input type="password" placeholder="••••••••" className="w-full border border-border rounded-lg px-4 py-3 text-sm text-primary outline-none focus:border-secondary transition-colors" />
+            <input type="password" placeholder="••••••••" className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Nouveau mot de passe</label>
-              <input type="password" placeholder="••••••••" className="w-full border border-border rounded-lg px-4 py-3 text-sm text-primary outline-none focus:border-secondary transition-colors" />
+              <input type="password" placeholder="••••••••" className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
             </div>
             <div>
               <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Confirmer</label>
-              <input type="password" placeholder="••••••••" className="w-full border border-border rounded-lg px-4 py-3 text-sm text-primary outline-none focus:border-secondary transition-colors" />
+              <input type="password" placeholder="••••••••" className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
             </div>
           </div>
           <div className="flex justify-end">
@@ -117,10 +125,7 @@ export default function ParametresPage() {
 
       {/* Notifications */}
       <div className="bg-white border border-border rounded-2xl p-6">
-        <h2 className="text-base font-bold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>
-          Notifications
-        </h2>
-
+        <h2 className="text-base font-bold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>Notifications</h2>
         <div className="flex flex-col gap-4">
           {[
             { key: "depassement", label: "Alertes de dépassement de budget", desc: "Recevez une alerte quand vous dépassez un budget." },
@@ -134,13 +139,8 @@ export default function ParametresPage() {
               </div>
               <button
                 onClick={() => setNotifications(prev => ({ ...prev, [notif.key]: !prev[notif.key as keyof typeof prev] }))}
-                className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
-                  notifications[notif.key as keyof typeof notifications] ? "bg-secondary" : "bg-border"
-                }`}
-              >
-                <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                  notifications[notif.key as keyof typeof notifications] ? "translate-x-5" : "translate-x-0.5"
-                }`} />
+                className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${notifications[notif.key as keyof typeof notifications] ? "bg-secondary" : "bg-border"}`}>
+                <div className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${notifications[notif.key as keyof typeof notifications] ? "translate-x-5" : "translate-x-0.5"}`} />
               </button>
             </div>
           ))}
@@ -149,9 +149,7 @@ export default function ParametresPage() {
 
       {/* Danger zone */}
       <div className="bg-white border border-danger/30 rounded-2xl p-6">
-        <h2 className="text-base font-bold text-danger mb-2" style={{ fontFamily: "var(--font-heading)" }}>
-          Zone dangereuse
-        </h2>
+        <h2 className="text-base font-bold text-danger mb-2" style={{ fontFamily: "var(--font-heading)" }}>Zone dangereuse</h2>
         <p className="text-sm text-tertiary mb-4">Ces actions sont irréversibles. Soyez certain avant de continuer.</p>
         <div className="flex gap-3">
           <button className="border border-danger/30 text-danger px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-danger/05 transition-colors">
@@ -162,7 +160,6 @@ export default function ParametresPage() {
           </button>
         </div>
       </div>
-
     </div>
   );
 }
