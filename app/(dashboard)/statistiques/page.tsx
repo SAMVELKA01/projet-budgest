@@ -149,7 +149,7 @@ export default function StatistiquesPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             label: "Transaction moyenne",
@@ -209,7 +209,7 @@ export default function StatistiquesPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Graphique par jour */}
         <div className="bg-white border border-border rounded-2xl p-6">
           <h3
@@ -324,7 +324,7 @@ export default function StatistiquesPage() {
         >
           Insights personnalisés
         </h3>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {insights.map((insight) => (
             <div
               key={insight.title}

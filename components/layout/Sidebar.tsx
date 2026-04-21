@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, ArrowLeftRight, Target, BarChart2, PieChart, Tag, Settings, Plus, User, LogOut } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Target, BarChart2, PieChart, Tag, Settings, Plus, User, LogOut, X, Menu } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
 
@@ -17,11 +17,7 @@ const navItems = [
   { label: "Paramètres", href: "/parametres", icon: Settings },
 ];
 
-interface NewTransactionModalProps {
-  onClose: () => void;
-}
-
-function NewTransactionModal({ onClose }: NewTransactionModalProps) {
+function NewTransactionModal({ onClose }: { onClose: () => void }) {
   const [form, setForm] = useState({ name: "", amount: "", type: "depense", category: "Alimentation", method: "Carte Débit", date: "" });
   const [saving, setSaving] = useState(false);
   const categories = ["Alimentation", "Logement", "Transport", "Loisirs", "Abonnements", "Santé", "Revenus"];
@@ -43,10 +39,12 @@ function NewTransactionModal({ onClose }: NewTransactionModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+      <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Nouvelle transaction</h2>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-neutral flex items-center justify-center text-tertiary hover:text-primary transition-colors">✕</button>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-neutral flex items-center justify-center text-tertiary hover:text-primary transition-colors">
+            <X size={16} />
+          </button>
         </div>
         <div className="flex flex-col gap-4">
           <div>
@@ -57,7 +55,7 @@ function NewTransactionModal({ onClose }: NewTransactionModalProps) {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Montant (€)</label>
+              <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Montant</label>
               <input type="number" placeholder="0.00" value={form.amount}
                 onChange={(e) => setForm(f => ({ ...f, amount: e.target.value }))}
                 className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
@@ -110,66 +108,91 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [showTxModal, setShowTxModal] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut({ redirect: false });
     router.push("/login");
   };
 
-  return (
+  const SidebarContent = () => (
     <>
-      <aside className="w-64 h-screen flex flex-col bg-primary shrink-0">
-        {/* Logo */}
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-          <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0">B</div>
-          <span className="text-white font-bold text-lg" style={{ fontFamily: "var(--font-heading)" }}>BudGest</span>
-        </div>
+      <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
+        <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">B</div>
+        <span className="text-white font-bold text-lg" style={{ fontFamily: "var(--font-heading)" }}>BudGest</span>
+        <button onClick={() => setMobileOpen(false)} className="ml-auto lg:hidden text-white/50 hover:text-white">
+          <X size={20} />
+        </button>
+      </div>
 
-        {/* Nav */}
-        <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            const IconComponent = item.icon;
-            return (
-              <Link key={item.href} href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all no-underline ${isActive ? "bg-secondary text-white" : "text-white/50 hover:text-white hover:bg-white/10"}`}>
-                <IconComponent size={17} />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
+      <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          const IconComponent = item.icon;
+          return (
+            <Link key={item.href} href={item.href}
+              onClick={() => setMobileOpen(false)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all no-underline ${isActive ? "bg-secondary text-white" : "text-white/50 hover:text-white hover:bg-white/10"}`}>
+              <IconComponent size={17} />
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
 
-        {/* Bouton nouvelle transaction */}
-        <div className="px-3 pb-4">
-          <button
-            onClick={() => setShowTxModal(true)}
-            className="w-full bg-secondary text-white py-3 rounded-xl text-sm font-semibold hover:bg-secondary-hover transition-colors flex items-center justify-center gap-2">
-            <Plus size={16} /> Nouvelle transaction
+      <div className="px-3 pb-4">
+        <button onClick={() => { setShowTxModal(true); setMobileOpen(false); }}
+          className="w-full bg-secondary text-white py-3 rounded-xl text-sm font-semibold hover:bg-secondary-hover transition-colors flex items-center justify-center gap-2">
+          <Plus size={16} /> Nouvelle transaction
+        </button>
+      </div>
+
+      <div className="px-3 py-3 border-t border-white/10">
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/05 transition-colors">
+          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+            <User size={14} className="text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white text-xs font-semibold truncate">Mon compte</p>
+            <p className="text-white/40 text-xs truncate">BudGest</p>
+          </div>
+          <button onClick={handleSignOut} title="Se déconnecter"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-danger hover:bg-danger/15 transition-all flex-shrink-0">
+            <LogOut size={14} />
           </button>
         </div>
+      </div>
+    </>
+  );
 
-        {/* User */}
-        <div className="px-3 py-3 border-t border-white/10">
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/05 transition-colors group">
-            <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
-              <User size={14} className="text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-white text-xs font-semibold truncate">Mon compte</p>
-              <p className="text-white/40 text-xs truncate">BudGest</p>
-            </div>
-            <button
-              title="Se déconnecter"
-              onClick={handleSignOut}
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-danger hover:bg-danger/15 transition-all shrink-0">
-              <LogOut size={14} />
-            </button>
-          </div>
-        </div>
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex w-64 h-screen flex-col bg-primary flex-shrink-0">
+        <SidebarContent />
       </aside>
 
-      {/* Modal nouvelle transaction */}
+      {/* Mobile top bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-primary flex items-center justify-between px-4 py-3 border-b border-white/10">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 bg-secondary rounded-lg flex items-center justify-center text-white font-bold text-sm">B</div>
+          <span className="text-white font-bold text-base" style={{ fontFamily: "var(--font-heading)" }}>BudGest</span>
+        </div>
+        <button onClick={() => setMobileOpen(true)} className="text-white p-1">
+          <Menu size={22} />
+        </button>
+      </div>
+
+      {/* Mobile drawer */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div className="w-72 h-full bg-primary flex flex-col">
+            <SidebarContent />
+          </div>
+          <div className="flex-1 bg-black/50" onClick={() => setMobileOpen(false)} />
+        </div>
+      )}
+
       {showTxModal && <NewTransactionModal onClose={() => setShowTxModal(false)} />}
     </>
   );

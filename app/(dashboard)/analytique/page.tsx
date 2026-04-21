@@ -112,7 +112,7 @@ export default function AnalytiquePage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             label: "Total revenus",
@@ -255,7 +255,7 @@ export default function AnalytiquePage() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Dépenses par catégorie */}
         <div className="bg-white border border-border rounded-2xl p-6">
           <h3

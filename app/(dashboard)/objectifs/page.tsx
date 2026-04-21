@@ -211,7 +211,7 @@ export default function ObjectifsPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             label: "Objectifs actifs",
@@ -283,7 +283,7 @@ export default function ObjectifsPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {objectifs.map((o) => {
             const pct = Math.min((o.saved / o.target) * 100, 100);
             const status = getStatus(o);

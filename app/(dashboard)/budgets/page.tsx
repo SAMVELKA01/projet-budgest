@@ -192,7 +192,7 @@ export default function BudgetsPage() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             label: "Total alloué",
@@ -311,9 +311,9 @@ export default function BudgetsPage() {
               return (
                 <div
                   key={b._id}
-                  className="px-5 py-4 hover:bg-neutral/50 transition-colors"
+                  className="px-4 py-4 hover:bg-neutral/50 transition-colors"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-start gap-3">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
                       style={{ background: `${b.colorHex}15` }}
@@ -321,8 +321,9 @@ export default function BudgetsPage() {
                       {b.icon}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
+                      {/* Top row */}
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <p className="text-sm font-semibold text-primary">
                             {b.category}
                           </p>
@@ -333,15 +334,7 @@ export default function BudgetsPage() {
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`text-sm font-bold ${over ? "text-danger" : "text-primary"}`}
-                          >
-                            {format(b.spent)}
-                          </span>
-                          <span className="text-xs text-tertiary">
-                            / {format(b.allocated)}
-                          </span>
+                        <div className="flex items-center gap-1 shrink-0">
                           <button
                             onClick={() => openEdit(b)}
                             className="w-7 h-7 rounded-lg flex items-center justify-center text-tertiary hover:text-secondary hover:bg-secondary/10 transition-colors"
@@ -356,6 +349,20 @@ export default function BudgetsPage() {
                           </button>
                         </div>
                       </div>
+
+                      {/* Montants */}
+                      <div className="flex items-center justify-between mb-2">
+                        <span
+                          className={`text-sm font-bold ${over ? "text-danger" : "text-primary"}`}
+                        >
+                          {format(b.spent)}
+                        </span>
+                        <span className="text-xs text-tertiary">
+                          / {format(b.allocated)}
+                        </span>
+                      </div>
+
+                      {/* Barre */}
                       <div className="w-full bg-neutral rounded-full h-2">
                         <div
                           className="h-2 rounded-full transition-all"
@@ -365,6 +372,7 @@ export default function BudgetsPage() {
                           }}
                         />
                       </div>
+
                       <div className="flex justify-between mt-1.5">
                         <span className="text-xs text-tertiary">
                           {pct.toFixed(0)}% utilisé

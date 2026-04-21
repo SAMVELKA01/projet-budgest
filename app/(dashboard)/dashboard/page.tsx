@@ -115,7 +115,7 @@ export default function DashboardPage() {
       )}
 
       {/* KPIs */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white border border-border rounded-2xl p-5">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs font-semibold text-tertiary uppercase tracking-wide">
@@ -191,9 +191,9 @@ export default function DashboardPage() {
       </div>
 
       {/* Graphiques */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Évolution mensuelle */}
-        <div className="col-span-2 bg-white border border-border rounded-2xl p-5">
+        <div className="lg:col-span-2 bg-white border border-border rounded-2xl p-5">
           <div className="flex items-center justify-between mb-2">
             <h3
               className="font-bold text-primary"
