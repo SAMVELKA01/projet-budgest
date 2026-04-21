@@ -10,7 +10,10 @@ interface DeviseContextType {
 }
 
 const deviseSymbols: Record<string, string> = {
-  EUR: "€", USD: "$", GBP: "£", XOF: "FCFA",
+  EUR: "€",
+  USD: "$",
+  GBP: "£",
+  XOF: "FCFA",
 };
 
 const DeviseContext = createContext<DeviseContextType>({
@@ -22,22 +25,31 @@ const DeviseContext = createContext<DeviseContextType>({
 
 export function DeviseProvider({ children }: { children: React.ReactNode }) {
   const [devise, setDeviseState] = useState("EUR");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("budgest-devise");
-    if (saved) setDeviseState(saved);
+    const saved = localStorage.getItem("budgest-devise") || "EUR";
+    setDeviseState(saved);
+    setMounted(true);
   }, []);
 
   const setDevise = (d: string) => {
     setDeviseState(d);
     localStorage.setItem("budgest-devise", d);
+    window.dispatchEvent(new CustomEvent("budgest-devise-change", { detail: d }));
   };
 
   const symbol = deviseSymbols[devise] || "€";
 
-  const format = (amount: number) => {
-    if (devise === "XOF") return `${Math.round(amount).toLocaleString("fr-FR")} FCFA`;
-    return `${amount.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${symbol}`;
+  const format = (amount: number): string => {
+    if (!mounted) return `${amount.toFixed(2)} €`;
+    if (devise === "XOF") {
+      return `${Math.round(amount).toLocaleString("fr-FR")} FCFA`;
+    }
+    return `${amount.toLocaleString("fr-FR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })} ${symbol}`;
   };
 
   return (
