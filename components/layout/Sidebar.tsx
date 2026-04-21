@@ -118,10 +118,10 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="w-64 h-screen flex flex-col bg-primary flex-shrink-0">
+      <aside className="w-64 h-screen flex flex-col bg-primary shrink-0">
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-          <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">B</div>
+          <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0">B</div>
           <span className="text-white font-bold text-lg" style={{ fontFamily: "var(--font-heading)" }}>BudGest</span>
         </div>
 
@@ -152,7 +152,7 @@ export default function Sidebar() {
         {/* User */}
         <div className="px-3 py-3 border-t border-white/10">
           <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/05 transition-colors group">
-            <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
               <User size={14} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -162,7 +162,7 @@ export default function Sidebar() {
             <button
               title="Se déconnecter"
               onClick={handleSignOut}
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-danger hover:bg-danger/15 transition-all flex-shrink-0">
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-danger hover:bg-danger/15 transition-all shrink-0">
               <LogOut size={14} />
             </button>
           </div>

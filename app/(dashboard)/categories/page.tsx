@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import { apiPost, apiPut, apiDelete } from "@/lib/hooks/useApi";
+import ToastContainer from "@/components/ui/Toast";
+import { useToast } from "@/lib/hooks/useToast";
 
 interface Categorie {
   _id: string;
@@ -23,6 +25,7 @@ export default function CategoriesPage() {
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", icon: "🛒", colorHex: "#10B981", budget: "" });
+  const { toasts, toast, remove } = useToast();
 
   const fetchCategories = async () => {
     setLoading(true);
@@ -50,31 +53,39 @@ export default function CategoriesPage() {
   };
 
   const handleSave = async () => {
-    if (!form.name.trim()) return;
-    setSaving(true);
-    try {
-      if (editingCat) {
-        await apiPut(`/api/categories/${editingCat._id}`, { ...form, budget: Number(form.budget) });
-      } else {
-        await apiPost("/api/categories", { ...form, budget: Number(form.budget) });
-      }
-      setShowModal(false);
-      fetchCategories();
-    } catch (err: any) {
-      alert(err.message);
-    } finally {
-      setSaving(false);
+  if (!form.name.trim()) { toast("Le nom est requis", "error"); return; }
+  setSaving(true);
+  try {
+    if (editingCat) {
+      await apiPut(`/api/categories/${editingCat._id}`, { ...form, budget: Number(form.budget) });
+      toast("Catégorie modifiée avec succès !", "success");
+    } else {
+      await apiPost("/api/categories", { ...form, budget: Number(form.budget) });
+      toast("Catégorie créée avec succès !", "success");
     }
-  };
+    setShowModal(false);
+    fetchCategories();
+  } catch (err: any) {
+    toast(err.message || "Erreur", "error");
+  } finally {
+    setSaving(false);
+  }
+};
 
-  const handleDelete = async (id: string) => {
+const handleDelete = async (id: string) => {
+  try {
     await apiDelete(`/api/categories/${id}`);
     setDeleteId(null);
+    toast("Catégorie supprimée", "success");
     fetchCategories();
-  };
+  } catch {
+    toast("Erreur lors de la suppression", "error");
+  }
+};
 
   return (
     <div className="flex flex-col gap-6">
+      <ToastContainer toasts={toasts} onRemove={remove} />
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Catégories</h1>
@@ -114,7 +125,7 @@ export default function CategoriesPage() {
             <div key={cat._id} className="bg-white border border-border rounded-2xl p-5 hover:border-secondary/40 transition-colors">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center text-xl shrink-0"
                     style={{ background: `${cat.colorHex}18` }}>{cat.icon}</div>
                   <div>
                     <p className="text-sm font-bold text-primary">{cat.name}</p>

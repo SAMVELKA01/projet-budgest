@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import { apiPost, apiDelete } from "@/lib/hooks/useApi";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import ToastContainer from "@/components/ui/Toast";
+import { useToast } from "@/lib/hooks/useToast";
 
 interface Transaction {
   _id: string;
@@ -20,6 +22,7 @@ const types = ["Type : Tout", "Dépenses", "Revenus"];
 const ITEMS_PER_PAGE = 8;
 
 export default function TransactionsPage() {
+  const { toasts, toast, remove } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState("Toutes les catégories");
@@ -51,7 +54,9 @@ export default function TransactionsPage() {
   useEffect(() => { fetchTransactions(); }, [category, type]);
 
   const handleAdd = async () => {
-    if (!form.name || !form.amount || !form.category) return;
+    if (!form.name || !form.amount || !form.category) {
+      toast("Veuillez remplir tous les champs", "error"); return;
+    }
     setSaving(true);
     try {
       await apiPost("/api/transactions", {
@@ -61,9 +66,10 @@ export default function TransactionsPage() {
       });
       setShowModal(false);
       setForm({ name: "", amount: "", type: "depense", category: "Alimentation", method: "Carte Débit", date: "" });
+      toast("Transaction ajoutée avec succès !", "success");
       fetchTransactions();
     } catch (err: any) {
-      alert(err.message);
+      toast(err.message || "Erreur lors de l'ajout", "error");
     } finally {
       setSaving(false);
     }
@@ -74,21 +80,23 @@ export default function TransactionsPage() {
     try {
       await apiDelete(`/api/transactions/${deleteId}`);
       setDeleteId(null);
+      toast("Transaction supprimée", "success");
       fetchTransactions();
-    } catch (err: any) {
-      alert(err.message);
+    } catch {
+      toast("Erreur lors de la suppression", "error");
     }
   };
 
-  const filtered = transactions;
-  const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
-  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE);
+  const paginated = transactions.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
   const totalDepenses = transactions.filter(t => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
   const totalRevenus = transactions.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0);
   const solde = totalRevenus - totalDepenses;
 
   return (
     <div className="flex flex-col gap-6">
+      <ToastContainer toasts={toasts} onRemove={remove} />
+
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Historique des Transactions</h1>
@@ -100,7 +108,6 @@ export default function TransactionsPage() {
         </button>
       </div>
 
-      {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">
         {[
           { label: "Dépenses ce mois", value: `${totalDepenses.toFixed(2)} €`, color: "text-danger" },
@@ -114,7 +121,6 @@ export default function TransactionsPage() {
         ))}
       </div>
 
-      {/* Table */}
       <div className="bg-white border border-border rounded-2xl p-5">
         <div className="flex items-center gap-3 mb-5 flex-wrap">
           {[
@@ -128,7 +134,7 @@ export default function TransactionsPage() {
             </select>
           ))}
           <span className="text-xs text-tertiary ml-auto">
-            {loading ? "Chargement..." : `${filtered.length} transaction${filtered.length > 1 ? "s" : ""}`}
+            {loading ? "Chargement..." : `${transactions.length} transaction${transactions.length > 1 ? "s" : ""}`}
           </span>
         </div>
 
@@ -153,7 +159,7 @@ export default function TransactionsPage() {
               <div key={t._id} className="grid grid-cols-6 gap-4 px-4 py-3 rounded-xl hover:bg-neutral transition-colors items-center">
                 <span className="text-xs text-tertiary">{new Date(t.date).toLocaleDateString("fr-FR")}</span>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-neutral border border-border flex items-center justify-center text-xs font-bold text-tertiary flex-shrink-0">
+                  <div className="w-8 h-8 rounded-full bg-neutral border border-border flex items-center justify-center text-xs font-bold text-tertiary shrink-0">
                     {t.name[0]}
                   </div>
                   <span className="text-sm font-medium text-primary truncate">{t.name}</span>
@@ -196,7 +202,6 @@ export default function TransactionsPage() {
         )}
       </div>
 
-      {/* Modal ajout */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md">
@@ -241,9 +246,7 @@ export default function TransactionsPage() {
                   <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Méthode</label>
                   <select value={form.method} onChange={(e) => setForm(f => ({ ...f, method: e.target.value }))}
                     className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white">
-                    {["Carte Débit", "Carte Crédit", "Virement SEPA", "Prélèvement", "Espèces", "Apple Pay"].map(m => (
-                      <option key={m}>{m}</option>
-                    ))}
+                    {["Carte Débit", "Carte Crédit", "Virement SEPA", "Prélèvement", "Espèces", "Apple Pay"].map(m => <option key={m}>{m}</option>)}
                   </select>
                 </div>
                 <div>
@@ -265,7 +268,6 @@ export default function TransactionsPage() {
         </div>
       )}
 
-      {/* Modal confirmation suppression */}
       {deleteId && (
         <ConfirmModal
           title="Supprimer la transaction ?"

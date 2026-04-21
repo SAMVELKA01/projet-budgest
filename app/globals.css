@@ -36,3 +36,49 @@
     font-weight: 600;
   }
 }
+
+[data-theme="dark"] {
+  --color-primary: #e2e8f0;
+  --color-primary-light: #cbd5e1;
+  --color-secondary: #3B82F6;
+  --color-tertiary: #94A3B8;
+  --color-neutral: #0f172a;
+  --color-neutral-dark: #1e293b;
+  --color-border: #1e293b;
+  --color-card-bg: #0f172a;
+  --color-sidebar: #020817;
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: #94A3B8;
+
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+[data-theme="dark"] .bg-white {
+  background-color: #1e293b !important;
+}
+
+[data-theme="dark"] .bg-neutral {
+  background-color: #0f172a !important;
+}
+
+[data-theme="dark"] .border-border {
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .text-primary {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="dark"] .text-tertiary {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] aside {
+  background-color: #020817 !important;
+}
+
+[data-theme="dark"] header {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}

@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Plus, X, Target, TrendingUp, Wallet, Trophy, Pencil } from "lucide-react";
 import { apiPost, apiPut, apiDelete } from "@/lib/hooks/useApi";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import ToastContainer from "@/components/ui/Toast";
+import { useToast } from "@/lib/hooks/useToast";
 
 interface Objectif {
   _id: string;
@@ -28,6 +30,7 @@ export default function ObjectifsPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [addAmount, setAddAmount] = useState("");
   const [form, setForm] = useState({ title: "", emoji: "🎯", target: "", saved: "", deadline: "", colorHex: "#3B82F6" });
+  const { toasts, toast, remove } = useToast();
 
   const fetchObjectifs = async () => {
     setLoading(true);
@@ -62,48 +65,64 @@ export default function ObjectifsPage() {
   };
 
   const handleSave = async () => {
-    if (!form.title || !form.target || !form.deadline) return;
-    setSaving(true);
-    try {
-      if (editingObjectif) {
-        await apiPut(`/api/objectifs/${editingObjectif._id}`, {
-          title: form.title,
-          emoji: form.emoji,
-          target: parseFloat(form.target),
-          saved: parseFloat(form.saved || "0"),
-          deadline: form.deadline,
-          colorHex: form.colorHex,
-        });
-      } else {
-        await apiPost("/api/objectifs", {
-          ...form,
-          target: parseFloat(form.target),
-          saved: parseFloat(form.saved || "0"),
-        });
-      }
-      setShowModal(false);
-      fetchObjectifs();
-    } catch (err: any) {
-      alert(err.message);
-    } finally {
-      setSaving(false);
+  if (!form.title || !form.target || !form.deadline) {
+    toast("Veuillez remplir tous les champs", "error"); return;
+  }
+  setSaving(true);
+  try {
+    if (editingObjectif) {
+      await apiPut(`/api/objectifs/${editingObjectif._id}`, {
+        title: form.title,
+        emoji: form.emoji,
+        target: parseFloat(form.target),
+        saved: parseFloat(form.saved || "0"),
+        deadline: form.deadline,
+        colorHex: form.colorHex,
+      });
+      toast("Objectif modifié avec succès !", "success");
+    } else {
+      await apiPost("/api/objectifs", {
+        ...form,
+        target: parseFloat(form.target),
+        saved: parseFloat(form.saved || "0"),
+      });
+      toast("Objectif créé avec succès !", "success");
     }
-  };
+    setShowModal(false);
+    fetchObjectifs();
+  } catch (err: any) {
+    toast(err.message || "Erreur", "error");
+  } finally {
+    setSaving(false);
+  }
+};
 
-  const handleAddFunds = async (o: Objectif) => {
-    if (!addAmount) return;
+const handleAddFunds = async (o: Objectif) => {
+  if (!addAmount || parseFloat(addAmount) <= 0) {
+    toast("Veuillez entrer un montant valide", "error"); return;
+  }
+  try {
     await apiPut(`/api/objectifs/${o._id}`, { saved: o.saved + parseFloat(addAmount) });
+    toast(`${addAmount} € ajoutés à "${o.title}"`, "success");
     setAddAmount("");
     setSelectedId(null);
     fetchObjectifs();
-  };
+  } catch {
+    toast("Erreur lors de l'ajout", "error");
+  }
+};
 
-  const handleDelete = async () => {
-    if (!deleteId) return;
+const handleDelete = async () => {
+  if (!deleteId) return;
+  try {
     await apiDelete(`/api/objectifs/${deleteId}`);
     setDeleteId(null);
+    toast("Objectif supprimé", "success");
     fetchObjectifs();
-  };
+  } catch {
+    toast("Erreur lors de la suppression", "error");
+  }
+};
 
   const totalSaved = objectifs.reduce((s, o) => s + o.saved, 0);
   const totalTarget = objectifs.reduce((s, o) => s + o.target, 0);
@@ -120,6 +139,7 @@ export default function ObjectifsPage() {
 
   return (
     <div className="flex flex-col gap-6">
+      <ToastContainer toasts={toasts} onRemove={remove} />
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Objectifs d'épargne</h1>
@@ -173,7 +193,7 @@ export default function ObjectifsPage() {
                 style={{ borderColor: isSelected ? o.colorHex : undefined }}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0"
+                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0"
                       style={{ background: `${o.colorHex}15` }}>{o.emoji}</div>
                     <div>
                       <p className="text-sm font-bold text-primary">{o.title}</p>

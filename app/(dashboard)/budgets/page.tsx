@@ -1,9 +1,13 @@
 "use client";
 
+"use client";
+
 import { useState, useEffect } from "react";
 import { Plus, X, TrendingUp, TrendingDown, Wallet, AlertTriangle, Pencil } from "lucide-react";
 import { apiPost, apiPut, apiDelete } from "@/lib/hooks/useApi";
 import ConfirmModal from "@/components/ui/ConfirmModal";
+import ToastContainer from "@/components/ui/Toast";
+import { useToast } from "@/lib/hooks/useToast";
 
 interface Budget {
   _id: string;
@@ -40,6 +44,7 @@ export default function BudgetsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editingBudget, setEditingBudget] = useState<BudgetWithSpent | null>(null);
   const [form, setForm] = useState({ category: "Alimentation", allocated: "", alertAt: "80" });
+  const { toasts, toast, remove } = useToast();
 
   const fetchBudgets = async () => {
     setLoading(true);
@@ -78,49 +83,54 @@ export default function BudgetsPage() {
   };
 
   const handleSave = async () => {
-    if (!form.allocated) return;
-    setSaving(true);
-    try {
-      if (editingBudget) {
-        await apiPut(`/api/budgets/${editingBudget._id}`, {
-          allocated: parseFloat(form.allocated),
-          alertAt: parseInt(form.alertAt),
-        });
-      } else {
-        await apiPost("/api/budgets", {
-          category: form.category,
-          allocated: parseFloat(form.allocated),
-          alertAt: parseInt(form.alertAt),
-        });
-      }
-      setShowModal(false);
-      fetchBudgets();
-    } catch (err: any) {
-      alert(err.message);
-    } finally {
-      setSaving(false);
+  if (!form.allocated) { toast("Veuillez entrer un montant", "error"); return; }
+  setSaving(true);
+  try {
+    if (editingBudget) {
+      await apiPut(`/api/budgets/${editingBudget._id}`, {
+        allocated: parseFloat(form.allocated),
+        alertAt: parseInt(form.alertAt),
+      });
+      toast("Budget modifié avec succès !", "success");
+    } else {
+      await apiPost("/api/budgets", {
+        category: form.category,
+        allocated: parseFloat(form.allocated),
+        alertAt: parseInt(form.alertAt),
+      });
+      toast("Budget créé avec succès !", "success");
     }
-  };
+    setShowModal(false);
+    fetchBudgets();
+  } catch (err: any) {
+    toast(err.message || "Erreur", "error");
+  } finally {
+    setSaving(false);
+  }
+};
 
-  const handleDelete = async () => {
-    if (!deleteId) return;
-    try {
-      await apiDelete(`/api/budgets/${deleteId}`);
-      setDeleteId(null);
-      fetchBudgets();
-    } catch (err: any) {
-      alert(err.message);
-    }
-  };
+const handleDelete = async () => {
+  if (!deleteId) return;
+  try {
+    await apiDelete(`/api/budgets/${deleteId}`);
+    setDeleteId(null);
+    toast("Budget supprimé", "success");
+    fetchBudgets();
+  } catch {
+    toast("Erreur lors de la suppression", "error");
+  }
+};
 
   const totalAlloue = budgets.reduce((s, b) => s + b.allocated, 0);
   const totalDepense = budgets.reduce((s, b) => s + b.spent, 0);
   const reste = totalAlloue - totalDepense;
   const tauxGlobal = totalAlloue > 0 ? Math.round((totalDepense / totalAlloue) * 100) : 0;
   const budgetsOver = budgets.filter(b => b.spent > b.allocated).length;
+  
 
   return (
     <div className="flex flex-col gap-6">
+      <ToastContainer toasts={toasts} onRemove={remove} />
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Budgets</h1>
@@ -190,7 +200,7 @@ export default function BudgetsPage() {
               return (
                 <div key={b._id} className="px-5 py-4 hover:bg-neutral/50 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
                       style={{ background: `${b.colorHex}15` }}>{b.icon}</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-2">

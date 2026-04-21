@@ -149,7 +149,7 @@ export default function AnalytiquePage() {
                 <div key={cat.name}>
                   <div className="flex justify-between items-center mb-1.5">
                     <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: cat.colorHex }} />
+                      <div className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: cat.colorHex }} />
                       <span className="text-sm font-medium text-primary">{cat.name}</span>
                     </div>
                     <div className="flex items-center gap-3">
@@ -179,13 +179,13 @@ export default function AnalytiquePage() {
                   const ratio = d.revenus > 0 ? (d.depenses / d.revenus) * 100 : 0;
                   return (
                     <div key={d.month} className="flex items-center gap-3 py-2.5 border-b border-border last:border-0">
-                      <span className="text-sm font-bold text-primary w-8 flex-shrink-0">{d.month}</span>
+                      <span className="text-sm font-bold text-primary w-8 shrink-0">{d.month}</span>
                       <div className="flex-1">
                         <div className="w-full bg-neutral rounded-full h-1.5">
                           <div className="h-1.5 rounded-full bg-secondary" style={{ width: `${Math.min(ratio, 100)}%` }} />
                         </div>
                       </div>
-                      <span className={`text-sm font-bold w-20 text-right flex-shrink-0 ${solde >= 0 ? "text-success" : "text-danger"}`}>
+                      <span className={`text-sm font-bold w-20 text-right shrink-0 ${solde >= 0 ? "text-success" : "text-danger"}`}>
                         {solde >= 0 ? "+" : ""}{solde.toLocaleString()} €
                       </span>
                     </div>

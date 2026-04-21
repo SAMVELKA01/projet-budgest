@@ -151,8 +151,8 @@ export default function StatistiquesPage() {
             <div className="flex flex-col gap-4">
               {topDepenses.map((d, i) => (
                 <div key={d.name} className="flex items-center gap-3">
-                  <span className="text-xs font-bold text-tertiary w-4 flex-shrink-0">{i + 1}</span>
-                  <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                  <span className="text-xs font-bold text-tertiary w-4 shrink-0">{i + 1}</span>
+                  <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs font-bold shrink-0"
                     style={{ background: d.colorHex }}>{d.name[0]}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between mb-1">
