@@ -8,12 +8,32 @@ export function middleware(req: NextRequest) {
   const isAuth = !!token;
   const pathname = req.nextUrl.pathname;
 
-  const isProtected = ["/dashboard", "/transactions", "/budgets", "/objectifs", "/analytique", "/statistiques", "/categories", "/parametres"].some(p => pathname.startsWith(p));
-  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register");
+  // Liste des routes protégées
+  const protectedRoutes = [
+    "/dashboard",
+    "/transactions",
+    "/budgets",
+    "/objectifs",
+    "/analytique",
+    "/statistiques",
+    "/categories",
+    "/parametres"
+  ];
 
-  if (isProtected && !isAuth) return NextResponse.redirect(new URL("/login", req.url));
-  if (isAuthPage && isAuth) return NextResponse.redirect(new URL("/dashboard", req.url));
+  const isProtected = protectedRoutes.some(p => pathname.startsWith(p));
+  const isAuthPage = pathname === "/login" || pathname === "/register";
 
+  // 1. Si on accède à une route protégée sans être connecté -> Login
+  if (isProtected && !isAuth) {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  // 2. Si on est connecté et qu'on tente d'accéder aux pages /login ou /register -> Dashboard
+  if (isAuthPage && isAuth) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
+
+  // Dans tous les autres cas (notamment si on est déconnecté et qu'on veut aller sur /login) -> Suivant
   return NextResponse.next();
 }
 

@@ -33,13 +33,11 @@ export function DeviseProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
- const setDevise = (d: string) => {
-  setDeviseState(d);
-  localStorage.setItem("budgest-devise", d);
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("budgest-devise-change", { detail: d }));
-  }
-};
+  const setDevise = (d: string) => {
+    setDeviseState(d);
+    localStorage.setItem("budgest-devise", d);
+  };
+
   const symbol = deviseSymbols[devise] || "€";
 
   const format = (amount: number): string => {

@@ -6,9 +6,7 @@ export const authConfig: NextAuthConfig = {
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      const isProtected = ["/dashboard", "/transactions", "/budgets", "/objectifs", "/analytique", "/statistiques", "/categories", "/parametres"].some(p => nextUrl.pathname.startsWith(p));
-      if (isProtected && !isLoggedIn) return false;
+      // On retourne true pour laisser le middleware.ts gérer les redirections complexes
       return true;
     },
   },

@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, ArrowLeftRight, Target, BarChart2, PieChart, Tag, Settings, Plus, User, LogOut, X, Menu } from "lucide-react";
-import { signOut } from "next-auth/react";
-import { useState } from "react";
+import { LayoutDashboard, ArrowLeftRight, Target, BarChart2, PieChart, Tag, Settings, Plus, LogOut, X, Menu } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
+import { useState, useEffect } from "react";
 
 const navItems = [
   { label: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard },
@@ -20,6 +20,8 @@ const navItems = [
 function NewTransactionModal({ onClose }: { onClose: () => void }) {
   const [form, setForm] = useState({ name: "", amount: "", type: "depense", category: "Alimentation", method: "Carte Débit", date: "" });
   const [saving, setSaving] = useState(false);
+  const pathname = usePathname();
+  const router = useRouter();
   const categories = ["Alimentation", "Logement", "Transport", "Loisirs", "Abonnements", "Santé", "Revenus"];
 
   const handleAdd = async () => {
@@ -31,7 +33,13 @@ function NewTransactionModal({ onClose }: { onClose: () => void }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, amount: parseFloat(form.amount), date: form.date || new Date().toISOString() }),
       });
-      if (res.ok) onClose();
+      if (res.ok) {
+        onClose();
+        // Rafraîchit la page transactions si on y est déjà
+        if (pathname === "/transactions") {
+          router.refresh();
+        }
+      }
     } finally {
       setSaving(false);
     }
@@ -107,18 +115,38 @@ function NewTransactionModal({ onClose }: { onClose: () => void }) {
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { data: session } = useSession();
   const [showTxModal, setShowTxModal] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Ferme la sidebar mobile automatiquement quand le pathname change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
   const handleSignOut = async () => {
-    await signOut({ redirect: false });
-    router.push("/login");
+    try {
+      await signOut({ 
+        callbackUrl: "/",
+        redirect: true 
+      });
+    } catch (error) {
+      console.error("Erreur déconnexion:", error);
+      // Fallback manuel si signOut échoue
+      window.location.href = "/login";
+    }
   };
+
+  const userName = session?.user?.name || "Mon compte";
+  const userEmail = session?.user?.email || "BudGest";
+  const initials = userName !== "Mon compte"
+    ? userName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+    : "U";
 
   const SidebarContent = () => (
     <>
       <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-        <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center text-white font-bold text-sm flex-shrink-0">B</div>
+        <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0">B</div>
         <span className="text-white font-bold text-lg" style={{ fontFamily: "var(--font-heading)" }}>BudGest</span>
         <button onClick={() => setMobileOpen(false)} className="ml-auto lg:hidden text-white/50 hover:text-white">
           <X size={20} />
@@ -131,7 +159,6 @@ export default function Sidebar() {
           const IconComponent = item.icon;
           return (
             <Link key={item.href} href={item.href}
-              onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all no-underline ${isActive ? "bg-secondary text-white" : "text-white/50 hover:text-white hover:bg-white/10"}`}>
               <IconComponent size={17} />
               {item.label}
@@ -141,7 +168,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="px-3 pb-4">
-        <button onClick={() => { setShowTxModal(true); setMobileOpen(false); }}
+        <button onClick={() => setShowTxModal(true)}
           className="w-full bg-secondary text-white py-3 rounded-xl text-sm font-semibold hover:bg-secondary-hover transition-colors flex items-center justify-center gap-2">
           <Plus size={16} /> Nouvelle transaction
         </button>
@@ -149,15 +176,15 @@ export default function Sidebar() {
 
       <div className="px-3 py-3 border-t border-white/10">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/05 transition-colors">
-          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-            <User size={14} className="text-white" />
+          <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0 text-white text-xs font-bold">
+            {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-white text-xs font-semibold truncate">Mon compte</p>
-            <p className="text-white/40 text-xs truncate">BudGest</p>
+            <p className="text-white text-xs font-semibold truncate">{userName}</p>
+            <p className="text-white/40 text-xs truncate">{userEmail}</p>
           </div>
           <button onClick={handleSignOut} title="Se déconnecter"
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-danger hover:bg-danger/15 transition-all flex-shrink-0">
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-danger hover:bg-danger/15 transition-all shrink-0">
             <LogOut size={14} />
           </button>
         </div>
@@ -168,7 +195,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-64 h-screen flex-col bg-primary flex-shrink-0">
+      <aside className="hidden lg:flex w-64 h-screen flex-col bg-primary shrink-0">
         <SidebarContent />
       </aside>
 

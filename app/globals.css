@@ -66,10 +66,6 @@
   color: #94A3B8 !important;
 }
 
-[data-theme="dark"] .text-secondary {
-  color: #3B82F6 !important;
-}
-
 [data-theme="dark"] aside {
   background-color: #060f1e !important;
 }
@@ -82,7 +78,7 @@
 [data-theme="dark"] input,
 [data-theme="dark"] select,
 [data-theme="dark"] textarea {
-  background-color: #0B1F3A !important;
+  background-color: #112240 !important;
   border-color: #1e3a5f !important;
   color: #e2e8f0 !important;
 }
@@ -99,7 +95,33 @@
   background-color: #1a3a5c !important;
 }
 
-[data-theme="dark"] .rounded-2xl,
-[data-theme="dark"] .rounded-xl {
-  border-color: #1e3a5f;
+[data-theme="dark"] .hover\:bg-neutral\/50:hover {
+  background-color: rgba(26,58,92,0.5) !important;
+}
+
+[data-theme="dark"] .bg-neutral\/50 {
+  background-color: rgba(26,58,92,0.5) !important;
+}
+
+/* Modals dark */
+[data-theme="dark"] .fixed.inset-0 > div.bg-white,
+[data-theme="dark"] .fixed.inset-0 > div > div.bg-white {
+  background-color: #112240 !important;
+}
+
+/* Badges et pills */
+[data-theme="dark"] .bg-secondary\/10 {
+  background-color: rgba(59,130,246,0.2) !important;
+}
+
+[data-theme="dark"] .bg-success\/10 {
+  background-color: rgba(16,185,129,0.2) !important;
+}
+
+[data-theme="dark"] .bg-danger\/10 {
+  background-color: rgba(239,68,68,0.2) !important;
+}
+
+[data-theme="dark"] .bg-warning\/10 {
+  background-color: rgba(245,158,11,0.2) !important;
 }

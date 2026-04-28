@@ -4,10 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
   const [form, setForm] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -33,104 +35,93 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral flex flex-col">
+    <div className="min-h-screen grid lg:grid-cols-2 bg-white">
+      {/* SECTION GAUCHE : Branding */}
+      <div className="hidden lg:flex flex-col justify-between p-12 bg-neutral border-r border-border">
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold">B</div>
+          <span className="font-bold text-xl text-primary" style={{ fontFamily: "var(--font-heading)" }}>BudGest</span>
+        </div>
+        
+        <div className="space-y-4">
+          <h1 className="text-5xl font-bold text-primary leading-tight" style={{ fontFamily: "var(--font-heading)" }}>
+            Reprenez le contrôle <br/> de vos finances.
+          </h1>
+          <p className="text-tertiary max-w-sm">
+            BudGest est l'outil conçu pour ceux qui exigent précision et clarté. Gérez votre équilibre financier avec simplicité.
+          </p>
+        </div>
 
-      {/* Header */}
-      <div className="flex justify-between items-center px-8 py-5 border-b border-border">
-        <Link href="/" className="flex items-center gap-2 no-underline">
-          <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center text-white font-bold text-sm">B</div>
-          <span className="font-bold text-lg text-primary" style={{ fontFamily: "var(--font-heading)" }}>BudGest</span>
-        </Link>
+        <div className="text-xs font-semibold text-tertiary tracking-widest uppercase">
+          © 2026 BudGest — L'observatoire de l'équilibre
+        </div>
       </div>
 
-      {/* Main */}
-      <div className="flex-1 flex items-center justify-center px-4 py-12">
-        <div className="w-full max-w-md">
-
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-bold text-2xl" style={{ fontFamily: "var(--font-heading)" }}>B</span>
-            </div>
-            <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>BudGest</h1>
-            <p className="text-tertiary text-sm mt-1">L'Observatoire de l'Équilibre</p>
+      {/* SECTION DROITE : Formulaire */}
+      <div className="flex flex-col justify-center items-center p-8 lg:p-24">
+        <div className="w-full max-w-sm">
+          <div className="mb-10">
+            <h2 className="text-3xl font-bold text-primary mb-2" style={{ fontFamily: "var(--font-heading)" }}>Connexion</h2>
+            <p className="text-tertiary text-sm">Accédez à votre espace financier sécurisé.</p>
           </div>
 
-          <div className="bg-white rounded-2xl border border-border p-8">
-            <h2 className="text-xl font-bold text-primary mb-1" style={{ fontFamily: "var(--font-heading)" }}>Connexion</h2>
-            <p className="text-tertiary text-sm mb-6">Accédez à votre espace financier sécurisé.</p>
+          {error && (
+            <div className="bg-danger/10 border border-danger/20 rounded-xl px-4 py-3 mb-6">
+              <p className="text-sm text-danger font-medium">{error}</p>
+            </div>
+          )}
 
-            {error && (
-              <div className="bg-danger/10 border border-danger/20 rounded-xl px-4 py-3 mb-4">
-                <p className="text-sm text-danger font-medium">{error}</p>
+          <div className="flex flex-col gap-5">
+            <div>
+              <label className="text-[10px] font-bold text-primary uppercase tracking-widest mb-2 block">Email</label>
+              <div className="flex items-center gap-3 border border-border rounded-lg px-4 py-3 bg-neutral focus-within:border-secondary transition-all">
+                <Mail size={16} className="text-tertiary" />
+                <input
+                  type="email"
+                  placeholder="nom@exemple.com"
+                  value={form.email}
+                  onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+                  className="flex-1 bg-transparent outline-none text-sm text-primary placeholder:text-tertiary"
+                />
               </div>
-            )}
-
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Email</label>
-                <div className="flex items-center gap-3 border border-border rounded-lg px-4 py-3 bg-neutral focus-within:border-secondary transition-colors">
-                  <span className="text-tertiary text-sm">✉</span>
-                  <input
-                    type="email"
-                    placeholder="nom@exemple.com"
-                    value={form.email}
-                    onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
-                    className="flex-1 bg-transparent outline-none text-sm text-primary placeholder:text-tertiary"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-xs font-semibold text-primary uppercase tracking-wide">Mot de passe</label>
-                  <Link href="/forgot-password" className="text-xs text-secondary no-underline hover:underline">Mot de passe oublié ?</Link>
-                </div>
-                <div className="flex items-center gap-3 border border-border rounded-lg px-4 py-3 bg-neutral focus-within:border-secondary transition-colors">
-                  <span className="text-tertiary text-sm">🔒</span>
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    value={form.password}
-                    onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
-                    onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                    className="flex-1 bg-transparent outline-none text-sm text-primary placeholder:text-tertiary"
-                  />
-                </div>
-              </div>
-
-              <button
-                onClick={handleSubmit}
-                disabled={loading}
-                className="w-full bg-primary text-white py-3 rounded-lg font-semibold text-sm mt-2 hover:bg-primary-light transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
-              >
-                {loading ? "Connexion..." : "Se connecter →"}
-              </button>
             </div>
 
-            <p className="text-center text-sm text-tertiary mt-6">
-              Nouveau sur BudGest ?{" "}
-              <Link href="/register" className="text-secondary font-semibold no-underline hover:underline">Créer un compte</Link>
-            </p>
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <label className="text-[10px] font-bold text-primary uppercase tracking-widest">Mot de passe</label>
+                <Link href="/forgot-password" className="text-xs text-secondary hover:underline">Oublié ?</Link>
+              </div>
+              <div className="flex items-center gap-3 border border-border rounded-lg px-4 py-3 bg-neutral focus-within:border-secondary transition-all">
+                <Lock size={16} className="text-tertiary" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={form.password}
+                  onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))}
+                  onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                  className="flex-1 bg-transparent outline-none text-sm text-primary placeholder:text-tertiary"
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-tertiary hover:text-secondary">
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="w-full bg-primary text-white py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-2"
+            >
+              {loading ? "Connexion..." : <>Se connecter <ArrowRight size={16} /></>}
+            </button>
           </div>
 
-          <p className="text-center text-xs text-tertiary mt-6 flex items-center justify-center gap-2">
-            <span>🔒</span> CRYPTAGE DE BOUT EN BOUT
+          <p className="text-center text-sm text-tertiary mt-8">
+            Nouveau ici ?{" "}
+            <Link href="/register" className="text-secondary font-semibold hover:underline">Créer un compte</Link>
           </p>
         </div>
       </div>
-
-      {/* Footer */}
-      <div className="flex justify-between items-center px-8 py-5 border-t border-border">
-        <span className="text-xs text-tertiary font-semibold">BudGest</span>
-        <span className="text-xs text-tertiary">L'OBSERVATOIRE DE L'ÉQUILIBRE</span>
-        <div className="flex gap-6">
-          {["MENTIONS LÉGALES", "CONFIDENTIALITÉ", "CONTACT"].map((item) => (
-            <a key={item} href="#" className="text-xs text-tertiary no-underline hover:text-primary transition-colors">{item}</a>
-          ))}
-        </div>
-        <span className="text-xs text-tertiary">© 2024 BUDGEST</span>
-      </div>
-
     </div>
   );
 }
