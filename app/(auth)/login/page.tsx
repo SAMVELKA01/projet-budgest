@@ -48,12 +48,12 @@ export default function LoginPage() {
             Reprenez le contrôle <br/> de vos finances.
           </h1>
           <p className="text-tertiary max-w-sm">
-            BudGest est l'outil conçu pour ceux qui exigent précision et clarté. Gérez votre équilibre financier avec simplicité.
+            BudGest est l&apos;outil conçu pour ceux qui exigent précision et clarté. Gérez votre équilibre financier avec simplicité.
           </p>
         </div>
 
         <div className="text-xs font-semibold text-tertiary tracking-widest uppercase">
-          © 2026 BudGest — L'observatoire de l'équilibre
+          © 2026 BudGest — L&apos;observatoire de l&apos;équilibre
         </div>
       </div>
 

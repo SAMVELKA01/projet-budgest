@@ -73,6 +73,8 @@ export default function CategoriesPage() {
   };
 
   useEffect(() => {
+    // Chargement initial volontaire une seule fois au montage.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCategories();
   }, []);
 
@@ -115,8 +117,8 @@ export default function CategoriesPage() {
       }
       setShowModal(false);
       fetchCategories();
-    } catch (err: any) {
-      toast(err.message || "Erreur", "error");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur", "error");
     } finally {
       setSaving(false);
     }

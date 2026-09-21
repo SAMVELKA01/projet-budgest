@@ -2,19 +2,24 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, ArrowLeftRight, Target, BarChart2, PieChart, Tag, Settings, Plus, LogOut, X, Menu } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Target, BarChart2, PieChart, Tag, Settings, Plus, LogOut, X, Menu, ShieldCheck, Users, Sparkles } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const navItems = [
   { label: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard },
+  { label: "Assistant IA", href: "/assistant", icon: Sparkles },
   { label: "Transactions", href: "/transactions", icon: ArrowLeftRight },
   { label: "Budgets", href: "/budgets", icon: PieChart },
   { label: "Objectifs", href: "/objectifs", icon: Target },
-  { label: "Analytique", href: "/analytique", icon: BarChart2 },
   { label: "Statistiques", href: "/statistiques", icon: BarChart2 },
   { label: "Catégories", href: "/categories", icon: Tag },
   { label: "Paramètres", href: "/parametres", icon: Settings },
+];
+
+const adminNavItems = [
+  { label: "Vue d'ensemble", href: "/admin", icon: ShieldCheck },
+  { label: "Utilisateurs", href: "/admin/users", icon: Users },
 ];
 
 function NewTransactionModal({ onClose }: { onClose: () => void }) {
@@ -112,30 +117,26 @@ function NewTransactionModal({ onClose }: { onClose: () => void }) {
   );
 }
 
-export default function Sidebar() {
+interface SessionUser {
+  role?: string;
+  name?: string | null;
+  email?: string | null;
+}
+
+function SidebarContent({
+  session,
+  onCloseMobile,
+  onNewTransaction,
+  onSignOut,
+}: {
+  session: { user?: SessionUser } | null;
+  onCloseMobile: () => void;
+  onNewTransaction: () => void;
+  onSignOut: () => void;
+}) {
   const pathname = usePathname();
-  const router = useRouter();
-  const { data: session } = useSession();
-  const [showTxModal, setShowTxModal] = useState(false);
-  const [mobileOpen, setMobileOpen] = useState(false);
-
-  // Ferme la sidebar mobile automatiquement quand le pathname change
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
-
-  const handleSignOut = async () => {
-    try {
-      await signOut({ 
-        callbackUrl: "/",
-        redirect: true 
-      });
-    } catch (error) {
-      console.error("Erreur déconnexion:", error);
-      // Fallback manuel si signOut échoue
-      window.location.href = "/login";
-    }
-  };
+  const isAdmin = session?.user?.role === "admin";
+  const currentNavItems = isAdmin ? adminNavItems : navItems;
 
   const userName = session?.user?.name || "Mon compte";
   const userEmail = session?.user?.email || "BudGest";
@@ -143,18 +144,18 @@ export default function Sidebar() {
     ? userName.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
     : "U";
 
-  const SidebarContent = () => (
+  return (
     <>
       <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
         <div className="w-8 h-8 bg-secondary rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0">B</div>
         <span className="text-white font-bold text-lg" style={{ fontFamily: "var(--font-heading)" }}>BudGest</span>
-        <button onClick={() => setMobileOpen(false)} className="ml-auto lg:hidden text-white/50 hover:text-white">
+        <button onClick={onCloseMobile} className="ml-auto lg:hidden text-white/50 hover:text-white">
           <X size={20} />
         </button>
       </div>
 
       <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
-        {navItems.map((item) => {
+        {currentNavItems.map((item) => {
           const isActive = pathname === item.href;
           const IconComponent = item.icon;
           return (
@@ -167,12 +168,14 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="px-3 pb-4">
-        <button onClick={() => setShowTxModal(true)}
-          className="w-full bg-secondary text-white py-3 rounded-xl text-sm font-semibold hover:bg-secondary-hover transition-colors flex items-center justify-center gap-2">
-          <Plus size={16} /> Nouvelle transaction
-        </button>
-      </div>
+      {!isAdmin && (
+        <div className="px-3 pb-4">
+          <button onClick={onNewTransaction}
+            className="w-full bg-secondary text-white py-3 rounded-xl text-sm font-semibold hover:bg-secondary-hover transition-colors flex items-center justify-center gap-2">
+            <Plus size={16} /> Nouvelle transaction
+          </button>
+        </div>
+      )}
 
       <div className="px-3 py-3 border-t border-white/10">
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/05 transition-colors">
@@ -183,7 +186,7 @@ export default function Sidebar() {
             <p className="text-white text-xs font-semibold truncate">{userName}</p>
             <p className="text-white/40 text-xs truncate">{userEmail}</p>
           </div>
-          <button onClick={handleSignOut} title="Se déconnecter"
+          <button onClick={onSignOut} title="Se déconnecter"
             className="w-7 h-7 rounded-lg flex items-center justify-center text-white/30 hover:text-danger hover:bg-danger/15 transition-all shrink-0">
             <LogOut size={14} />
           </button>
@@ -191,12 +194,48 @@ export default function Sidebar() {
       </div>
     </>
   );
+}
+
+export default function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { data: session } = useSession();
+  const [showTxModal, setShowTxModal] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [lastPathname, setLastPathname] = useState(pathname);
+
+  // Ferme la sidebar mobile automatiquement quand le pathname change.
+  // Ajustement pendant le rendu plutôt que dans un effet : on évite un
+  // aller-retour de rendu supplémentaire (cf. doc React "Adjusting state
+  // when a prop changes").
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
+    setMobileOpen(false);
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut({ 
+        callbackUrl: "/",
+        redirect: true 
+      });
+    } catch (error) {
+      console.error("Erreur déconnexion:", error);
+      // Fallback manuel si signOut échoue
+      router.push("/login");
+    }
+  };
 
   return (
     <>
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex w-64 h-screen flex-col bg-primary shrink-0">
-        <SidebarContent />
+        <SidebarContent
+          session={session ?? null}
+          onCloseMobile={() => setMobileOpen(false)}
+          onNewTransaction={() => setShowTxModal(true)}
+          onSignOut={handleSignOut}
+        />
       </aside>
 
       {/* Mobile top bar */}
@@ -214,7 +253,12 @@ export default function Sidebar() {
       {mobileOpen && (
         <div className="lg:hidden fixed inset-0 z-50 flex">
           <div className="w-72 h-full bg-primary flex flex-col">
-            <SidebarContent />
+            <SidebarContent
+              session={session ?? null}
+              onCloseMobile={() => setMobileOpen(false)}
+              onNewTransaction={() => setShowTxModal(true)}
+              onSignOut={handleSignOut}
+            />
           </div>
           <div className="flex-1 bg-black/50" onClick={() => setMobileOpen(false)} />
         </div>

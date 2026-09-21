@@ -30,12 +30,16 @@ function ToastItem({ toast, onRemove }: { toast: ToastData; onRemove: (id: strin
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
+    // Timer d'auto-dismiss : ne doit démarrer qu'une fois au montage de ce
+    // toast précis (identifié par sa key), pas se relancer si la référence
+    // de onRemove change.
     setTimeout(() => setVisible(true), 10);
     const timer = setTimeout(() => {
       setVisible(false);
       setTimeout(() => onRemove(toast.id), 300);
     }, 3500);
     return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const config = {

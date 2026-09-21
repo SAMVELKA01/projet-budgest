@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BudGest
 
-## Getting Started
+Application de gestion de budget personnel — Next.js (App Router), MongoDB,
+NextAuth, assistant IA (Gemini).
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router, Turbopack)
+- MongoDB / Mongoose
+- NextAuth (Auth.js) v5 — sessions JWT, authentification par identifiants
+- Tailwind CSS v4
+- IA : Gemini (`@google/genai`), couche d'abstraction dans `lib/ai/`
+
+## Démarrage
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
+cp .env.example .env.local   # puis renseigner les variables
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Voir `.env.example` pour la liste des variables d'environnement requises.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+pnpm dev      # serveur de développement
+pnpm build    # build de production
+pnpm start    # démarre le build de production
+pnpm lint     # ESLint
+```
 
-## Learn More
+Scripts ponctuels (via `pnpm dlx tsx <fichier>`) :
 
-To learn more about Next.js, take a look at the following resources:
+- `scripts/seed-admin.ts` — crée ou promeut un compte administrateur à
+  partir de `ADMIN_EMAIL`/`ADMIN_PASSWORD`.
+- `scripts/migrate-categories.ts` — migration historique (rattache les
+  transactions/budgets en texte libre à de vraies catégories).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `app/(auth)` — connexion, inscription, mot de passe oublié
+- `app/(dashboard)` — application principale (transactions, budgets,
+  catégories, objectifs, statistiques, assistant IA, paramètres, admin)
+- `app/api` — routes API (toutes scopées par utilisateur connecté)
+- `lib/ai` — couche d'abstraction IA (fournisseur remplaçable)
+- `lib/auth` — configuration NextAuth
+- `lib/models` — schémas Mongoose
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Voir `CHANGELOG_REFONTE.md` pour l'historique détaillé de la refonte.

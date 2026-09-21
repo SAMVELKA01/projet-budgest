@@ -2,92 +2,90 @@
 
 import Link from "next/link";
 
-export default function Pricing() {
-  const plans = [
-    {
-      name: "Gratuit", price: "0",
-      description: "Parfait pour commencer à gérer votre budget.",
-      features: ["Jusqu'à 50 transactions/mois", "2 budgets par catégorie", "1 objectif d'épargne", "Graphiques de base", "Export CSV"],
-      cta: "Commencer gratuitement", href: "/register", highlighted: false,
-    },
-    {
-      name: "Pro", price: "4,99",
-      description: "Pour une gestion complète et sans limites.",
-      features: ["Transactions illimitées", "Budgets illimités", "Objectifs illimités", "Analytique avancée", "Transactions récurrentes", "Export CSV & PDF", "Support prioritaire"],
-      cta: "Essayer 30 jours gratuits", href: "/register", highlighted: true,
-    },
-  ];
+const plans = [
+  {
+    name: "Compte Essentiel", price: "0",
+    description: "Pour prendre en main votre budget, sans engagement.",
+    features: ["Jusqu'à 50 transactions / mois", "2 budgets par catégorie", "1 objectif d'épargne", "Vues jour / semaine / mois", "Export CSV"],
+    cta: "Ouvrir un compte gratuit", href: "/register", highlighted: false,
+  },
+  {
+    name: "Compte Privé", price: "4,99",
+    description: "Pour une tenue de comptes complète et sans limites.",
+    features: ["Transactions illimitées", "Budgets & objectifs illimités", "Catégories personnalisées illimitées", "Transactions récurrentes", "Export CSV & PDF", "Support prioritaire"],
+    cta: "Essayer 30 jours", href: "/register", highlighted: true,
+  },
+];
 
+export default function Pricing() {
   return (
-    <section id="tarifs" style={{ background: "#fff", padding: "80px 24px" }}>
-      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "56px" }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: "8px",
-            background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)",
-            borderRadius: "20px", padding: "6px 14px", marginBottom: "20px",
-          }}>
-            <span style={{ fontSize: "13px", color: "#3B82F6", fontWeight: 500 }}>Tarifs</span>
+    <section id="tarifs" className="landing" style={{ background: "var(--land-paper)", padding: "104px 24px" }}>
+      <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
+        <div style={{ textAlign: "center", marginBottom: "64px" }}>
+          <div className="landing-eyebrow" style={{ color: "var(--land-forest)", marginBottom: "20px", justifyContent: "center" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ width: "22px", height: "1px", background: "currentColor", opacity: 0.6, display: "inline-block" }} />
+              Tarifs
+            </span>
           </div>
-          <h2 style={{
-            fontFamily: "var(--font-manrope)", fontWeight: 800, color: "#0B1F3A", marginBottom: "16px",
-            fontSize: "clamp(28px, 4vw, 40px)",
+          <h2 className="font-display" style={{
+            fontWeight: 500, color: "var(--land-ink)", marginBottom: "16px",
+            fontSize: "clamp(28px, 3.6vw, 38px)",
           }}>
-            Simple et <span style={{ color: "#3B82F6" }}>transparent</span>
+            Deux types de <em style={{ fontStyle: "italic", color: "var(--land-forest)" }}>comptes</em>
           </h2>
-          <p style={{ fontSize: "17px", color: "#64748B", maxWidth: "480px", margin: "0 auto", lineHeight: 1.7 }}>
-            Commencez gratuitement, évoluez quand vous êtes prêt.
+          <p style={{ fontSize: "16px", color: "var(--land-muted)", maxWidth: "480px", margin: "0 auto", lineHeight: 1.7 }}>
+            Commencez gratuitement, passez au Compte Privé quand vous êtes prêt.
           </p>
         </div>
 
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: "24px", maxWidth: "800px", margin: "0 auto",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "24px", maxWidth: "820px", margin: "0 auto",
         }}>
           {plans.map((plan) => (
             <div key={plan.name} style={{
-              background: plan.highlighted ? "#0B1F3A" : "#fff",
-              border: plan.highlighted ? "2px solid #3B82F6" : "1px solid #E2E8F0",
-              borderRadius: "20px", padding: "40px", position: "relative",
+              background: plan.highlighted ? "var(--land-ink)" : "var(--land-paper)",
+              border: plan.highlighted ? "1px solid var(--land-brass)" : "1px solid var(--land-line)",
+              borderRadius: "6px", padding: "40px", position: "relative",
             }}>
               {plan.highlighted && (
                 <div style={{
-                  position: "absolute", top: "-14px", left: "50%", transform: "translateX(-50%)",
-                  background: "#3B82F6", color: "#fff", fontSize: "12px", fontWeight: 600,
-                  padding: "4px 16px", borderRadius: "20px", whiteSpace: "nowrap",
-                }}>Le plus populaire</div>
+                  position: "absolute", top: "-1px", right: "-1px",
+                  background: "var(--land-brass)", color: "var(--land-ink)", fontSize: "10px", fontWeight: 600,
+                  padding: "5px 14px", letterSpacing: "0.06em", borderRadius: "0 6px 0 6px",
+                }}>RECOMMANDÉ</div>
               )}
-              <h3 style={{ fontFamily: "var(--font-manrope)", fontSize: "20px", fontWeight: 700, color: plan.highlighted ? "#fff" : "#0B1F3A", marginBottom: "8px" }}>
-                {plan.name}
-              </h3>
-              <p style={{ fontSize: "14px", color: plan.highlighted ? "#94A3B8" : "#64748B", marginBottom: "24px", lineHeight: 1.6 }}>
-                {plan.description}
-              </p>
-              <div style={{ marginBottom: "32px" }}>
-                <span style={{ fontFamily: "var(--font-manrope)", fontSize: "48px", fontWeight: 800, color: plan.highlighted ? "#fff" : "#0B1F3A" }}>
-                  {plan.price}€
-                </span>
-                <span style={{ fontSize: "14px", color: plan.highlighted ? "#94A3B8" : "#64748B", marginLeft: "6px" }}>/ mois</span>
+              <h3 className="font-display" style={{
+                fontSize: "19px", fontWeight: 500,
+                color: plan.highlighted ? "#FBFAF6" : "var(--land-ink)", marginBottom: "8px",
+              }}>{plan.name}</h3>
+              <p style={{
+                fontSize: "13.5px", marginBottom: "28px", lineHeight: 1.6,
+                color: plan.highlighted ? "#9CA79C" : "var(--land-muted)",
+              }}>{plan.description}</p>
+              <div style={{ marginBottom: "32px", display: "flex", alignItems: "baseline", gap: "6px" }}>
+                <span className="font-mono" style={{
+                  fontSize: "40px", fontWeight: 500,
+                  color: plan.highlighted ? "#FBFAF6" : "var(--land-ink)",
+                }}>{plan.price} €</span>
+                <span style={{ fontSize: "13px", color: plan.highlighted ? "#9CA79C" : "var(--land-muted)" }}>/ mois</span>
               </div>
-              <div style={{ marginBottom: "32px", display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div style={{ marginBottom: "32px", display: "flex", flexDirection: "column", gap: "13px" }}>
                 {plan.features.map((feature) => (
-                  <div key={feature} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div style={{
-                      width: "18px", height: "18px", borderRadius: "50%", background: "#3B82F6",
-                      display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                    }}>
-                      <span style={{ color: "#fff", fontSize: "10px", fontWeight: 700 }}>✓</span>
-                    </div>
-                    <span style={{ fontSize: "14px", color: plan.highlighted ? "#CBD5E1" : "#64748B" }}>{feature}</span>
+                  <div key={feature} style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+                    <span style={{ color: "var(--land-brass)", fontSize: "12px", flexShrink: 0 }}>—</span>
+                    <span style={{ fontSize: "13.5px", color: plan.highlighted ? "#D6DAD3" : "var(--land-muted)" }}>{feature}</span>
                   </div>
                 ))}
               </div>
               <Link href={plan.href} style={{
                 display: "block", textAlign: "center",
-                background: plan.highlighted ? "#3B82F6" : "#0B1F3A",
-                color: "#fff", textDecoration: "none", padding: "14px",
-                borderRadius: "10px", fontSize: "15px", fontWeight: 600,
+                background: plan.highlighted ? "var(--land-brass)" : "var(--land-ink)",
+                color: plan.highlighted ? "var(--land-ink)" : "#FBFAF6",
+                textDecoration: "none", padding: "14px", borderRadius: "3px",
+                fontSize: "14px", fontWeight: 600, letterSpacing: "0.01em",
               }}>{plan.cta}</Link>
             </div>
           ))}

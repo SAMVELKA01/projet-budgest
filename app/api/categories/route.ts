@@ -12,7 +12,7 @@ export async function GET() {
 
     const categories = await Categorie.find({ userId: session.user.id }).sort({ name: 1 });
     return NextResponse.json(categories);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(categorie, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

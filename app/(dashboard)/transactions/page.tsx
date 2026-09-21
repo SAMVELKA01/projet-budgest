@@ -12,51 +12,61 @@ interface Transaction {
   _id: string;
   name: string;
   category: string;
+  categorieId: string;
   date: string;
   method: string;
   amount: number;
   type: string;
 }
+interface Categorie {
+  _id: string;
+  name: string;
+  icon: string;
+  colorHex: string;
+}
 
-const categories = [
-  "Toutes les catégories",
-  "Alimentation",
-  "Revenus",
-  "Logement",
-  "Transport",
-  "Loisirs",
-  "Abonnements",
-  "Santé",
-];
+const NEW_CATEGORY_VALUE = "__new__";
+const quickCreatePalette = ["#10B981", "#3B82F6", "#F59E0B", "#8B5CF6", "#EC4899", "#EF4444", "#06B6D4", "#F97316"];
+
 const types = ["Type : Tout", "Dépenses", "Revenus"];
 const ITEMS_PER_PAGE = 8;
 
 export default function TransactionsPage() {
   const { toasts, toast, remove } = useToast();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [categories, setCategories] = useState<Categorie[]>([]);
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState("Toutes les catégories");
+  const [categorieId, setCategorieId] = useState("");
   const [type, setType] = useState("Type : Tout");
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [newCatName, setNewCatName] = useState("");
+  const [creatingCat, setCreatingCat] = useState(false);
   const [form, setForm] = useState({
     name: "",
     amount: "",
     type: "depense",
-    category: "Alimentation",
+    categorieId: "",
     method: "Carte Débit",
     date: "",
   });
   const { format, symbol } = useDevise();
 
+  const fetchCategories = async () => {
+    const res = await fetch("/api/categories");
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : [];
+    setCategories(list);
+    return list as Categorie[];
+  };
+
   const fetchTransactions = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (category !== "Toutes les catégories")
-        params.set("category", category);
+      if (categorieId) params.set("categorieId", categorieId);
       if (type === "Revenus") params.set("type", "revenu");
       if (type === "Dépenses") params.set("type", "depense");
       const res = await fetch(`/api/transactions?${params}`);
@@ -68,11 +78,54 @@ export default function TransactionsPage() {
   };
 
   useEffect(() => {
+    // Chargement initial volontaire une seule fois au montage.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    // Rechargement volontaire à chaque changement de filtre.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchTransactions();
-  }, [category, type]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categorieId, type]);
+
+  const openModal = () => {
+    setForm({
+      name: "",
+      amount: "",
+      type: "depense",
+      categorieId: categories[0]?._id || "",
+      method: "Carte Débit",
+      date: "",
+    });
+    setNewCatName("");
+    setShowModal(true);
+  };
+
+  const handleCreateCategory = async () => {
+    if (!newCatName.trim()) {
+      toast("Nom de catégorie requis", "error");
+      return;
+    }
+    setCreatingCat(true);
+    try {
+      const color = quickCreatePalette[categories.length % quickCreatePalette.length];
+      const created = await apiPost("/api/categories", { name: newCatName.trim(), colorHex: color });
+      const updated = await fetchCategories();
+      const match = updated.find((c) => c._id === created._id) || created;
+      setForm((f) => ({ ...f, categorieId: match._id }));
+      setNewCatName("");
+      toast("Catégorie créée", "success");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur lors de la création", "error");
+    } finally {
+      setCreatingCat(false);
+    }
+  };
 
   const handleAdd = async () => {
-    if (!form.name || !form.amount || !form.category) {
+    if (!form.name || !form.amount || !form.categorieId) {
       toast("Veuillez remplir tous les champs", "error");
       return;
     }
@@ -84,18 +137,10 @@ export default function TransactionsPage() {
         date: form.date || new Date().toISOString(),
       });
       setShowModal(false);
-      setForm({
-        name: "",
-        amount: "",
-        type: "depense",
-        category: "Alimentation",
-        method: "Carte Débit",
-        date: "",
-      });
       toast("Transaction ajoutée avec succès !", "success");
       fetchTransactions();
-    } catch (err: any) {
-      toast(err.message || "Erreur lors de l'ajout", "error");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur lors de l'ajout", "error");
     } finally {
       setSaving(false);
     }
@@ -143,7 +188,7 @@ export default function TransactionsPage() {
           </p>
         </div>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={openModal}
           className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2"
         >
           <Plus size={16} /> Ajouter une transaction
@@ -187,26 +232,35 @@ export default function TransactionsPage() {
 
       <div className="bg-white border border-border rounded-2xl p-5">
         <div className="flex items-center gap-3 mb-5 flex-wrap">
-          {[
-            { value: category, options: categories, onChange: setCategory },
-            { value: type, options: types, onChange: setType },
-          ].map((filter, i) => (
-            <select
-              key={i}
-              value={filter.value}
-              onChange={(e) => {
-                filter.onChange(e.target.value);
-                setPage(1);
-              }}
-              className="text-sm border border-border rounded-lg px-3 py-2 text-primary bg-neutral outline-none focus:border-secondary transition-colors cursor-pointer"
-            >
-              {filter.options.map((opt) => (
-                <option key={opt} value={opt}>
-                  {opt}
-                </option>
-              ))}
-            </select>
-          ))}
+          <select
+            value={categorieId}
+            onChange={(e) => {
+              setCategorieId(e.target.value);
+              setPage(1);
+            }}
+            className="text-sm border border-border rounded-lg px-3 py-2 text-primary bg-neutral outline-none focus:border-secondary transition-colors cursor-pointer"
+          >
+            <option value="">Toutes les catégories</option>
+            {categories.map((c) => (
+              <option key={c._id} value={c._id}>
+                {c.icon} {c.name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={type}
+            onChange={(e) => {
+              setType(e.target.value);
+              setPage(1);
+            }}
+            className="text-sm border border-border rounded-lg px-3 py-2 text-primary bg-neutral outline-none focus:border-secondary transition-colors cursor-pointer"
+          >
+            {types.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
           <span className="text-xs text-tertiary ml-auto">
             {loading
               ? "Chargement..."
@@ -366,22 +420,52 @@ export default function TransactionsPage() {
                   </select>
                 </div>
               </div>
+
               <div>
                 <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">
                   Catégorie
                 </label>
-                <select
-                  value={form.category}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, category: e.target.value }))
-                  }
-                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white"
-                >
-                  {categories.slice(1).map((c) => (
-                    <option key={c}>{c}</option>
-                  ))}
-                </select>
+                {categories.length === 0 ? (
+                  <p className="text-xs text-tertiary mb-2">
+                    Aucune catégorie pour l&apos;instant, crée la première ci-dessous.
+                  </p>
+                ) : (
+                  <select
+                    value={form.categorieId || NEW_CATEGORY_VALUE}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, categorieId: e.target.value === NEW_CATEGORY_VALUE ? "" : e.target.value }))
+                    }
+                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white"
+                  >
+                    {categories.map((c) => (
+                      <option key={c._id} value={c._id}>
+                        {c.icon} {c.name}
+                      </option>
+                    ))}
+                    <option value={NEW_CATEGORY_VALUE}>+ Nouvelle catégorie…</option>
+                  </select>
+                )}
+                {(categories.length === 0 || !form.categorieId) && (
+                  <div className="flex gap-2 mt-2">
+                    <input
+                      type="text"
+                      placeholder="Nom de la nouvelle catégorie"
+                      value={newCatName}
+                      onChange={(e) => setNewCatName(e.target.value)}
+                      className="flex-1 border border-border rounded-lg px-4 py-2.5 text-sm outline-none focus:border-secondary transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleCreateCategory}
+                      disabled={creatingCat}
+                      className="px-4 py-2.5 rounded-lg bg-secondary text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60 shrink-0"
+                    >
+                      {creatingCat ? "…" : "Créer"}
+                    </button>
+                  </div>
+                )}
               </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">

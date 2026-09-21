@@ -37,8 +37,8 @@ export default function RegisterPage() {
         password: form.password,
       });
       router.push("/login?registered=true");
-    } catch (err: any) {
-      setError(err.message || "Erreur lors de la création du compte");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erreur lors de la création du compte");
     } finally {
       setLoading(false);
     }
@@ -58,12 +58,12 @@ export default function RegisterPage() {
             Commencez votre <br/> voyage financier.
           </h1>
           <p className="text-tertiary max-w-sm">
-            Rejoignez des milliers d'utilisateurs qui maîtrisent leur équilibre financier avec BudGest.
+            Rejoignez des milliers d&apos;utilisateurs qui maîtrisent leur équilibre financier avec BudGest.
           </p>
         </div>
 
         <div className="text-xs font-semibold text-tertiary tracking-widest uppercase">
-          © 2026 BudGest — L'observatoire de l'équilibre
+          © 2026 BudGest — L&apos;observatoire de l&apos;équilibre
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export default function RegisterPage() {
               <div className="flex items-center gap-3 border border-border rounded-lg px-4 py-3 bg-neutral focus-within:border-secondary transition-all">
                 <Lock size={16} className="text-tertiary" />
                 <input type={showPassword ? "text" : "password"} placeholder="••••••••" value={form.password} onChange={(e) => setForm(f => ({ ...f, password: e.target.value }))} className="flex-1 bg-transparent outline-none text-sm text-primary" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-tertiary hover:text-secondary"><Eye size={16} /></button>
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-tertiary hover:text-secondary">{showPassword ? <EyeOff size={16} /> : <Eye size={16} />}</button>
               </div>
             </div>
 
@@ -116,7 +116,7 @@ export default function RegisterPage() {
               <div className="flex items-center gap-3 border border-border rounded-lg px-4 py-3 bg-neutral focus-within:border-secondary transition-all">
                 <Lock size={16} className="text-tertiary" />
                 <input type={showConfirm ? "text" : "password"} placeholder="••••••••" value={form.confirm} onChange={(e) => setForm(f => ({ ...f, confirm: e.target.value }))} className="flex-1 bg-transparent outline-none text-sm text-primary" />
-                <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="text-tertiary hover:text-secondary"><Eye size={16} /></button>
+                <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="text-tertiary hover:text-secondary">{showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}</button>
               </div>
             </div>
 

@@ -5,7 +5,8 @@ export interface ITransaction extends Document {
   name: string;
   amount: number;
   type: "depense" | "revenu";
-  category: string;
+  categorieId: mongoose.Types.ObjectId;
+  category: string; // nom mis en cache pour affichage rapide (dérivé de Categorie)
   method: string;
   date: Date;
   recurrent: boolean;
@@ -16,6 +17,7 @@ const TransactionSchema = new Schema<ITransaction>({
   name: { type: String, required: true },
   amount: { type: Number, required: true },
   type: { type: String, enum: ["depense", "revenu"], required: true },
+  categorieId: { type: Schema.Types.ObjectId, ref: "Categorie", required: true },
   category: { type: String, required: true },
   method: { type: String, default: "Carte Débit" },
   date: { type: Date, default: Date.now },

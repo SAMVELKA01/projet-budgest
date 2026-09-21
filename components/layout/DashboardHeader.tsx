@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 
 export default function DashboardHeader() {
   const [search, setSearch] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
   const { data: session } = useSession();
   const router = useRouter();
 

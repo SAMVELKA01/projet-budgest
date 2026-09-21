@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/options";
 import { connectDB } from "@/lib/db/mongoose";
 import Budget from "@/lib/models/Budget";
+import Categorie from "@/lib/models/Categorie";
 
 export async function GET(req: NextRequest) {
   try {
@@ -21,7 +22,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(budgets);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -33,17 +34,25 @@ export async function POST(req: NextRequest) {
 
     await connectDB();
 
-    const { category, allocated, mois, annee, alertAt } = await req.json();
+    const { categorieId, allocated, mois, annee, alertAt } = await req.json();
 
-    if (!category || !allocated) {
+    if (!categorieId || !allocated) {
       return NextResponse.json({ error: "Champs requis manquants" }, { status: 400 });
     }
 
+    const categorie = await Categorie.findOne({ _id: categorieId, userId: session.user.id });
+    if (!categorie) {
+      return NextResponse.json({ error: "Catégorie introuvable" }, { status: 400 });
+    }
+
+    const resolvedMois = mois || new Date().getMonth() + 1;
+    const resolvedAnnee = annee || new Date().getFullYear();
+
     const existing = await Budget.findOne({
       userId: session.user.id,
-      category,
-      mois: mois || new Date().getMonth() + 1,
-      annee: annee || new Date().getFullYear(),
+      categorieId,
+      mois: resolvedMois,
+      annee: resolvedAnnee,
     });
 
     if (existing) {
@@ -52,15 +61,16 @@ export async function POST(req: NextRequest) {
 
     const budget = await Budget.create({
       userId: session.user.id,
-      category,
+      categorieId: categorie._id,
+      category: categorie.name,
       allocated,
-      mois: mois || new Date().getMonth() + 1,
-      annee: annee || new Date().getFullYear(),
+      mois: resolvedMois,
+      annee: resolvedAnnee,
       alertAt: alertAt || 80,
     });
 
     return NextResponse.json(budget, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

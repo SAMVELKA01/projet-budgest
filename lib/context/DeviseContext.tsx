@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useCallback, useSyncExternalStore } from "react";
 
 interface DeviseContextType {
   devise: string;
@@ -9,12 +9,32 @@ interface DeviseContextType {
   format: (amount: number) => string;
 }
 
+const DEVISE_KEY = "budgest-devise";
+const DEVISE_EVENT = "budgest-devise-change";
+
 const deviseSymbols: Record<string, string> = {
   EUR: "€",
   USD: "$",
   GBP: "£",
   XOF: "FCFA",
 };
+
+function subscribe(callback: () => void) {
+  window.addEventListener("storage", callback);
+  window.addEventListener(DEVISE_EVENT, callback);
+  return () => {
+    window.removeEventListener("storage", callback);
+    window.removeEventListener(DEVISE_EVENT, callback);
+  };
+}
+
+function getSnapshot() {
+  return localStorage.getItem(DEVISE_KEY) || "EUR";
+}
+
+function getServerSnapshot() {
+  return "EUR";
+}
 
 const DeviseContext = createContext<DeviseContextType>({
   devise: "EUR",
@@ -24,32 +44,29 @@ const DeviseContext = createContext<DeviseContextType>({
 });
 
 export function DeviseProvider({ children }: { children: React.ReactNode }) {
-  const [devise, setDeviseState] = useState("EUR");
-  const [mounted, setMounted] = useState(false);
+  // Même approche que ThemeContext : useSyncExternalStore évite le
+  // setState-in-effect et le flash de valeur par défaut avant hydratation.
+  const devise = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("budgest-devise") || "EUR";
-    setDeviseState(saved);
-    setMounted(true);
+  const setDevise = useCallback((d: string) => {
+    localStorage.setItem(DEVISE_KEY, d);
+    window.dispatchEvent(new Event(DEVISE_EVENT));
   }, []);
-
-  const setDevise = (d: string) => {
-    setDeviseState(d);
-    localStorage.setItem("budgest-devise", d);
-  };
 
   const symbol = deviseSymbols[devise] || "€";
 
-  const format = (amount: number): string => {
-    if (!mounted) return `${amount.toFixed(2)} €`;
-    if (devise === "XOF") {
-      return `${Math.round(amount).toLocaleString("fr-FR")} FCFA`;
-    }
-    return `${amount.toLocaleString("fr-FR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })} ${symbol}`;
-  };
+  const format = useCallback(
+    (amount: number): string => {
+      if (devise === "XOF") {
+        return `${Math.round(amount).toLocaleString("fr-FR")} FCFA`;
+      }
+      return `${amount.toLocaleString("fr-FR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })} ${deviseSymbols[devise] || "€"}`;
+    },
+    [devise],
+  );
 
   return (
     <DeviseContext.Provider value={{ devise, symbol, setDevise, format }}>

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   TrendingUp,
   TrendingDown,
@@ -9,6 +11,7 @@ import {
   AlertTriangle,
   ArrowUpRight,
   ArrowDownRight,
+  Sparkles,
 } from "lucide-react";
 import { useDevise } from "@/lib/context/DeviseContext";
 
@@ -40,23 +43,33 @@ const repartitionColors: Record<string, string> = {
 };
 
 export default function DashboardPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [hoveredBar, setHoveredBar] = useState<number | null>(null);
   const { format } = useDevise();
 
   useEffect(() => {
-    fetch("/api/dashboard/stats")
-      .then((r) => {
-        if (!r.ok) return null;
-        return r.json();
-      })
-      .then((data) => {
-        if (data) setStats(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+    if (status === "authenticated" && session?.user?.role === "admin") {
+      router.replace("/admin");
+    }
+  }, [session, status, router]);
+
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.role !== "admin") {
+      fetch("/api/dashboard/stats")
+        .then((r) => {
+          if (!r.ok) return null;
+          return r.json();
+        })
+        .then((data) => {
+          if (data) setStats(data);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
+    }
+  }, [status, session]);
 
   const maxVal = stats?.monthlyEvolution
     ? Math.max(
@@ -189,6 +202,23 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Teaser assistant IA */}
+      <Link
+        href="/assistant"
+        className="no-underline bg-primary rounded-2xl px-5 py-4 flex items-center justify-between gap-4 hover:opacity-95 transition-opacity"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+            <Sparkles size={17} className="text-white" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-white">Demandez à l&apos;assistant IA</p>
+            <p className="text-xs text-white/60 mt-0.5">Suggestions personnalisées, prévisions et réponses sur vos finances.</p>
+          </div>
+        </div>
+        <ArrowUpRight size={16} className="text-white/60 shrink-0" />
+      </Link>
 
       {/* Graphiques */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

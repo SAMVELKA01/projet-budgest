@@ -70,6 +70,8 @@ export default function ObjectifsPage() {
   };
 
   useEffect(() => {
+    // Chargement initial volontaire une seule fois au montage.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchObjectifs();
   }, []);
 
@@ -126,8 +128,8 @@ export default function ObjectifsPage() {
       }
       setShowModal(false);
       fetchObjectifs();
-    } catch (err: any) {
-      toast(err.message || "Erreur", "error");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur", "error");
     } finally {
       setSaving(false);
     }
@@ -196,10 +198,10 @@ export default function ObjectifsPage() {
             className="text-2xl font-bold text-primary"
             style={{ fontFamily: "var(--font-heading)" }}
           >
-            Objectifs d'épargne
+            Objectifs d&apos;épargne
           </h1>
           <p className="text-tertiary text-sm mt-1">
-            Fixez des objectifs et atteignez l'équilibre financier.
+            Fixez des objectifs et atteignez l&apos;équilibre financier.
           </p>
         </div>
         <button
@@ -431,7 +433,7 @@ export default function ObjectifsPage() {
             <div className="flex flex-col gap-4">
               <div>
                 <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">
-                  Nom de l'objectif
+                  Nom de l&apos;objectif
                 </label>
                 <input
                   type="text"

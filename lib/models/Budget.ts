@@ -2,7 +2,8 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface IBudget extends Document {
   userId: mongoose.Types.ObjectId;
-  category: string;
+  categorieId: mongoose.Types.ObjectId;
+  category: string; // nom mis en cache pour affichage rapide (dérivé de Categorie)
   allocated: number;
   mois: number;
   annee: number;
@@ -11,6 +12,7 @@ export interface IBudget extends Document {
 
 const BudgetSchema = new Schema<IBudget>({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+  categorieId: { type: Schema.Types.ObjectId, ref: "Categorie", required: true },
   category: { type: String, required: true },
   allocated: { type: Number, required: true },
   mois: { type: Number, required: true },

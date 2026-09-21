@@ -13,15 +13,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
+
         await connectDB();
         const user = await User.findOne({ email: credentials.email });
         if (!user) return null;
+        if (!user.active) return null;
         const isValid = await bcrypt.compare(credentials.password as string, user.password);
         if (!isValid) return null;
         return {
           id: user._id.toString(),
           name: user.name,
           email: user.email,
+          role: user.role,
           devise: user.devise,
         };
       },
@@ -31,15 +34,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.devise = (user as any).devise;
+        token.id = user.id as string;
+        token.role = user.role;
+        token.devise = user.devise;
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id as string;
-        (session.user as any).devise = token.devise;
+        session.user.id = token.id;
+        session.user.role = token.role;
+        session.user.devise = token.devise;
       }
       return session;
     },

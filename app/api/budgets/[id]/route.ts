@@ -20,7 +20,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (!budget) return NextResponse.json({ error: "Budget introuvable" }, { status: 404 });
     return NextResponse.json(budget);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -40,7 +40,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     if (!budget) return NextResponse.json({ error: "Budget introuvable" }, { status: 404 });
     return NextResponse.json({ message: "Budget supprimé" });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

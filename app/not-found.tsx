@@ -34,7 +34,7 @@ export default function NotFound() {
         }}>Page introuvable</h1>
 
         <p style={{ fontSize: "16px", color: "#64748B", lineHeight: 1.7, marginBottom: "40px" }}>
-          La page que vous cherchez n'existe pas ou a été déplacée.
+          La page que vous cherchez n&apos;existe pas ou a été déplacée.
         </p>
 
         <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>

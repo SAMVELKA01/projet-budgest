@@ -1,13 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 import { Moon, Sun, Bell, Shield, Download, Trash2, Save } from "lucide-react";
-import { apiPut } from "@/lib/hooks/useApi";
+import { apiPut, apiDelete } from "@/lib/hooks/useApi";
 import { useTheme } from "@/lib/context/ThemeContext";
 import { useDevise } from "@/lib/context/DeviseContext";
 import { useToast } from "@/lib/hooks/useToast";
 import ToastContainer from "@/components/ui/Toast";
+
+interface ExportTransaction {
+  date: string;
+  name: string;
+  category: string;
+  method: string;
+  amount: number;
+  type: string;
+}
 
 export default function ParametresPage() {
   const { data: session, update } = useSession();
@@ -17,6 +26,7 @@ export default function ParametresPage() {
 
   const [nom, setNom] = useState("");
   const [email, setEmail] = useState("");
+  const [syncedUserId, setSyncedUserId] = useState<string | undefined>(undefined);
   const [saving, setSaving] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -28,15 +38,28 @@ export default function ParametresPage() {
     objectifs: false,
   });
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
-  useEffect(() => {
-    if (session?.user) {
-      setNom(session.user.name || "");
-      setEmail(session.user.email || "");
-      const savedDevise = localStorage.getItem("budgest-devise");
-      if (savedDevise) setDevise(savedDevise);
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      await apiDelete("/api/users/profile");
+      await signOut({ callbackUrl: "/" });
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur lors de la suppression", "error");
+      setDeletingAccount(false);
     }
-  }, [session]);
+  };
+
+  // Initialise le formulaire depuis la session une seule fois, quand elle
+  // arrive (pas de setState direct dans un effet : ajustement pendant le
+  // rendu, cf. doc React "Adjusting state when a prop changes"). La devise
+  // est déjà gérée par DeviseProvider (useSyncExternalStore).
+  if (session?.user && session.user.id !== syncedUserId) {
+    setSyncedUserId(session.user.id);
+    setNom(session.user.name || "");
+    setEmail(session.user.email || "");
+  }
 
   const handleSaveProfil = async () => {
     if (!nom.trim()) { toast("Le nom ne peut pas être vide", "error"); return; }
@@ -67,8 +90,8 @@ export default function ParametresPage() {
       await apiPut("/api/users/password", { currentPassword, newPassword });
       toast("Mot de passe modifié avec succès !", "success");
       setCurrentPassword(""); setNewPassword(""); setConfirmPassword("");
-    } catch (err: any) {
-      toast(err.message || "Erreur lors du changement", "error");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur lors du changement", "error");
     } finally {
       setSavingPassword(false);
     }
@@ -82,7 +105,7 @@ export default function ParametresPage() {
         toast("Aucune transaction à exporter", "warning"); return;
       }
       const headers = ["Date", "Description", "Catégorie", "Méthode", "Montant", "Type"];
-      const rows = transactions.map((t: any) => [
+      const rows = (transactions as ExportTransaction[]).map((t) => [
         new Date(t.date).toLocaleDateString("fr-FR"),
         t.name, t.category, t.method,
         t.amount.toFixed(2), t.type,
@@ -147,7 +170,7 @@ export default function ParametresPage() {
               <option value="GBP">Livre sterling (£)</option>
               <option value="XOF">Franc CFA (FCFA)</option>
             </select>
-            <p className="text-xs text-tertiary mt-1">La devise sera appliquée sur toute l'application.</p>
+            <p className="text-xs text-tertiary mt-1">La devise sera appliquée sur toute l&apos;application.</p>
           </div>
           <div className="flex justify-end">
             <button onClick={handleSaveProfil} disabled={saving}
@@ -166,7 +189,7 @@ export default function ParametresPage() {
         </h2>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-semibold text-primary">Thème de l'application</p>
+            <p className="text-sm font-semibold text-primary">Thème de l&apos;application</p>
             <p className="text-xs text-tertiary mt-0.5">Choisissez entre le mode clair et le mode sombre.</p>
           </div>
           <div className="flex gap-2 bg-neutral border border-border rounded-xl p-1">
@@ -277,9 +300,9 @@ export default function ParametresPage() {
                 className="flex-1 border border-border text-tertiary py-2.5 rounded-xl text-sm font-semibold hover:bg-neutral transition-colors">
                 Annuler
               </button>
-              <button onClick={() => toast("Fonctionnalité bientôt disponible", "warning")}
-                className="flex-1 bg-danger text-white py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">
-                Confirmer la suppression
+              <button onClick={handleDeleteAccount} disabled={deletingAccount}
+                className="flex-1 bg-danger text-white py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
+                {deletingAccount ? "Suppression..." : "Confirmer la suppression"}
               </button>
             </div>
           </div>

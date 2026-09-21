@@ -1,64 +1,56 @@
 "use client";
 
-export default function Features() {
-  const features = [
-    { icon: "💰", title: "Suivi des transactions", description: "Enregistrez revenus et dépenses en quelques secondes. Catégorisez automatiquement et gardez une vue claire de vos flux financiers.", color: "#3B82F6" },
-    { icon: "📊", title: "Analytique avancée", description: "Visualisez vos habitudes avec des graphiques clairs. Comprenez où va votre argent mois après mois.", color: "#10B981" },
-    { icon: "🎯", title: "Budgets par catégorie", description: "Fixez des plafonds de dépenses par catégorie et recevez des alertes avant de les dépasser.", color: "#F59E0B" },
-    { icon: "🏆", title: "Objectifs d'épargne", description: "Créez des objectifs financiers et suivez votre progression. Vacances, achat, retraite — tout est possible.", color: "#8B5CF6" },
-    { icon: "🔄", title: "Transactions récurrentes", description: "Loyer, abonnements, salaire — configurez une fois, BudGest s'occupe du reste automatiquement.", color: "#EC4899" },
-    { icon: "🔒", title: "Sécurité maximale", description: "Vos données sont chiffrées de bout en bout. Votre vie financière reste strictement privée.", color: "#64748B" },
-  ];
+import { Wallet, LineChart, Target, Trophy, Repeat2, ShieldCheck } from "lucide-react";
 
+const features = [
+  { icon: Wallet, title: "Suivi des transactions", description: "Enregistrez revenus et dépenses en quelques secondes. Chaque opération est consignée et catégorisée, comme sur un relevé bancaire." },
+  { icon: LineChart, title: "Analyse par jour, semaine, mois", description: "Visualisez vos habitudes à la granularité qui compte pour vous. Comprenez précisément où va votre argent, et quand." },
+  { icon: Target, title: "Budgets par catégorie", description: "Fixez des plafonds de dépenses par catégorie personnalisée et suivez leur progression au centime près." },
+  { icon: Trophy, title: "Objectifs d'épargne", description: "Créez des objectifs financiers et suivez votre progression. Vacances, achat, retraite — tout est possible." },
+  { icon: Repeat2, title: "Transactions récurrentes", description: "Loyer, abonnements, salaire — configurez une fois, BudGest s'occupe du reste automatiquement." },
+  { icon: ShieldCheck, title: "Confidentialité totale", description: "Vos données sont chiffrées et ne quittent jamais nos serveurs. Aucun accès à vos comptes bancaires réels." },
+];
+
+export default function Features() {
   return (
-    <section id="fonctionnalités" style={{ background: "#F9FAFB", padding: "80px 24px" }}>
-      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "56px" }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: "8px",
-            background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)",
-            borderRadius: "20px", padding: "6px 14px", marginBottom: "20px",
-          }}>
-            <span style={{ fontSize: "13px", color: "#3B82F6", fontWeight: 500 }}>Fonctionnalités</span>
+    <section id="methode" className="landing" style={{ background: "var(--land-parchment)", padding: "104px 24px" }}>
+      <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
+        <div style={{ maxWidth: "620px", marginBottom: "64px" }}>
+          <div className="landing-eyebrow" style={{ color: "var(--land-forest)", marginBottom: "20px" }}>
+            La méthode
           </div>
-          <h2 style={{
-            fontFamily: "var(--font-manrope)", fontWeight: 800, color: "#0B1F3A", marginBottom: "16px",
-            fontSize: "clamp(28px, 4vw, 40px)",
+          <h2 className="font-display" style={{
+            fontWeight: 500, color: "var(--land-ink)", marginBottom: "18px",
+            fontSize: "clamp(28px, 3.6vw, 38px)", lineHeight: 1.2,
           }}>
-            Tout ce qu'il vous faut pour{" "}
-            <span style={{ color: "#3B82F6" }}>maîtriser vos finances</span>
+            Six instruments, une seule <em style={{ fontStyle: "italic", color: "var(--land-forest)" }}>discipline</em>
           </h2>
-          <p style={{ fontSize: "17px", color: "#64748B", maxWidth: "560px", margin: "0 auto", lineHeight: 1.7 }}>
-            BudGest réunit tous les outils essentiels dans une interface claire et intuitive.
+          <p style={{ fontSize: "16px", color: "var(--land-muted)", lineHeight: 1.75 }}>
+            BudGest ne cherche pas à impressionner avec des graphiques superflus.
+            Chaque instrument sert un seul objectif : une vision exacte de votre situation.
           </p>
         </div>
 
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: "24px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "1px", background: "var(--land-line)",
+          border: "1px solid var(--land-line)",
         }}>
           {features.map((feature) => (
-            <div key={feature.title} style={{
-              background: "#fff", border: "1px solid #E2E8F0", borderRadius: "16px", padding: "28px",
-              transition: "transform 0.2s, box-shadow 0.2s", cursor: "default",
-            }}
-              onMouseEnter={e => {
-                (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)";
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "0 12px 40px rgba(11,31,58,0.08)";
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
-                (e.currentTarget as HTMLDivElement).style.boxShadow = "none";
-              }}>
+            <div key={feature.title} className="landing-hover-lift" style={{
+              background: "var(--land-paper)", padding: "32px", position: "relative",
+            }}>
               <div style={{
-                width: "48px", height: "48px", background: `${feature.color}15`, borderRadius: "12px",
-                display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", marginBottom: "20px",
-              }}>{feature.icon}</div>
-              <h3 style={{ fontFamily: "var(--font-manrope)", fontSize: "17px", fontWeight: 700, color: "#0B1F3A", marginBottom: "10px" }}>
+                width: "42px", height: "42px", border: "1px solid var(--land-brass)", borderRadius: "3px",
+                display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "22px",
+              }}>
+                <feature.icon size={18} color="var(--land-forest)" strokeWidth={1.5} />
+              </div>
+              <h3 className="font-display" style={{ fontSize: "17px", fontWeight: 500, color: "var(--land-ink)", marginBottom: "10px" }}>
                 {feature.title}
               </h3>
-              <p style={{ fontSize: "14px", color: "#64748B", lineHeight: 1.7 }}>{feature.description}</p>
+              <p style={{ fontSize: "13.5px", color: "var(--land-muted)", lineHeight: 1.7 }}>{feature.description}</p>
             </div>
           ))}
         </div>

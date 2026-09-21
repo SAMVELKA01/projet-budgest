@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import { useState, useEffect } from "react";
 import {
   Plus,
@@ -20,6 +18,7 @@ import { useDevise } from "@/lib/context/DeviseContext";
 
 interface Budget {
   _id: string;
+  categorieId: string;
   category: string;
   allocated: number;
   mois: number;
@@ -33,28 +32,22 @@ interface BudgetWithSpent extends Budget {
   colorHex: string;
 }
 
-const categoryMeta: Record<string, { icon: string; colorHex: string }> = {
-  Alimentation: { icon: "🛒", colorHex: "#10B981" },
-  Logement: { icon: "🏠", colorHex: "#3B82F6" },
-  Transport: { icon: "🚗", colorHex: "#F59E0B" },
-  Loisirs: { icon: "🎮", colorHex: "#8B5CF6" },
-  Abonnements: { icon: "📱", colorHex: "#EC4899" },
-  Santé: { icon: "💊", colorHex: "#64748B" },
-  Autre: { icon: "📦", colorHex: "#94A3B8" },
-};
+interface Categorie {
+  _id: string;
+  name: string;
+  icon: string;
+  colorHex: string;
+}
 
-const categories = [
-  "Alimentation",
-  "Logement",
-  "Transport",
-  "Loisirs",
-  "Abonnements",
-  "Santé",
-  "Autre",
-];
+interface DepenseTransaction {
+  categorieId: string;
+  amount: number;
+}
+
 
 export default function BudgetsPage() {
   const [budgets, setBudgets] = useState<BudgetWithSpent[]>([]);
+  const [categories, setCategories] = useState<Categorie[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -63,19 +56,28 @@ export default function BudgetsPage() {
     null,
   );
   const [form, setForm] = useState({
-    category: "Alimentation",
+    categorieId: "",
     allocated: "",
     alertAt: "80",
   });
   const { toasts, toast, remove } = useToast();
   const { format, symbol } = useDevise();
 
-  const fetchBudgets = async () => {
+  const fetchCategories = async () => {
+    const res = await fetch("/api/categories");
+    const data = await res.json();
+    const list = Array.isArray(data) ? data : [];
+    setCategories(list);
+    return list as Categorie[];
+  };
+
+  const fetchBudgets = async (catsOverride?: Categorie[]) => {
     setLoading(true);
     try {
+      const cats = catsOverride || categories;
       const [budgetsRes, transactionsRes] = await Promise.all([
         fetch("/api/budgets"),
-        fetch("/api/transactions?type=depense"),
+        fetch("/api/transactions?type=depense&limit=1000"),
       ]);
       const budgetsData: Budget[] = await budgetsRes.json();
       const transactions = await transactionsRes.json();
@@ -83,14 +85,12 @@ export default function BudgetsPage() {
         Array.isArray(budgetsData) ? budgetsData : []
       ).map((b) => {
         const spent = Array.isArray(transactions)
-          ? transactions
-              .filter((t: any) => t.category === b.category)
-              .reduce((s: number, t: any) => s + Math.abs(t.amount), 0)
+          ? (transactions as DepenseTransaction[])
+              .filter((t) => t.categorieId === b.categorieId)
+              .reduce((s, t) => s + Math.abs(t.amount), 0)
           : 0;
-        const meta = categoryMeta[b.category] || {
-          icon: "📦",
-          colorHex: "#94A3B8",
-        };
+        const cat = cats.find((c) => c._id === b.categorieId);
+        const meta = { icon: cat?.icon || "📦", colorHex: cat?.colorHex || "#94A3B8" };
         return { ...b, spent, ...meta };
       });
       setBudgets(enriched);
@@ -100,19 +100,22 @@ export default function BudgetsPage() {
   };
 
   useEffect(() => {
-    fetchBudgets();
+    // Chargement initial volontaire une seule fois au montage.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchCategories().then((cats) => fetchBudgets(cats));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const openCreate = () => {
     setEditingBudget(null);
-    setForm({ category: "Alimentation", allocated: "", alertAt: "80" });
+    setForm({ categorieId: categories[0]?._id || "", allocated: "", alertAt: "80" });
     setShowModal(true);
   };
 
   const openEdit = (b: BudgetWithSpent) => {
     setEditingBudget(b);
     setForm({
-      category: b.category,
+      categorieId: b.categorieId,
       allocated: String(b.allocated),
       alertAt: String(b.alertAt),
     });
@@ -134,7 +137,7 @@ export default function BudgetsPage() {
         toast("Budget modifié avec succès !", "success");
       } else {
         await apiPost("/api/budgets", {
-          category: form.category,
+          categorieId: form.categorieId,
           allocated: parseFloat(form.allocated),
           alertAt: parseInt(form.alertAt),
         });
@@ -142,8 +145,8 @@ export default function BudgetsPage() {
       }
       setShowModal(false);
       fetchBudgets();
-    } catch (err: any) {
-      toast(err.message || "Erreur", "error");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Erreur", "error");
     } finally {
       setSaving(false);
     }
@@ -418,17 +421,28 @@ export default function BudgetsPage() {
                   <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">
                     Catégorie
                   </label>
-                  <select
-                    value={form.category}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, category: e.target.value }))
-                    }
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white"
-                  >
-                    {categories.map((c) => (
-                      <option key={c}>{c}</option>
-                    ))}
-                  </select>
+                  {categories.length === 0 ? (
+                    <p className="text-xs text-tertiary">
+                      Aucune catégorie disponible.{" "}
+                      <a href="/categories" className="text-secondary font-semibold hover:underline">
+                        Crée-en une d&apos;abord →
+                      </a>
+                    </p>
+                  ) : (
+                    <select
+                      value={form.categorieId}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, categorieId: e.target.value }))
+                      }
+                      className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white"
+                    >
+                      {categories.map((c) => (
+                        <option key={c._id} value={c._id}>
+                          {c.icon} {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </div>
               )}
               <div>

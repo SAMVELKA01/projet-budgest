@@ -1,57 +1,40 @@
-import { useState, useEffect } from "react";
-
-export function useFetch<T>(url: string, deps: any[] = []) {
-  const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(url);
-        if (!res.ok) throw new Error("Erreur lors de la récupération");
-        const json = await res.json();
-        setData(json);
-      } catch (err) {
-        setError(String(err));
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, deps);
-
-  return { data, loading, error, refetch: () => {} };
+async function parseError(res: Response, fallback: string) {
+  const data = await res.json().catch(() => ({ error: fallback }));
+  return data.error || fallback;
 }
 
-export async function apiPost(url: string, body: any) {
+export async function apiPost(url: string, body: unknown) {
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Erreur serveur");
-  return data;
+  if (!res.ok) throw new Error(await parseError(res, "Erreur serveur"));
+  return res.json();
 }
 
-export async function apiPut(url: string, body: any) {
+export async function apiPut(url: string, body: unknown) {
   const res = await fetch(url, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Erreur serveur");
-  return data;
+  if (!res.ok) throw new Error(await parseError(res, "Erreur serveur"));
+  return res.json();
+}
+
+export async function apiPatch(url: string, body: unknown) {
+  const res = await fetch(url, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) throw new Error(await parseError(res, "Erreur serveur"));
+  return res.json();
 }
 
 export async function apiDelete(url: string) {
   const res = await fetch(url, { method: "DELETE" });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({ error: "Erreur serveur" }));
-    throw new Error(data.error || "Erreur serveur");
-  }
+  if (!res.ok) throw new Error(await parseError(res, "Erreur serveur"));
   return res.json().catch(() => ({}));
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth/options";
 import { connectDB } from "@/lib/db/mongoose";
 import Transaction from "@/lib/models/Transaction";
+import Categorie from "@/lib/models/Categorie";
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -12,6 +13,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { id } = await params;
     const body = await req.json();
+
+    if (body.categorieId) {
+      const categorie = await Categorie.findOne({ _id: body.categorieId, userId: session.user.id });
+      if (!categorie) {
+        return NextResponse.json({ error: "Catégorie introuvable" }, { status: 400 });
+      }
+      body.category = categorie.name;
+    }
+
     const transaction = await Transaction.findOneAndUpdate(
       { _id: id, userId: session.user.id },
       body,
@@ -20,7 +30,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (!transaction) return NextResponse.json({ error: "Transaction introuvable" }, { status: 404 });
     return NextResponse.json(transaction);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -40,7 +50,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     if (!transaction) return NextResponse.json({ error: "Transaction introuvable" }, { status: 404 });
     return NextResponse.json({ message: "Transaction supprimée" });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

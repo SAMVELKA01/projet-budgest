@@ -13,7 +13,7 @@ export async function GET() {
     const objectifs = await Objectif.find({ userId: session.user.id }).sort({ deadline: 1 });
 
     return NextResponse.json(objectifs);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(objectif, { status: 201 });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

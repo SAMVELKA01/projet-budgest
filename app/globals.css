@@ -125,3 +125,89 @@
 [data-theme="dark"] .bg-warning\/10 {
   background-color: rgba(245,158,11,0.2) !important;
 }
+/* ============================================================
+   Landing page — identité "banque privée" (vert forêt + laiton)
+   Scope isolé : ne touche pas aux tokens de l'application (--color-*)
+   ============================================================ */
+.landing {
+  --land-ink: #0E1913;
+  --land-forest: #1D4A38;
+  --land-forest-light: #2C6349;
+  --land-brass: #B7935B;
+  --land-brass-light: #D8B888;
+  --land-parchment: #EEECE1;
+  --land-paper: #FBFAF6;
+  --land-text: #21261F;
+  --land-muted: #6B7268;
+  --land-line: #DAD6C6;
+  --land-line-on-dark: rgba(183, 147, 91, 0.28);
+  --land-muted-on-dark: #9CA79C;
+
+  font-family: var(--font-grotesk), sans-serif;
+  color: var(--land-text);
+}
+
+.landing .font-display {
+  font-family: var(--font-serif-display), serif;
+}
+
+.landing .font-mono {
+  font-family: var(--font-ledger-mono), monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.landing-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-ledger-mono), monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.landing-eyebrow::before {
+  content: "";
+  display: block;
+  width: 22px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+@keyframes landing-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.landing-reveal {
+  animation: landing-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-reveal { animation: none; }
+}
+
+.landing-hover-lift {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.landing-hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 48px rgba(14, 25, 19, 0.10);
+  border-color: var(--land-brass) !important;
+}
+
+.landing a:focus-visible,
+.landing button:focus-visible {
+  outline: 2px solid var(--land-brass);
+  outline-offset: 2px;
+}
+
+.landing-hero-grid {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 1024px) {
+  .landing-hero-grid {
+    grid-template-columns: 1fr 460px;
+  }
+}
