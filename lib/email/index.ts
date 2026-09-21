@@ -13,10 +13,19 @@ interface SendEmailInput {
 }
 
 async function sendViaConsole({ to, subject, html }: SendEmailInput) {
+  // Extrait les liens AVANT de dépouiller les balises HTML : un email de
+  // réinitialisation de mot de passe n'a aucune utilité en log si son seul
+  // lien actionnable disparaît avec le reste du markup.
+  const links = [...html.matchAll(/href="([^"]+)"/g)].map((m) => m[1]);
+  const text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+
   console.log(`\n--- [email] (RESEND_API_KEY non configurée, affichage console) ---`);
   console.log(`À : ${to}`);
   console.log(`Sujet : ${subject}`);
-  console.log(html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+  console.log(text);
+  if (links.length) {
+    console.log(`Lien(s) : ${links.join(", ")}`);
+  }
   console.log("--- fin email ---\n");
 }
 

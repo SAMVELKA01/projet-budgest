@@ -32,7 +32,8 @@ export async function POST(req: NextRequest) {
     await user.save();
 
     return NextResponse.json({ message: "Mot de passe réinitialisé avec succès" });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API auth/reset-password:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

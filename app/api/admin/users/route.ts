@@ -43,7 +43,8 @@ export async function GET(req: NextRequest) {
       page,
       totalPages: Math.max(1, Math.ceil(total / limit)),
     });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API admin/users:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

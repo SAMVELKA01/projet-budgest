@@ -43,7 +43,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       message: "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.",
     });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API auth/forgot-password:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

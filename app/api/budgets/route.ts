@@ -22,7 +22,8 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(budgets);
-  } catch {
+  } catch (err) {
+    console.error("Erreur API budgets:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -70,7 +71,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(budget, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API budgets:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

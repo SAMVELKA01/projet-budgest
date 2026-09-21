@@ -30,7 +30,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (!transaction) return NextResponse.json({ error: "Transaction introuvable" }, { status: 404 });
     return NextResponse.json(transaction);
-  } catch {
+  } catch (err) {
+    console.error("Erreur API transactions/[id]:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -50,7 +51,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     if (!transaction) return NextResponse.json({ error: "Transaction introuvable" }, { status: 404 });
     return NextResponse.json({ message: "Transaction supprimée" });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API transactions/[id]:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

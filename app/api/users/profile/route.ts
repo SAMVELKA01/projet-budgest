@@ -25,7 +25,8 @@ export async function PUT(req: NextRequest) {
     if (!user) return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
 
     return NextResponse.json({ message: "Profil mis à jour", user: { name: user.name, devise: user.devise } });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API users/profile:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -47,7 +48,8 @@ export async function DELETE() {
     await User.findByIdAndDelete(userId);
 
     return NextResponse.json({ message: "Compte supprimé" });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API users/profile:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

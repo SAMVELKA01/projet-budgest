@@ -297,7 +297,8 @@ malveillante. Les changements pertinents pour ce projet ont été appliqués
   maintenu par Google pour l'API Gemini — vérifié contre le registre npm
   plutôt que supposé : `@google/generative-ai` (l'ancien nom mentionné dans
   la consigne) est toujours publié mais à une version bien plus ancienne
-  (0.24.x, legacy). Modèle utilisé : `gemini-2.5-flash` (tier gratuit).
+  (0.24.x, legacy). Modèle utilisé : `gemini-3.6-flash` (tier gratuit — voir
+  Phase 6 pour pourquoi ce n'est pas `gemini-2.5-flash`, initialement choisi).
 - **Couche d'abstraction** (`lib/ai/`) :
   - `lib/ai/gemini.ts` : implémentation Gemini, une seule fonction
     `generateText(prompt, { system?, jsonSchema?, temperature? })`.
@@ -378,3 +379,90 @@ avec un ajustement ensuite :
   `22.20.4` (dernière version de la branche 22.x), pour que les types
   correspondent au runtime effectif plutôt qu'à un Node hypothétique.
 - Ajout : `@google/genai` (voir Phase 5).
+
+## Phase 6 — Validation finale
+
+### ⚠️ Constat bloquant, indépendant du code
+
+**La base MongoDB configurée dans `.env.local` (`MONGODB_URI`) est injoignable.**
+En testant l'app avec `pnpm dev`, toute requête touchant la base échoue avec
+`querySrv ENOTFOUND _mongodb._tcp.cluster0.q47fnqq.mongodb.net`. Vérification
+DNS faite (`nslookup`) : ce cluster n'existe simplement plus (le domaine
+`mongodb.net` racine résout bien, tout comme `cloud.mongodb.com` — seul ce
+cluster spécifique renvoie *Non-existent domain*), très probablement un
+cluster Atlas gratuit expiré/supprimé pour inactivité. **Ce n'est pas lié à
+la refonte** : le code n'y peut rien, c'est une action à faire de ton côté
+sur MongoDB Atlas (recréer un cluster ou récupérer l'ancien, puis mettre à
+jour `MONGODB_URI`). Sans ça, aucune fonctionnalité liée aux données ne peut
+fonctionner (inscription, connexion, transactions, etc.), quelle que soit la
+qualité du code.
+
+### Comment j'ai quand même validé le code en conditions réelles
+
+Pour ne pas me contenter de "ça build", j'ai lancé une MongoDB locale
+temporaire et jetable (`mongodb-memory-server`, dans un dossier `/tmp`
+séparé du projet, jamais ajoutée aux dépendances), et un second serveur
+`pnpm dev` sur le port 3001 pointé dessus via une variable d'environnement
+passée en ligne de commande — **`.env.local` n'a jamais été modifié**. J'ai
+ensuite testé, en conditions réelles (`curl`, pas de simulation) :
+
+- Inscription, connexion (flow CSRF + credentials complet), session
+- Création/lecture/modification/suppression : catégories, transactions,
+  budgets, objectifs
+- Isolation des données entre utilisateurs (un utilisateur ne peut ni lire
+  ni modifier les données d'un autre — testé explicitement, 404 correct)
+- Dashboard stats et endpoint `/api/stats` (granularité jour/semaine/mois)
+- Panel admin : stats globales, liste/recherche/filtres utilisateurs,
+  changement de rôle, activation/désactivation, reset de mot de passe par
+  un admin, garde-fou anti-auto-verrouillage
+- Mot de passe oublié de bout en bout : demande → email (log console) →
+  lien avec token → réinitialisation → ancien mot de passe rejeté, nouveau
+  accepté
+- Suppression de compte (cascade des données, session coupée)
+- Assistant IA : chat, suggestions, prévisions — avec la vraie clé Gemini
+  déjà présente dans `.env.local`
+
+Cette MongoDB de test et le serveur sur le port 3001 ont été arrêtés et
+tous les fichiers temporaires supprimés une fois les tests terminés.
+
+### Bugs trouvés et corrigés grâce à ces tests réels (pas visibles par build/lint)
+
+1. **Nom de modèle Gemini obsolète.** Le premier appel IA réel a échoué :
+   l'API Gemini elle-même a répondu que `gemini-2.5-flash` "is no longer
+   available to new users" et a explicitement recommandé
+   `models/gemini-3.6-flash`. Corrigé dans `lib/ai/gemini.ts` en suivant
+   cette indication de l'API elle-même. Après correction, chat/suggestions/
+   prévisions fonctionnent ; j'ai aussi involontairement déclenché un vrai
+   `429` (quota gratuit dépassé après plusieurs appels rapprochés), qui a
+   confirmé que la gestion d'erreur de quota fonctionne correctement
+   (message clair en français, pas de crash).
+2. **Lien de réinitialisation invisible dans les emails "console".**
+   `lib/email/index.ts` dépouillait tout le HTML (y compris les `href`)
+   avant de logger l'email — le seul contenu actionnable d'un email de
+   reset de mot de passe disparaissait. Corrigé : les liens sont extraits
+   avant le nettoyage HTML et affichés séparément dans le log.
+3. **Compte désactivé/supprimé restait utilisable via une session déjà
+   ouverte (faille de sécurité réelle).** En testant le scénario "un admin
+   désactive un utilisateur pendant qu'il est connecté", j'ai découvert
+   qu'avec la stratégie JWT, la session existante restait pleinement
+   valide (au lieu de bloquer *les futures connexions seulement*, comme prévu) —
+   confirmé en créant des données avec la session d'un compte que je venais
+   de supprimer. Root cause : NextAuth n'appelle pas le callback `jwt` à
+   chaque lecture de session, seulement à la connexion (vérifié en ajoutant
+   des logs temporaires, retirés depuis). Corrigé en ajoutant la
+   revalidation contre la base directement dans `proxy.ts`, qui lui
+   s'exécute sur chaque requête protégée (pages **et** API — le matcher
+   inclut maintenant `/api/:path*`, en excluant `/api/auth/*` pour ne pas
+   interférer avec NextAuth). Un compte désactivé ou supprimé perd
+   maintenant l'accès à la requête suivante, pas seulement à l'expiration
+   du JWT (jusqu'à 30 jours par défaut). Revérifié après coup : compte actif
+   toujours fonctionnel, compte désactivé immédiatement rejeté (401 en API,
+   redirection `/login` sur les pages), garde-fou anti-auto-désactivation
+   toujours actif.
+
+### Build, lint, démarrage
+
+- `pnpm build` : ✅ compile et type-check sans erreur
+- `pnpm lint` : ✅ 0 erreur, 0 warning
+- `pnpm dev` : ✅ démarre sans erreur, pages publiques et redirections des
+  pages protégées vérifiées par requêtes HTTP réelles

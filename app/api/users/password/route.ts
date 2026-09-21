@@ -23,7 +23,8 @@ export async function PUT(req: NextRequest) {
     await User.findByIdAndUpdate(session.user.id, { password: hashed });
 
     return NextResponse.json({ message: "Mot de passe modifié avec succès" });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API users/password:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

@@ -33,7 +33,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     if (!user) return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
 
     return NextResponse.json(user);
-  } catch {
+  } catch (err) {
+    console.error("Erreur API admin/users/[id]:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

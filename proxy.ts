@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/options";
+import { connectDB } from "@/lib/db/mongoose";
+import User from "@/lib/models/User";
 
 // Next.js 16 : "middleware" est déprécié au profit de "proxy", qui tourne
 // exclusivement sur le runtime Node.js (plus de edge). On peut donc utiliser
@@ -18,20 +20,42 @@ const protectedRoutes = [
   "/admin",
 ];
 
-export default auth((req) => {
+export default auth(async (req) => {
   const { nextUrl } = req;
   const pathname = nextUrl.pathname;
   const isAuth = !!req.auth;
-  const role = req.auth?.user?.role;
+  let role = req.auth?.user?.role;
 
   const isProtected = protectedRoutes.some((p) => pathname.startsWith(p));
   const isAuthPage = pathname === "/login" || pathname === "/register";
   const isAdminRoute = pathname.startsWith("/admin");
+  const isApiRoute = pathname.startsWith("/api/");
+  const isAuthApiRoute = pathname.startsWith("/api/auth/");
 
   if (isProtected && !isAuth) {
     const loginUrl = new URL("/login", nextUrl);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  // Avec la stratégie JWT, un compte désactivé par un admin ou supprimé
+  // garde par défaut un token valide jusqu'à son expiration (30 jours) :
+  // rien ne relit la base automatiquement à chaque requête. proxy.ts
+  // s'exécute lui sur chaque requête protégée (page ou API) : c'est le seul
+  // endroit fiable pour revalider contre la base et couper l'accès
+  // immédiatement plutôt que d'attendre l'expiration du token.
+  if (isAuth && (isProtected || (isApiRoute && !isAuthApiRoute))) {
+    await connectDB();
+    const dbUser = await User.findById(req.auth!.user.id).select("active role").lean();
+    if (!dbUser || !dbUser.active) {
+      if (isApiRoute) {
+        return NextResponse.json({ error: "Compte désactivé ou introuvable" }, { status: 401 });
+      }
+      const loginUrl = new URL("/login", nextUrl);
+      loginUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    role = dbUser.role;
   }
 
   if (isAdminRoute && isAuth && role !== "admin") {
@@ -58,5 +82,6 @@ export const config = {
     "/admin/:path*",
     "/login",
     "/register",
+    "/api/:path*",
   ],
 };

@@ -169,7 +169,8 @@ export async function GET(req: NextRequest) {
       buckets,
       categoryBreakdown,
     });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API stats:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

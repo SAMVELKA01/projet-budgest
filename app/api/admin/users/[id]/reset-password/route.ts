@@ -26,7 +26,8 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     await user.save();
 
     return NextResponse.json({ tempPassword });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API admin/users/[id]/reset-password:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

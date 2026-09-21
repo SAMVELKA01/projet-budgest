@@ -13,7 +13,8 @@ export async function GET() {
     const objectifs = await Objectif.find({ userId: session.user.id }).sort({ deadline: 1 });
 
     return NextResponse.json(objectifs);
-  } catch {
+  } catch (err) {
+    console.error("Erreur API objectifs:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -42,7 +43,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(objectif, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API objectifs:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

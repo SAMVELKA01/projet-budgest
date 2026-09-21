@@ -17,7 +17,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     );
     if (!objectif) return NextResponse.json({ error: "Objectif introuvable" }, { status: 404 });
     return NextResponse.json(objectif);
-  } catch {
+  } catch (err) {
+    console.error("Erreur API objectifs/[id]:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -31,7 +32,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const objectif = await Objectif.findOneAndDelete({ _id: id, userId: session.user.id });
     if (!objectif) return NextResponse.json({ error: "Objectif introuvable" }, { status: 404 });
     return NextResponse.json({ message: "Objectif supprimé" });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API objectifs/[id]:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

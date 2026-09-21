@@ -17,7 +17,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     );
     if (!categorie) return NextResponse.json({ error: "Catégorie introuvable" }, { status: 404 });
     return NextResponse.json(categorie);
-  } catch {
+  } catch (err) {
+    console.error("Erreur API categories/[id]:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -31,7 +32,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const categorie = await Categorie.findOneAndDelete({ _id: id, userId: session.user.id });
     if (!categorie) return NextResponse.json({ error: "Catégorie introuvable" }, { status: 404 });
     return NextResponse.json({ message: "Catégorie supprimée" });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API categories/[id]:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

@@ -40,7 +40,8 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(result);
-  } catch {
+  } catch (err) {
+    console.error("Erreur API transactions:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
@@ -76,7 +77,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(transaction, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error("Erreur API transactions:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }
