@@ -26,7 +26,7 @@ export default function ConfirmModal({ title, message, confirmLabel = "Supprimer
           <button onClick={onCancel} className="flex-1 border border-border text-tertiary py-3 rounded-xl text-sm font-semibold hover:bg-neutral transition-colors">
             Annuler
           </button>
-          <button onClick={onConfirm} className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-colors text-white ${danger ? "bg-danger hover:opacity-90" : "bg-primary hover:bg-primary-light"}`}>
+          <button onClick={onConfirm} className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-colors ${danger ? "bg-danger text-white hover:opacity-90" : "bg-primary text-inverse hover:bg-primary-light"}`}>
             {confirmLabel}
           </button>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Check } from "lucide-react";
 
 const plans = [
   {
@@ -19,74 +20,51 @@ const plans = [
 
 export default function Pricing() {
   return (
-    <section id="tarifs" className="landing" style={{ background: "var(--land-paper)", padding: "104px 24px" }}>
-      <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "64px" }}>
-          <div className="landing-eyebrow" style={{ color: "var(--land-forest)", marginBottom: "20px", justifyContent: "center" }}>
-            <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ width: "22px", height: "1px", background: "currentColor", opacity: 0.6, display: "inline-block" }} />
-              Tarifs
-            </span>
+    <section id="tarifs" className="bg-app py-24 px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center max-w-lg mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 bg-neutral text-tertiary text-xs font-bold px-4 py-2 rounded-full mb-5">
+            Tarifs
           </div>
-          <h2 className="font-display" style={{
-            fontWeight: 500, color: "var(--land-ink)", marginBottom: "16px",
-            fontSize: "clamp(28px, 3.6vw, 38px)",
-          }}>
-            Deux types de <em style={{ fontStyle: "italic", color: "var(--land-forest)" }}>comptes</em>
+          <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-semibold text-primary leading-tight mb-4">
+            Deux façons de <span className="text-info">commencer</span>
           </h2>
-          <p style={{ fontSize: "16px", color: "var(--land-muted)", maxWidth: "480px", margin: "0 auto", lineHeight: 1.7 }}>
+          <p className="text-tertiary text-base leading-relaxed">
             Commencez gratuitement, passez au Compte Privé quand vous êtes prêt.
           </p>
         </div>
 
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "24px", maxWidth: "820px", margin: "0 auto",
-        }}>
+        <div className="grid sm:grid-cols-2 gap-6 max-w-2xl mx-auto">
           {plans.map((plan) => (
-            <div key={plan.name} style={{
-              background: plan.highlighted ? "var(--land-ink)" : "var(--land-paper)",
-              border: plan.highlighted ? "1px solid var(--land-brass)" : "1px solid var(--land-line)",
-              borderRadius: "6px", padding: "40px", position: "relative",
-            }}>
+            <div
+              key={plan.name}
+              className={`rounded-3xl p-9 relative ${plan.highlighted ? "bg-primary text-inverse" : "bg-white border border-border"}`}
+            >
               {plan.highlighted && (
-                <div style={{
-                  position: "absolute", top: "-1px", right: "-1px",
-                  background: "var(--land-brass)", color: "var(--land-ink)", fontSize: "10px", fontWeight: 600,
-                  padding: "5px 14px", letterSpacing: "0.06em", borderRadius: "0 6px 0 6px",
-                }}>RECOMMANDÉ</div>
+                <div className="absolute top-6 right-6 bg-inverse/15 text-inverse text-[10px] font-bold px-3 py-1.5 rounded-full tracking-wide">
+                  RECOMMANDÉ
+                </div>
               )}
-              <h3 className="font-display" style={{
-                fontSize: "19px", fontWeight: 500,
-                color: plan.highlighted ? "#FBFAF6" : "var(--land-ink)", marginBottom: "8px",
-              }}>{plan.name}</h3>
-              <p style={{
-                fontSize: "13.5px", marginBottom: "28px", lineHeight: 1.6,
-                color: plan.highlighted ? "#9CA79C" : "var(--land-muted)",
-              }}>{plan.description}</p>
-              <div style={{ marginBottom: "32px", display: "flex", alignItems: "baseline", gap: "6px" }}>
-                <span className="font-mono" style={{
-                  fontSize: "40px", fontWeight: 500,
-                  color: plan.highlighted ? "#FBFAF6" : "var(--land-ink)",
-                }}>{plan.price} €</span>
-                <span style={{ fontSize: "13px", color: plan.highlighted ? "#9CA79C" : "var(--land-muted)" }}>/ mois</span>
+              <h3 className={`text-lg font-semibold mb-2 ${plan.highlighted ? "text-inverse" : "text-primary"}`}>{plan.name}</h3>
+              <p className={`text-sm mb-7 leading-relaxed ${plan.highlighted ? "text-inverse/75" : "text-tertiary"}`}>{plan.description}</p>
+              <div className="flex items-baseline gap-1.5 mb-8">
+                <span className={`text-4xl font-bold tabular-nums ${plan.highlighted ? "text-inverse" : "text-primary"}`}>{plan.price} €</span>
+                <span className={`text-sm ${plan.highlighted ? "text-inverse/75" : "text-tertiary"}`}>/ mois</span>
               </div>
-              <div style={{ marginBottom: "32px", display: "flex", flexDirection: "column", gap: "13px" }}>
+              <div className="flex flex-col gap-3.5 mb-8">
                 {plan.features.map((feature) => (
-                  <div key={feature} style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
-                    <span style={{ color: "var(--land-brass)", fontSize: "12px", flexShrink: 0 }}>—</span>
-                    <span style={{ fontSize: "13.5px", color: plan.highlighted ? "#D6DAD3" : "var(--land-muted)" }}>{feature}</span>
+                  <div key={feature} className="flex items-center gap-2.5">
+                    <Check size={15} className={`shrink-0 ${plan.highlighted ? "text-inverse" : "text-primary"}`} />
+                    <span className={`text-sm ${plan.highlighted ? "text-inverse/90" : "text-tertiary"}`}>{feature}</span>
                   </div>
                 ))}
               </div>
-              <Link href={plan.href} style={{
-                display: "block", textAlign: "center",
-                background: plan.highlighted ? "var(--land-brass)" : "var(--land-ink)",
-                color: plan.highlighted ? "var(--land-ink)" : "#FBFAF6",
-                textDecoration: "none", padding: "14px", borderRadius: "3px",
-                fontSize: "14px", fontWeight: 600, letterSpacing: "0.01em",
-              }}>{plan.cta}</Link>
+              <Link
+                href={plan.href}
+                className={`block text-center py-3.5 rounded-full text-sm font-bold no-underline transition-opacity hover:opacity-90 ${plan.highlighted ? "bg-inverse text-primary" : "bg-primary text-inverse"}`}
+              >
+                {plan.cta}
+              </Link>
             </div>
           ))}
         </div>

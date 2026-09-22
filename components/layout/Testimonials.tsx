@@ -1,5 +1,7 @@
 "use client";
 
+const avatarColors = ["bg-info", "bg-violet", "bg-success"];
+
 const testimonials = [
   { name: "Sophie Martin", role: "Freelance designer", avatar: "SM", content: "BudGest a complètement changé ma façon de gérer mes finances. En tant que freelance, je jonglais entre plusieurs sources de revenus — maintenant tout est clair en un coup d'œil." },
   { name: "Karim Benali", role: "Ingénieur logiciel", avatar: "KB", content: "L'interface est incroyablement propre. Les vues par semaine m'ont aidé à identifier que je dépensais 40% de mon budget en restaurants sans m'en rendre compte." },
@@ -11,40 +13,28 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section className="landing" style={{ background: "var(--land-parchment)", padding: "104px 24px" }}>
-      <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "64px" }}>
-          <div className="landing-eyebrow" style={{ color: "var(--land-forest)", marginBottom: "20px", justifyContent: "center" }}>
+    <section className="bg-white py-24 px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center max-w-lg mx-auto mb-16">
+          <div className="inline-flex items-center gap-2 bg-neutral text-tertiary text-xs font-bold px-4 py-2 rounded-full mb-5">
             Témoignages
           </div>
-          <h2 className="font-display" style={{
-            fontWeight: 500, color: "var(--land-ink)", marginBottom: "16px",
-            fontSize: "clamp(28px, 3.6vw, 38px)",
-          }}>
-            Consigné par ceux qui <em style={{ fontStyle: "italic", color: "var(--land-forest)" }}>tiennent leurs comptes</em>
+          <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-semibold text-primary leading-tight">
+            Ils gèrent leur budget <span className="text-info">sereinement</span>
           </h2>
         </div>
 
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "1px", background: "var(--land-line)", border: "1px solid var(--land-line)",
-        }}>
-          {testimonials.map((t) => (
-            <div key={t.name} style={{ background: "var(--land-paper)", padding: "30px" }}>
-              <div className="font-display" style={{ fontSize: "30px", color: "var(--land-brass)", lineHeight: 0.5, marginBottom: "18px" }}>
-                &quot;
-              </div>
-              <p style={{ fontSize: "13.5px", color: "var(--land-muted)", lineHeight: 1.75, marginBottom: "24px" }}>{t.content}</p>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px", paddingTop: "16px", borderTop: "1px solid var(--land-line)" }}>
-                <div style={{
-                  width: "36px", height: "36px", borderRadius: "50%", border: "1px solid var(--land-brass)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "12px", fontWeight: 600, color: "var(--land-forest)", flexShrink: 0,
-                }}>{t.avatar}</div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {testimonials.map((t, i) => (
+            <div key={t.name} className="hover-lift bg-neutral rounded-3xl p-7">
+              <p className="text-sm text-tertiary leading-relaxed mb-6">&quot;{t.content}&quot;</p>
+              <div className="flex items-center gap-3 pt-5 border-t border-border">
+                <div className={`w-10 h-10 rounded-full ${avatarColors[i % avatarColors.length]} flex items-center justify-center text-white text-xs font-bold shrink-0`}>
+                  {t.avatar}
+                </div>
                 <div>
-                  <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--land-ink)" }}>{t.name}</div>
-                  <div style={{ fontSize: "11.5px", color: "var(--land-muted)" }}>{t.role}</div>
+                  <div className="text-sm font-bold text-primary">{t.name}</div>
+                  <div className="text-xs text-tertiary">{t.role}</div>
                 </div>
               </div>
             </div>

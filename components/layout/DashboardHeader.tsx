@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Search, Bell, HelpCircle, X } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 export default function DashboardHeader() {
   const [search, setSearch] = useState("");
@@ -47,6 +48,8 @@ export default function DashboardHeader() {
       {/* Actions droite */}
       <div className="flex items-center gap-3">
 
+        <ThemeToggle />
+
         {/* Notifications */}
         <button className="relative w-9 h-9 rounded-xl bg-neutral border border-border flex items-center justify-center hover:bg-neutral-dark transition-colors">
           <Bell size={16} className="text-tertiary" />
@@ -64,7 +67,7 @@ export default function DashboardHeader() {
         <div
           onClick={() => router.push("/parametres")}
           className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
-          <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+          <div className="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-inverse text-xs font-bold shrink-0">
             {initials}
           </div>
           <div>

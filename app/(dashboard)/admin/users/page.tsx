@@ -115,7 +115,7 @@ export default function AdminUsersPage() {
       <ToastContainer toasts={toasts} onRemove={remove} />
 
       <div>
-        <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
+        <h1 className="text-[28px] font-semibold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
           Utilisateurs
         </h1>
         <p className="text-sm text-tertiary">{total} compte{total > 1 ? "s" : ""} au total.</p>
@@ -181,12 +181,12 @@ export default function AdminUsersPage() {
                       <p className="text-xs text-tertiary">{u.email}</p>
                     </td>
                     <td className="px-5 py-4">
-                      <span className={`text-xs font-semibold px-2 py-1 rounded-lg ${u.role === "admin" ? "bg-secondary/10 text-secondary" : "bg-neutral text-tertiary"}`}>
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${u.role === "admin" ? "bg-violet/10 text-violet" : "bg-neutral text-tertiary"}`}>
                         {u.role === "admin" ? "Admin" : "Utilisateur"}
                       </span>
                     </td>
                     <td className="px-5 py-4">
-                      <span className={`text-xs font-semibold px-2 py-1 rounded-lg ${u.active ? "bg-success/10 text-success" : "bg-danger/10 text-danger"}`}>
+                      <span className={`text-xs font-semibold px-2 py-1 rounded-full ${u.active ? "bg-success/10 text-success" : "bg-danger/10 text-danger"}`}>
                         {u.active ? "Actif" : "Désactivé"}
                       </span>
                     </td>
@@ -276,7 +276,7 @@ export default function AdminUsersPage() {
             </div>
             <button
               onClick={() => setTempPasswordFor(null)}
-              className="w-full bg-primary text-white py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors"
+              className="w-full bg-primary text-inverse py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors"
             >
               J&apos;ai noté le mot de passe
             </button>

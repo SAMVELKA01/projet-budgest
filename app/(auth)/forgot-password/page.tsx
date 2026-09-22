@@ -31,33 +31,33 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen grid lg:grid-cols-2 bg-white">
-      <div className="hidden lg:flex flex-col justify-between p-12 bg-neutral border-r border-border">
-        <div className="flex items-center gap-2">
-          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white font-bold">B</div>
-          <span className="font-bold text-xl text-primary" style={{ fontFamily: "var(--font-heading)" }}>BudGest</span>
+    <div className="min-h-screen grid lg:grid-cols-2 bg-app">
+      <div className="hidden lg:flex flex-col justify-between p-12 bg-primary">
+        <div className="flex items-center gap-2.5">
+          <div className="w-10 h-10 bg-inverse/15 rounded-2xl flex items-center justify-center text-inverse font-bold">B</div>
+          <span className="font-bold text-xl text-inverse">BudGest</span>
         </div>
         <div className="space-y-4">
-          <h1 className="text-5xl font-bold text-primary leading-tight" style={{ fontFamily: "var(--font-heading)" }}>
+          <h1 className="text-5xl font-semibold text-inverse leading-tight tracking-tight">
             Mot de passe <br /> oublié ?
           </h1>
-          <p className="text-tertiary max-w-sm">
+          <p className="text-inverse/70 max-w-sm text-base leading-relaxed">
             Pas de panique. Indiquez votre email et nous vous envoyons un lien pour en choisir un nouveau.
           </p>
         </div>
-        <div className="text-xs font-semibold text-tertiary tracking-widest uppercase">
-          © 2026 BudGest — L&apos;observatoire de l&apos;équilibre
+        <div className="text-xs font-semibold text-inverse/50 tracking-wide">
+          © 2026 BudGest
         </div>
       </div>
 
-      <div className="flex flex-col justify-center items-center p-8 lg:p-24">
+      <div className="flex flex-col justify-center items-center p-8 lg:p-24 bg-white">
         <div className="w-full max-w-sm">
           <Link href="/login" className="inline-flex items-center gap-1 text-xs font-semibold text-tertiary hover:text-primary mb-8 no-underline">
             <ArrowLeft size={14} /> Retour à la connexion
           </Link>
 
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-primary mb-2" style={{ fontFamily: "var(--font-heading)" }}>
+            <h2 className="text-3xl font-semibold text-primary mb-2">
               Réinitialiser le mot de passe
             </h2>
             <p className="text-tertiary text-sm">Nous vous enverrons un lien de réinitialisation.</p>
@@ -79,8 +79,8 @@ export default function ForgotPasswordPage() {
               )}
               <div className="flex flex-col gap-5">
                 <div>
-                  <label className="text-[10px] font-bold text-primary uppercase tracking-widest mb-2 block">Email</label>
-                  <div className="flex items-center gap-3 border border-border rounded-lg px-4 py-3 bg-neutral focus-within:border-secondary transition-all">
+                  <label className="text-[11px] font-semibold text-tertiary uppercase tracking-widest mb-2 block">Email</label>
+                  <div className="flex items-center gap-3 rounded-lg px-4 py-3 bg-neutral focus-within:ring-2 focus:ring-primary transition-all">
                     <Mail size={16} className="text-tertiary" />
                     <input
                       type="email"
@@ -95,7 +95,7 @@ export default function ForgotPasswordPage() {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="w-full bg-primary text-white py-3 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-2"
+                  className="w-full bg-primary text-inverse py-3.5 rounded-full font-semibold text-sm hover:bg-primary-light transition-colors flex items-center justify-center gap-2 mt-2 disabled:opacity-60"
                 >
                   {loading ? "Envoi..." : <>Envoyer le lien <ArrowRight size={16} /></>}
                 </button>

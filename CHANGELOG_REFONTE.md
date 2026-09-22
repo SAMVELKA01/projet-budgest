@@ -466,3 +466,257 @@ tous les fichiers temporaires supprimés une fois les tests terminés.
 - `pnpm lint` : ✅ 0 erreur, 0 warning
 - `pnpm dev` : ✅ démarre sans erreur, pages publiques et redirections des
   pages protégées vérifiées par requêtes HTTP réelles
+
+## Phase 4 (v2) — Refonte du design suite au retour utilisateur
+
+L'identité "banque privée" (bleu marine + laiton, serif Newsreader, coins
+peu arrondis, décrite plus haut) n'a **pas convenu** : jugée illisible et pas
+du tout dans l'esprit recherché. L'utilisateur a fourni deux images de
+référence (maquettes d'app fintech mobile, une claire une sombre) demandant
+un style "exactement" identique, en violet plutôt que les couleurs des
+images. Nouvelle identité, appliquée à toute l'app y compris la landing :
+
+- **Palette** : violet `#6C5DD3` comme couleur de marque/accent (boutons,
+  liens, états actifs), encre quasi-noire `#15131F` pour la sidebar et le
+  texte, fond très clair `#F7F7FC`. Mode sombre aligné sur l'image de
+  référence sombre (fond quasi-noir `#121018`, cartes `#1C1A28`).
+- **Typographie** : une seule famille, Plus Jakarta Sans (géométrique,
+  arrondie), pour titres et corps de texte — abandon du couple serif/mono
+  précédent.
+- **Rayons de bordure** : très généreux (14 à 28px selon la taille), plus
+  proches de l'esthétique "app mobile" que du style "document financier"
+  précédent.
+- **Landing page refaite entièrement** (Hero, Navbar, Features, Pricing,
+  Testimonials, FAQ, Footer) : abandon du concept éditorial "relevé
+  bancaire" au profit d'une landing SaaS moderne classique (bandeau violet,
+  carte d'aperçu du dashboard flottante, badges d'icônes colorés). Passage
+  d'un style à base de `style={{ }}` inline vers des classes Tailwind
+  standard, cohérent avec le reste de l'app.
+- **Palettes de catégories/objectifs** : repassées à des couleurs vives
+  (violet, teal, ambre, rose, bleu, vert...) plutôt que les tons sourds de
+  la V1 "banque privée".
+- **Cartes sans bordure** : deuxième retour ("les cartes et les bordures ne
+  sont pas comme sur l'image") — remplacé `border border-border` par
+  `shadow-sm` sur la quasi-totalité des cartes de contenu (~36 occurrences
+  sur 10 fichiers), pour un rendu "élevé par l'ombre" plutôt que "délimité
+  par un trait", conforme aux maquettes de référence. Bordures conservées
+  uniquement sur les petits éléments de contrôle (barre de recherche,
+  interrupteur d'onglets) où elles restent pertinentes.
+- Bug corrigé au passage : `app/(dashboard)/admin/page.tsx` utilisait des
+  classes `bg-light`/`bg-light/50`, un token de couleur qui n'a jamais existé
+  dans le thème — ces éléments n'avaient donc aucun fond. Remplacées par
+  `bg-neutral`/`bg-neutral-dark`.
+
+### Bug de résilience corrigé : connexion MongoDB qui reste bloquée
+
+En diagnostiquant une erreur `MongooseServerSelectionError` (IP non
+autorisée dans MongoDB Atlas — un réglage à faire côté utilisateur, hors de
+portée du code), un vrai bug a été trouvé dans `lib/db/mongoose.ts` : une
+fois la première tentative de connexion échouée, la promesse rejetée restait
+mise en cache indéfiniment (`cached.promise`), donc **toutes** les requêtes
+suivantes rejouaient la même erreur — même après correction du problème côté
+Atlas — jusqu'à un redémarrage complet du serveur. Corrigé en réinitialisant
+`cached.promise` à `null` en cas d'échec, pour que l'appel suivant retente
+une vraie connexion au lieu de rejouer l'échec en cache.
+
+## Phase 7 — Refonte design "Bento Neutre" (2026-09-22)
+
+Nouvelle demande explicite de l'utilisateur : abandon complet de l'identité
+violet/serif (V1 "banque privée" puis V2 "fintech mobile violette", décrites
+plus haut) au profit d'un système **"Bento Neutre"** — noir/blanc comme
+seule couleur de marque, fond neutre chaud, cartes définies par une bordure
+fine plutôt qu'une ombre, une seule police sans-serif géométrique, couleurs
+vives réservées strictement aux données. Direction fournie avec un jeu de
+tokens exact (hex précis) et trois captures de dashboards de référence
+(style "bento" : cards blanches sur fond beige/gris clair, icônes discrètes,
+chiffres héros en gras). Travail exécuté en autonomie complète, page par
+page, sans validation intermédiaire.
+
+### Fondations (`app/globals.css`, `app/layout.tsx`)
+
+- Jeu de tokens `@theme` entièrement redéfini :
+  - `--color-app` (nouveau) : fond de page neutre chaud, distinct du fond
+    des cards. `--color-neutral`/`--color-neutral-dark` deviennent le rôle
+    "bg-card-alt" (inputs, cercles d'icônes, pistes de barres de
+    progression, survols) plutôt que le fond de page — `bg-neutral` sur les
+    wrappers de section pleine page a été renommé en `bg-app` (3 endroits :
+    layout dashboard, Hero, Pricing, FAQ) pour séparer proprement les deux
+    rôles qui étaient confondus dans l'ancien système.
+  - `--color-primary`/`--color-secondary` pointent maintenant vers la même
+    encre noire (`#13141A` clair / `#F5F5F2` sombre) — **plus aucune
+    couleur violette de marque**. Comme `text-secondary`/`bg-secondary`
+    n'étaient utilisés dans le code existant QUE comme accent de marque
+    générique (jamais comme "texte secondaire" sémantique), ce simple
+    changement de valeur de token a corrigé automatiquement ~70 usages
+    (liens, focus, badges, icônes) sans avoir à renommer une seule classe.
+  - `--color-inverse` (nouveau) : blanc en clair / encre en sombre — le texte
+    qui doit rester lisible sur un bouton ou bandeau `bg-primary`, qui lui
+    s'inverse avec le thème. **Bug corrigé au passage** : l'ancien système
+    n'avait pas cette notion et utilisait du texte blanc en dur sur les
+    boutons `bg-primary` — en mode sombre, `bg-primary` devient clair, donc
+    ce texte blanc serait devenu illisible (blanc sur blanc). Toutes les
+    occurrences (`bg-primary text-white` / `bg-secondary text-white`, ~60
+    dans les 8 pages du dashboard + Sidebar + ConfirmModal) ont été migrées
+    vers `text-inverse`.
+  - Nouvelles couleurs de données : `--color-info` (bleu, IA), `--color-violet`
+    (violet, catégories — usage ponctuel uniquement désormais), en plus de
+    `--color-success`/`--color-danger`/`--color-warning` recolorées vers la
+    palette "Bento Neutre" exacte (vert `#4CAF7D`, rouge `#E15B5B`, orange
+    `#E8A33D`).
+  - `--color-sidebar` (existait mais n'était pas utilisé) : maintenant
+    réellement appliqué à la sidebar (voir plus bas).
+  - Rayons ajustés : `--radius-xl` (boutons) passé de 18px à 12px comme
+    demandé ; `--radius-2xl` (cards) laissé à 22px, déjà dans la fourchette
+    20-24px demandée.
+  - Mode sombre : même mécanisme que l'existant (overrides `[data-theme="dark"] .classe { ... !important }`,
+    car les tokens Tailwind v4 de ce projet sont inlinés à la compilation et
+    non exposés comme variables CSS réassignables à la volée) mais entièrement
+    recalculé pour les nouvelles valeurs, plus les nouveaux sélecteurs
+    `.bg-app`, `.bg-sidebar`, `.bg-primary`, `.text-inverse`/`.bg-inverse`.
+- Police : `Plus_Jakarta_Sans` remplacée par `Geist` (`next/font/google`),
+  seule famille pour titres et corps de texte.
+- `ThemeContext` : ajout de la détection de préférence système
+  (`prefers-color-scheme`) quand aucun choix n'est enregistré en
+  localStorage, au lieu de toujours forcer le clair — clair reste le
+  défaut si le système ne préfère pas le sombre, conforme à la consigne.
+- Nouveau composant `components/ui/ThemeToggle.tsx`, ajouté dans
+  `DashboardHeader` (desktop) ; le sélecteur clair/sombre déjà présent dans
+  Paramètres reste fonctionnel et partage le même contexte.
+
+### Sidebar & Header (`components/layout/Sidebar.tsx`, `DashboardHeader.tsx`)
+
+- Fond de la sidebar (desktop, barre mobile, tiroir mobile) : `bg-primary`
+  (encre pleine, ne s'inversait jamais avec le thème) → `bg-sidebar` (blanc
+  en clair / noir profond en sombre, comme spécifié).
+- Item de navigation actif : bloc violet plein + texte blanc → fond discret
+  `bg-neutral` + texte/icône `text-primary` + petite pastille verticale
+  `bg-primary` à gauche (repère visuel sans bloc plein).
+- Avatar utilisateur, logo, bouton "Nouvelle transaction" : recolorés en
+  `bg-primary`/`text-inverse`.
+
+### Landing page (`components/layout/*.tsx`, `app/not-found.tsx`)
+
+- Navbar, Hero, Features, Pricing, Testimonials, FAQ, Footer : tous les
+  accents violets (`bg-secondary`, `text-secondary`, badges `bg-secondary/10`)
+  recolorés en noir/blanc (`bg-primary`/`text-inverse`) ou en couleur de
+  donnée dédiée (`text-info` pour les mentions IA).
+- Cards de la grille "Fonctionnalités" et "Témoignages" : cercles d'icônes
+  colorés (violet/teal/ambre en 15% d'opacité) → cercles neutres `bg-white`
+  sur fond `bg-neutral`, avec l'icône elle-même colorée seulement quand un
+  sens réel existe (IA = bleu, objectifs = vert).
+- Footer : ancien bandeau plein `bg-primary` (toujours sombre, quel que soit
+  le thème, avec texte blanc en dur) remplacé par un footer neutre
+  (`bg-white`, texte `text-primary`/`text-tertiary`) qui suit le thème
+  correctement — l'ancien bandeau aurait cassé en mode sombre (`bg-primary`
+  devient clair, le texte blanc en dur serait devenu illisible).
+- `app/not-found.tsx` : ce fichier utilisait encore un **style inline
+  totalement différent** de l'app (`background: "#0B1F3A"`, police
+  `var(--font-manrope)` qui n'existe même plus depuis la V2), reste de la
+  toute première identité "banque privée". Réécrit avec les classes
+  Tailwind du système actuel.
+- Panneau de gauche des pages `/login`, `/register`, `/forgot-password`,
+  `/reset-password` : `bg-secondary` (violet) → `bg-primary`, textes
+  `text-white` → `text-inverse` (nécessaire pour rester lisible si l'app
+  bascule en sombre, où `bg-primary` s'inverse en clair).
+- `/register` : ajout d'une barre de force du mot de passe (4 segments,
+  couleur selon le nombre de critères remplis — longueur, majuscule,
+  chiffre, caractère spécial), demandée dans le brief.
+
+### Dashboard — toutes les pages
+
+Traitement systématique appliqué à `dashboard`, `transactions`, `budgets`,
+`categories`, `objectifs`, `statistiques`, `assistant`, `admin`,
+`admin/users`, `parametres` :
+
+- Cards : `bg-white shadow-sm rounded-2xl` (ombre, pas de bordure) →
+  `bg-white border border-border rounded-2xl` (bordure fine, quasi pas
+  d'ombre en clair) — conforme à la consigne explicite sur le mode clair.
+  Les cards interactives (catégories, objectifs) gardent un léger
+  `hover:shadow-lg` en plus de la bordure, pour le retour visuel au survol.
+- Cards métriques : icônes déplacées de cercles teintés par couleur
+  (`bg-success/10`, `bg-secondary/10`, `bg-teal/10`, `bg-[#EC4899]/10`...)
+  vers des cercles neutres uniques `bg-neutral`, l'icône elle-même gardant
+  sa couleur sémantique quand elle en a une (vert = revenu, rouge = dépense,
+  orange = alerte) — conforme à "supprime les cercles de fond colorés
+  pleins qui cassent la cohérence". Chiffres héros passés en
+  `tabular-nums`, taille augmentée (`text-3xl`/`text-4xl`), labels remontés
+  en caption uppercase `text-[11px] tracking-wider`.
+- Boutons d'action principale ("Ajouter une transaction", "Nouveau
+  budget", "Nouvelle catégorie", "Nouvel objectif") : déjà en `bg-primary`
+  dans le code existant (jamais violets à cette échelle précise), mais le
+  texte est passé de `text-white` à `text-inverse` pour rester lisible en
+  mode sombre.
+- Inputs de formulaire (modales "Nouvelle transaction"/"Nouveau
+  budget"/etc.) : `border border-border` + `focus:border-secondary` (violet)
+  → `bg-neutral` sans bordure lourde + `focus:ring-2 focus:ring-primary`,
+  conforme à la consigne "inputs en bg-card-alt sans bordure lourde, focus
+  visible net".
+- Graphiques : couleurs codées en dur (`#22C55E`, `#EF4444`, `#15131F`,
+  `#EDEDF7`, ancien vert/rouge/encre/bordure) remplacées par la nouvelle
+  palette de données (`#4CAF7D`, `#E15B5B`, `#13141A`). Légendes converties
+  en pills (`bg-neutral` + point de couleur + libellé) sur Tableau de bord,
+  Statistiques et Assistant IA (prévisions), conforme à "légendes en
+  pills".
+- Bandeau Assistant IA (Tableau de bord) : contraste fort `bg-primary`
+  conservé tel que demandé ("conserve le principe d'un bloc à fort
+  contraste"), texte passé en `text-inverse` pour la même raison que
+  partout ailleurs.
+- Assistant IA (page) : suggestions cliquables passées en pills
+  (`rounded-full`), icônes Sparkles/Lightbulb/TrendingUp recolorées en
+  bleu (`text-info`, couleur dédiée IA) au lieu du violet générique. Le
+  rendu d'un mini-graphique *dans une réponse de chat* n'a pas été
+  implémenté : l'API `/api/ai/chat` actuelle renvoie du texte libre, pas de
+  données structurées de graphique — ce serait un ajout fonctionnel côté
+  IA/API, hors du périmètre d'une refonte purement design. Le point est
+  documenté ci-dessous dans les tâches restantes.
+- Palettes de couleurs "au choix" (sélecteur de couleur catégorie/objectif,
+  couleur rapide à la création) : conservées comme fonctionnalité
+  (l'utilisateur choisit la couleur de SA catégorie, ce n'est pas une
+  couleur de marque) mais réordonnées pour ne plus proposer le violet
+  `#6C5DD3` en première position par défaut.
+- Titres de page (`h1`) : taille remontée de `text-2xl` (24px, sous la
+  fourchette demandée) à 28px, poids `font-bold` → `font-semibold`,
+  conforme à "H1 de page 28-32px semi-bold".
+- Badges de rôle admin (`admin/users`) : recolorés en violet (`--color-violet`,
+  seul usage légitime restant pour "accent secondaire ponctuel") plutôt
+  qu'en gris neutre, pour rester visuellement distinguable du badge de
+  statut actif/inactif (vert/rouge) juste à côté.
+
+### Vérification
+
+- `pnpm build` : compile et type-check sans erreur.
+- `pnpm lint` : 0 erreur, 0 warning.
+- Serveur `pnpm dev` déjà actif réutilisé (hot-reload Turbopack) : pages
+  publiques (`/`, `/login`, `/register`, `/forgot-password`) vérifiées à
+  200, redirections protégées (`/dashboard`, `/admin`) vérifiées à 307,
+  page 404 personnalisée vérifiée. HTML et CSS compilés inspectés
+  directement (`curl`) pour confirmer l'absence de toute trace de
+  `#6C5DD3` (violet) ou de la police Jakarta, et la présence des nouveaux
+  tokens (`bg-app`, encre `#13141A`, règles `[data-theme="dark"]`).
+- Aucun outil de capture d'écran natif n'étant disponible dans cet
+  environnement (pas de navigateur MCP connecté), Playwright + Chromium
+  ont été installés ponctuellement (non ajoutés aux dépendances du projet)
+  pour une vérification visuelle réelle, en plus de la vérification
+  fonctionnelle ci-dessus.
+- **Bug réel trouvé grâce à cette vérification visuelle, invisible au
+  build/lint** : tous les titres s'affichaient dans une police à
+  empattements (serif) au lieu de Geist. Cause : la classe de police
+  next/font était posée sur `<body>` (`app/layout.tsx`) alors que les
+  tokens `--font-sans`/`--font-heading` sont consommés au niveau
+  `<html>`/`:root` — un ancêtre de `<body>` ne peut pas lire une variable
+  CSS définie sur un descendant. `font-family: var(--font-heading)`
+  devenait donc invalide au niveau `<html>`, et le navigateur retombait
+  sur sa police par défaut (serif), héritée par toute la page. Corrigé en
+  déplaçant `className={geist.variable}` de `<body>` vers `<html>`.
+  Revérifié avec un script de diagnostic (lecture de la police réellement
+  calculée par le navigateur sur plusieurs éléments) : Geist s'applique
+  maintenant correctement partout.
+- Vérification visuelle complète : compte de test créé
+  (`qa-test-bento@example.invalid`), connexion réelle, captures d'écran de
+  la landing page, connexion, inscription, tableau de bord, transactions,
+  budgets, objectifs, statistiques, catégories, assistant IA et paramètres
+  — en mode clair et en mode sombre. Rendu conforme au design system sur
+  toutes les pages testées (bento neutre, pas de violet résiduel, pas de
+  serif, texte lisible dans les deux modes). Compte de test supprimé après
+  vérification (`DELETE /api/users/profile`), aucune donnée de test
+  laissée en base.

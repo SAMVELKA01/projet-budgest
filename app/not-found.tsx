@@ -1,54 +1,36 @@
 import Link from "next/link";
+import { Wallet } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#0B1F3A",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      padding: "24px",
-    }}>
-      <div style={{ textAlign: "center", maxWidth: "480px" }}>
-
-        {/* Logo */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", marginBottom: "48px" }}>
-          <div style={{
-            width: "40px", height: "40px", background: "#3B82F6", borderRadius: "12px",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            fontWeight: 700, fontSize: "18px", color: "#fff",
-          }}>B</div>
-          <span style={{ fontFamily: "var(--font-manrope)", fontWeight: 700, fontSize: "22px", color: "#fff" }}>BudGest</span>
+    <div className="min-h-screen bg-app flex items-center justify-center p-6">
+      <div className="text-center max-w-md">
+        <div className="flex items-center justify-center gap-2.5 mb-12">
+          <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center shrink-0">
+            <Wallet size={18} className="text-inverse" />
+          </div>
+          <span className="font-bold text-xl text-primary">BudGest</span>
         </div>
 
-        {/* 404 */}
-        <div style={{
-          fontSize: "120px", fontWeight: 800, color: "rgba(59,130,246,0.15)",
-          lineHeight: 1, marginBottom: "24px", fontFamily: "var(--font-manrope)",
-        }}>404</div>
+        <div className="text-[120px] font-bold text-neutral-dark leading-none mb-6 tabular-nums">404</div>
 
-        <h1 style={{
-          fontFamily: "var(--font-manrope)", fontSize: "28px", fontWeight: 700,
-          color: "#fff", marginBottom: "12px",
-        }}>Page introuvable</h1>
+        <h1 className="text-[28px] font-semibold text-primary mb-3">Page introuvable</h1>
 
-        <p style={{ fontSize: "16px", color: "#64748B", lineHeight: 1.7, marginBottom: "40px" }}>
+        <p className="text-base text-tertiary leading-relaxed mb-10">
           La page que vous cherchez n&apos;existe pas ou a été déplacée.
         </p>
 
-        <div style={{ display: "flex", gap: "12px", justifyContent: "center", flexWrap: "wrap" }}>
-          <Link href="/dashboard" style={{
-            background: "#3B82F6", color: "#fff", textDecoration: "none",
-            padding: "12px 24px", borderRadius: "10px", fontSize: "15px", fontWeight: 600,
-          }}>
+        <div className="flex gap-3 justify-center flex-wrap">
+          <Link
+            href="/dashboard"
+            className="bg-primary text-inverse no-underline px-6 py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors"
+          >
             Tableau de bord →
           </Link>
-          <Link href="/" style={{
-            background: "rgba(255,255,255,0.06)", color: "#fff", textDecoration: "none",
-            padding: "12px 24px", borderRadius: "10px", fontSize: "15px", fontWeight: 500,
-            border: "1px solid rgba(255,255,255,0.12)",
-          }}>
+          <Link
+            href="/"
+            className="border border-border text-primary no-underline px-6 py-3 rounded-xl text-sm font-semibold hover:bg-neutral transition-colors"
+          >
             Accueil
           </Link>
         </div>

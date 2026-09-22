@@ -25,6 +25,17 @@ export async function connectDB() {
     cached.promise = mongoose.connect(MONGODB_URI).then((m) => m);
   }
 
-  cached.conn = await cached.promise;
+  try {
+    cached.conn = await cached.promise;
+  } catch (err) {
+    // Sans ça, une première connexion échouée (whitelist IP, cluster qui
+    // démarre, etc.) restait mise en cache indéfiniment : toutes les
+    // requêtes suivantes rejouaient la même erreur, même une fois le
+    // problème résolu côté Atlas, jusqu'au redémarrage du serveur. On
+    // réinitialise pour que le prochain appel retente une vraie connexion.
+    cached.promise = null;
+    throw err;
+  }
+
   return cached.conn;
 }

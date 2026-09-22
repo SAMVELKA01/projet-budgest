@@ -28,14 +28,14 @@ interface Objectif {
 
 const emojis = ["🎯", "✈️", "💻", "🚗", "🏠", "🎓", "💍", "🏖️", "🛡️", "🏦"];
 const colors = [
-  "#3B82F6",
-  "#10B981",
-  "#F59E0B",
-  "#8B5CF6",
+  "#5B8DEF",
+  "#4CAF7D",
+  "#E8A33D",
+  "#E15B5B",
+  "#8B7CF6",
+  "#14B8A6",
   "#EC4899",
-  "#EF4444",
-  "#64748B",
-  "#06B6D4",
+  "#F97316",
 ];
 
 export default function ObjectifsPage() {
@@ -53,7 +53,7 @@ export default function ObjectifsPage() {
     target: "",
     saved: "",
     deadline: "",
-    colorHex: "#3B82F6",
+    colorHex: "#5B8DEF",
   });
   const { toasts, toast, remove } = useToast();
   const { format, symbol } = useDevise();
@@ -83,7 +83,7 @@ export default function ObjectifsPage() {
       target: "",
       saved: "",
       deadline: "",
-      colorHex: "#3B82F6",
+      colorHex: "#5B8DEF",
     });
     setShowModal(true);
   };
@@ -181,8 +181,8 @@ export default function ObjectifsPage() {
     if (pct >= 75)
       return {
         label: "Presque",
-        color: "text-secondary",
-        bg: "bg-secondary/10",
+        color: "text-info",
+        bg: "bg-info/10",
       };
     if (pct >= 40)
       return { label: "En cours", color: "text-warning", bg: "bg-warning/10" };
@@ -195,7 +195,7 @@ export default function ObjectifsPage() {
       <div className="flex items-start justify-between">
         <div>
           <h1
-            className="text-2xl font-bold text-primary"
+            className="text-[28px] font-semibold text-primary"
             style={{ fontFamily: "var(--font-heading)" }}
           >
             Objectifs d&apos;épargne
@@ -206,7 +206,7 @@ export default function ObjectifsPage() {
         </div>
         <button
           onClick={openCreate}
-          className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2"
+          className="bg-primary text-inverse px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2"
         >
           <Plus size={16} /> Nouvel objectif
         </button>
@@ -220,8 +220,7 @@ export default function ObjectifsPage() {
             value: `${objectifs.length}`,
             sub: `${completed} complété${completed > 1 ? "s" : ""}`,
             icon: Target,
-            iconColor: "text-secondary",
-            iconBg: "bg-secondary/10",
+            iconColor: "text-primary",
           },
           {
             label: "Total épargné",
@@ -229,15 +228,13 @@ export default function ObjectifsPage() {
             sub: `Sur ${format(totalTarget)} visés`,
             icon: Wallet,
             iconColor: "text-success",
-            iconBg: "bg-success/10",
           },
           {
             label: "Progression globale",
             value: `${globalPct}%`,
             sub: "Tous objectifs confondus",
             icon: TrendingUp,
-            iconColor: "text-warning",
-            iconBg: "bg-warning/10",
+            iconColor: "text-info",
           },
           {
             label: "Complétés",
@@ -245,27 +242,21 @@ export default function ObjectifsPage() {
             sub: `${objectifs.length - completed} en cours`,
             icon: Trophy,
             iconColor: "text-warning",
-            iconBg: "bg-warning/10",
           },
         ].map((kpi) => (
           <div
             key={kpi.label}
-            className="bg-white border border-border rounded-2xl p-5"
+            className="bg-white border border-border rounded-2xl p-6"
           >
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-tertiary uppercase tracking-wide">
+              <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
                 {kpi.label}
               </p>
-              <div
-                className={`w-8 h-8 rounded-xl ${kpi.iconBg} flex items-center justify-center`}
-              >
+              <div className="w-8 h-8 rounded-xl bg-neutral flex items-center justify-center">
                 <kpi.icon size={15} className={kpi.iconColor} />
               </div>
             </div>
-            <p
-              className="text-2xl font-bold text-primary"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
+            <p className="text-3xl font-bold text-primary tabular-nums">
               {kpi.value}
             </p>
             <p className="text-xs text-tertiary mt-1">{kpi.sub}</p>
@@ -294,7 +285,7 @@ export default function ObjectifsPage() {
               <div
                 key={o._id}
                 onClick={() => setSelectedId(isSelected ? null : o._id)}
-                className="bg-white border border-border rounded-2xl p-5 cursor-pointer hover:border-secondary/40 transition-all"
+                className="bg-white border border-border rounded-2xl p-5 cursor-pointer hover:shadow-lg transition-shadow"
                 style={{ borderColor: isSelected ? o.colorHex : undefined }}
               >
                 <div className="flex items-start justify-between mb-4">
@@ -396,11 +387,11 @@ export default function ObjectifsPage() {
                       placeholder={`Montant à ajouter (${symbol})`}
                       value={addAmount}
                       onChange={(e) => setAddAmount(e.target.value)}
-                      className="flex-1 border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-secondary transition-colors"
+                      className="flex-1 bg-neutral rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                     />
                     <button
                       onClick={() => handleAddFunds(o)}
-                      className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-light transition-colors"
+                      className="bg-primary text-inverse px-4 py-2 rounded-lg text-sm font-semibold hover:bg-primary-light transition-colors"
                     >
                       Ajouter
                     </button>
@@ -442,7 +433,7 @@ export default function ObjectifsPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, title: e.target.value }))
                   }
-                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
+                  className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                 />
               </div>
               <div>
@@ -493,7 +484,7 @@ export default function ObjectifsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, target: e.target.value }))
                     }
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                   />
                 </div>
                 <div>
@@ -507,7 +498,7 @@ export default function ObjectifsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, saved: e.target.value }))
                     }
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                   />
                 </div>
               </div>
@@ -521,7 +512,7 @@ export default function ObjectifsPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, deadline: e.target.value }))
                   }
-                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
+                  className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                 />
               </div>
             </div>
@@ -535,7 +526,7 @@ export default function ObjectifsPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 bg-primary text-white py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60"
+                className="flex-1 bg-primary text-inverse py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60"
               >
                 {saving
                   ? "Sauvegarde..."

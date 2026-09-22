@@ -23,7 +23,12 @@ function subscribe(callback: () => void) {
 }
 
 function getSnapshot(): Theme {
-  return (localStorage.getItem(THEME_KEY) as Theme) || "light";
+  const stored = localStorage.getItem(THEME_KEY) as Theme | null;
+  if (stored === "light" || stored === "dark") return stored;
+  // Pas de préférence enregistrée : on respecte la préférence système,
+  // sinon clair par défaut.
+  const prefersDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+  return prefersDark ? "dark" : "light";
 }
 
 function getServerSnapshot(): Theme {

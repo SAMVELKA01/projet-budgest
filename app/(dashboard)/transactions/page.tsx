@@ -26,7 +26,7 @@ interface Categorie {
 }
 
 const NEW_CATEGORY_VALUE = "__new__";
-const quickCreatePalette = ["#10B981", "#3B82F6", "#F59E0B", "#8B5CF6", "#EC4899", "#EF4444", "#06B6D4", "#F97316"];
+const quickCreatePalette = ["#5B8DEF", "#4CAF7D", "#E8A33D", "#E15B5B", "#8B7CF6", "#14B8A6", "#EC4899", "#F97316"];
 
 const types = ["Type : Tout", "Dépenses", "Revenus"];
 const ITEMS_PER_PAGE = 8;
@@ -178,7 +178,7 @@ export default function TransactionsPage() {
       <div className="flex items-start justify-between">
         <div>
           <h1
-            className="text-2xl font-bold text-primary"
+            className="text-[28px] font-semibold text-primary"
             style={{ fontFamily: "var(--font-heading)" }}
           >
             Historique des Transactions
@@ -189,7 +189,7 @@ export default function TransactionsPage() {
         </div>
         <button
           onClick={openModal}
-          className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2"
+          className="bg-primary text-inverse px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2"
         >
           <Plus size={16} /> Ajouter une transaction
         </button>
@@ -215,15 +215,12 @@ export default function TransactionsPage() {
         ].map((kpi) => (
           <div
             key={kpi.label}
-            className="bg-white border border-border rounded-2xl p-5"
+            className="bg-white border border-border rounded-2xl p-6"
           >
-            <p className="text-xs font-semibold text-tertiary uppercase tracking-wide mb-2">
+            <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider mb-2">
               {kpi.label}
             </p>
-            <p
-              className={`text-2xl font-bold ${kpi.color}`}
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
+            <p className={`text-3xl font-bold tabular-nums ${kpi.color}`}>
               {kpi.value}
             </p>
           </div>
@@ -238,7 +235,7 @@ export default function TransactionsPage() {
               setCategorieId(e.target.value);
               setPage(1);
             }}
-            className="text-sm border border-border rounded-lg px-3 py-2 text-primary bg-neutral outline-none focus:border-secondary transition-colors cursor-pointer"
+            className="text-sm rounded-full px-4 py-2 text-primary bg-neutral outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
           >
             <option value="">Toutes les catégories</option>
             {categories.map((c) => (
@@ -253,7 +250,7 @@ export default function TransactionsPage() {
               setType(e.target.value);
               setPage(1);
             }}
-            className="text-sm border border-border rounded-lg px-3 py-2 text-primary bg-neutral outline-none focus:border-secondary transition-colors cursor-pointer"
+            className="text-sm rounded-full px-4 py-2 text-primary bg-neutral outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
           >
             {types.map((opt) => (
               <option key={opt} value={opt}>
@@ -340,7 +337,7 @@ export default function TransactionsPage() {
                 <button
                   key={p}
                   onClick={() => setPage(p)}
-                  className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${page === p ? "bg-primary text-white" : "text-tertiary hover:bg-neutral border border-border"}`}
+                  className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${page === p ? "bg-primary text-inverse" : "text-tertiary hover:bg-neutral border border-border"}`}
                 >
                   {p}
                 </button>
@@ -386,7 +383,7 @@ export default function TransactionsPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, name: e.target.value }))
                   }
-                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
+                  className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -401,7 +398,7 @@ export default function TransactionsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, amount: e.target.value }))
                     }
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                   />
                 </div>
                 <div>
@@ -413,7 +410,7 @@ export default function TransactionsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, type: e.target.value }))
                     }
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white"
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     <option value="depense">Dépense</option>
                     <option value="revenu">Revenu</option>
@@ -435,7 +432,7 @@ export default function TransactionsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, categorieId: e.target.value === NEW_CATEGORY_VALUE ? "" : e.target.value }))
                     }
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white"
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     {categories.map((c) => (
                       <option key={c._id} value={c._id}>
@@ -452,13 +449,13 @@ export default function TransactionsPage() {
                       placeholder="Nom de la nouvelle catégorie"
                       value={newCatName}
                       onChange={(e) => setNewCatName(e.target.value)}
-                      className="flex-1 border border-border rounded-lg px-4 py-2.5 text-sm outline-none focus:border-secondary transition-colors"
+                      className="flex-1 bg-neutral rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                     />
                     <button
                       type="button"
                       onClick={handleCreateCategory}
                       disabled={creatingCat}
-                      className="px-4 py-2.5 rounded-lg bg-secondary text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60 shrink-0"
+                      className="px-4 py-2.5 rounded-lg bg-secondary text-inverse text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60 shrink-0"
                     >
                       {creatingCat ? "…" : "Créer"}
                     </button>
@@ -476,7 +473,7 @@ export default function TransactionsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, method: e.target.value }))
                     }
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white"
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     {[
                       "Carte Débit",
@@ -500,7 +497,7 @@ export default function TransactionsPage() {
                     onChange={(e) =>
                       setForm((f) => ({ ...f, date: e.target.value }))
                     }
-                    className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                   />
                 </div>
               </div>
@@ -515,7 +512,7 @@ export default function TransactionsPage() {
               <button
                 onClick={handleAdd}
                 disabled={saving}
-                className="flex-1 bg-primary text-white py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60"
+                className="flex-1 bg-primary text-inverse py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60"
               >
                 {saving ? "Ajout..." : "Ajouter →"}
               </button>

@@ -90,7 +90,7 @@ export default function BudgetsPage() {
               .reduce((s, t) => s + Math.abs(t.amount), 0)
           : 0;
         const cat = cats.find((c) => c._id === b.categorieId);
-        const meta = { icon: cat?.icon || "📦", colorHex: cat?.colorHex || "#94A3B8" };
+        const meta = { icon: cat?.icon || "📦", colorHex: cat?.colorHex || "#9A9CA5" };
         return { ...b, spent, ...meta };
       });
       setBudgets(enriched);
@@ -177,7 +177,7 @@ export default function BudgetsPage() {
       <div className="flex items-start justify-between">
         <div>
           <h1
-            className="text-2xl font-bold text-primary"
+            className="text-[28px] font-semibold text-primary"
             style={{ fontFamily: "var(--font-heading)" }}
           >
             Budgets
@@ -188,7 +188,7 @@ export default function BudgetsPage() {
         </div>
         <button
           onClick={openCreate}
-          className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2"
+          className="bg-primary text-inverse px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2"
         >
           <Plus size={16} /> Nouveau budget
         </button>
@@ -202,8 +202,7 @@ export default function BudgetsPage() {
             value: format(totalAlloue),
             sub: `${budgets.length} catégories`,
             icon: Wallet,
-            iconColor: "text-secondary",
-            iconBg: "bg-secondary/10",
+            iconColor: "text-primary",
           },
           {
             label: "Total dépensé",
@@ -211,7 +210,6 @@ export default function BudgetsPage() {
             sub: `${tauxGlobal}% utilisé`,
             icon: TrendingDown,
             iconColor: "text-danger",
-            iconBg: "bg-danger/10",
           },
           {
             label: "Reste disponible",
@@ -219,7 +217,6 @@ export default function BudgetsPage() {
             sub: reste >= 0 ? "Dans le budget" : "Dépassement",
             icon: TrendingUp,
             iconColor: "text-success",
-            iconBg: "bg-success/10",
           },
           {
             label: "Alertes",
@@ -230,27 +227,21 @@ export default function BudgetsPage() {
                 : `${budgetsOver} dépassement${budgetsOver > 1 ? "s" : ""}`,
             icon: AlertTriangle,
             iconColor: "text-warning",
-            iconBg: "bg-warning/10",
           },
         ].map((kpi) => (
           <div
             key={kpi.label}
-            className="bg-white border border-border rounded-2xl p-5"
+            className="bg-white border border-border rounded-2xl p-6"
           >
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-tertiary uppercase tracking-wide">
+              <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
                 {kpi.label}
               </p>
-              <div
-                className={`w-8 h-8 rounded-xl ${kpi.iconBg} flex items-center justify-center`}
-              >
+              <div className="w-8 h-8 rounded-xl bg-neutral flex items-center justify-center">
                 <kpi.icon size={15} className={kpi.iconColor} />
               </div>
             </div>
-            <p
-              className="text-2xl font-bold text-primary"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
+            <p className="text-3xl font-bold text-primary tabular-nums">
               {kpi.value}
             </p>
             <p className="text-xs text-tertiary mt-1">{kpi.sub}</p>
@@ -371,7 +362,7 @@ export default function BudgetsPage() {
                           className="h-2 rounded-full transition-all"
                           style={{
                             width: `${pct}%`,
-                            background: over ? "#EF4444" : b.colorHex,
+                            background: over ? "#E15B5B" : b.colorHex,
                           }}
                         />
                       </div>
@@ -434,7 +425,7 @@ export default function BudgetsPage() {
                       onChange={(e) =>
                         setForm((f) => ({ ...f, categorieId: e.target.value }))
                       }
-                      className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white"
+                      className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                     >
                       {categories.map((c) => (
                         <option key={c._id} value={c._id}>
@@ -456,7 +447,7 @@ export default function BudgetsPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, allocated: e.target.value }))
                   }
-                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
+                  className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                 />
               </div>
               <div>
@@ -470,7 +461,7 @@ export default function BudgetsPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, alertAt: e.target.value }))
                   }
-                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
+                  className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                 />
               </div>
             </div>
@@ -484,7 +475,7 @@ export default function BudgetsPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 bg-primary text-white py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60"
+                className="flex-1 bg-primary text-inverse py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60"
               >
                 {saving
                   ? "Sauvegarde..."

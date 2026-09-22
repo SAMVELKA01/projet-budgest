@@ -16,16 +16,16 @@ interface Categorie {
 }
 
 const colors = [
-  "#10B981",
-  "#3B82F6",
-  "#F59E0B",
-  "#8B5CF6",
-  "#EC4899",
-  "#EF4444",
-  "#64748B",
-  "#06B6D4",
-  "#0B1F3A",
-  "#F97316",
+  "#5B8DEF", // bleu
+  "#4CAF7D", // vert
+  "#E8A33D", // ambre
+  "#E15B5B", // rouge
+  "#8B7CF6", // violet (accent secondaire, usage ponctuel)
+  "#14B8A6", // teal
+  "#EC4899", // rose
+  "#F97316", // orange
+  "#06B6D4", // cyan
+  "#6366F1", // indigo
 ];
 const icons = [
   "🛒",
@@ -55,7 +55,7 @@ export default function CategoriesPage() {
   const [form, setForm] = useState({
     name: "",
     icon: "🛒",
-    colorHex: "#10B981",
+    colorHex: "#5B8DEF",
     budget: "",
   });
   const { toasts, toast, remove } = useToast();
@@ -80,7 +80,7 @@ export default function CategoriesPage() {
 
   const openCreate = () => {
     setEditingCat(null);
-    setForm({ name: "", icon: "🛒", colorHex: "#10B981", budget: "" });
+    setForm({ name: "", icon: "🛒", colorHex: "#5B8DEF", budget: "" });
     setShowModal(true);
   };
 
@@ -141,7 +141,7 @@ export default function CategoriesPage() {
       <div className="flex items-start justify-between">
         <div>
           <h1
-            className="text-2xl font-bold text-primary"
+            className="text-[28px] font-semibold text-primary"
             style={{ fontFamily: "var(--font-heading)" }}
           >
             Catégories
@@ -152,7 +152,7 @@ export default function CategoriesPage() {
         </div>
         <button
           onClick={openCreate}
-          className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2"
+          className="bg-primary text-inverse px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2"
         >
           <Plus size={16} /> Nouvelle catégorie
         </button>
@@ -168,7 +168,7 @@ export default function CategoriesPage() {
           {
             label: "Budget total alloué",
             value: `${format(categories.reduce((s, c) => s + c.budget, 0))}`,
-            color: "text-secondary",
+            color: "text-primary",
           },
           {
             label: "Avec budget défini",
@@ -178,15 +178,12 @@ export default function CategoriesPage() {
         ].map((kpi) => (
           <div
             key={kpi.label}
-            className="bg-white border border-border rounded-2xl p-5"
+            className="bg-white border border-border rounded-2xl p-6"
           >
-            <p className="text-xs font-semibold text-tertiary uppercase tracking-wide mb-2">
+            <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider mb-2">
               {kpi.label}
             </p>
-            <p
-              className={`text-2xl font-bold ${kpi.color}`}
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
+            <p className={`text-3xl font-bold tabular-nums ${kpi.color}`}>
               {kpi.value}
             </p>
           </div>
@@ -213,7 +210,7 @@ export default function CategoriesPage() {
           {categories.map((cat) => (
             <div
               key={cat._id}
-              className="bg-white border border-border rounded-2xl p-5 hover:border-secondary/40 transition-colors"
+              className="bg-white border border-border rounded-2xl p-5 hover:shadow-lg transition-shadow"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -288,7 +285,7 @@ export default function CategoriesPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, name: e.target.value }))
                   }
-                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
+                  className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                 />
               </div>
               <div>
@@ -342,7 +339,7 @@ export default function CategoriesPage() {
                   onChange={(e) =>
                     setForm((f) => ({ ...f, budget: e.target.value }))
                   }
-                  className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors"
+                  className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
                 />
               </div>
               <div className="bg-neutral rounded-xl p-4 flex items-center gap-3">
@@ -374,7 +371,7 @@ export default function CategoriesPage() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 bg-primary text-white py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60"
+                className="flex-1 bg-primary text-inverse py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60"
               >
                 {saving
                   ? "Sauvegarde..."

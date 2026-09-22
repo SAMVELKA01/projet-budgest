@@ -130,17 +130,17 @@ export default function ParametresPage() {
       <ToastContainer toasts={toasts} onRemove={remove} />
 
       <div>
-        <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Paramètres</h1>
+        <h1 className="text-[28px] font-semibold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Paramètres</h1>
         <p className="text-tertiary text-sm mt-1">Gérez votre profil et vos préférences.</p>
       </div>
 
       {/* Profil */}
       <div className="bg-white border border-border rounded-2xl p-6">
-        <h2 className="text-base font-bold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>
+        <h2 className="text-base font-semibold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>
           Informations personnelles
         </h2>
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center text-white text-xl font-bold shrink-0">
+          <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center text-inverse text-xl font-bold shrink-0">
             {initials}
           </div>
           <div>
@@ -153,7 +153,7 @@ export default function ParametresPage() {
             <div>
               <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Nom complet</label>
               <input type="text" value={nom} onChange={(e) => setNom(e.target.value)}
-                className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
+                className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all" />
             </div>
             <div>
               <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Email</label>
@@ -164,7 +164,7 @@ export default function ParametresPage() {
           <div>
             <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Devise</label>
             <select value={devise} onChange={(e) => setDevise(e.target.value)}
-              className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors bg-white">
+              className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all">
               <option value="EUR">Euro (€)</option>
               <option value="USD">Dollar ($)</option>
               <option value="GBP">Livre sterling (£)</option>
@@ -174,7 +174,7 @@ export default function ParametresPage() {
           </div>
           <div className="flex justify-end">
             <button onClick={handleSaveProfil} disabled={saving}
-              className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60 flex items-center gap-2">
+              className="bg-primary text-inverse px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60 flex items-center gap-2">
               <Save size={15} />
               {saving ? "Sauvegarde..." : "Sauvegarder"}
             </button>
@@ -184,7 +184,7 @@ export default function ParametresPage() {
 
       {/* Thème */}
       <div className="bg-white border border-border rounded-2xl p-6">
-        <h2 className="text-base font-bold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>
+        <h2 className="text-base font-semibold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>
           Apparence
         </h2>
         <div className="flex items-center justify-between">
@@ -198,7 +198,7 @@ export default function ParametresPage() {
               <Sun size={15} /> Clair
             </button>
             <button onClick={() => setTheme("dark")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${theme === "dark" ? "bg-primary text-white" : "text-tertiary hover:text-primary"}`}>
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${theme === "dark" ? "bg-primary text-inverse" : "text-tertiary hover:text-primary"}`}>
               <Moon size={15} /> Sombre
             </button>
           </div>
@@ -207,7 +207,7 @@ export default function ParametresPage() {
 
       {/* Mot de passe */}
       <div className="bg-white border border-border rounded-2xl p-6">
-        <h2 className="text-base font-bold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>
+        <h2 className="text-base font-semibold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>
           <Shield size={16} className="inline mr-2 text-tertiary" />
           Sécurité
         </h2>
@@ -216,25 +216,25 @@ export default function ParametresPage() {
             <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Mot de passe actuel</label>
             <input type="password" placeholder="••••••••" value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
+              className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Nouveau mot de passe</label>
               <input type="password" placeholder="••••••••" value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
+                className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all" />
             </div>
             <div>
               <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">Confirmer</label>
               <input type="password" placeholder="••••••••" value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full border border-border rounded-lg px-4 py-3 text-sm outline-none focus:border-secondary transition-colors" />
+                className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all" />
             </div>
           </div>
           <div className="flex justify-end">
             <button onClick={handleChangePassword} disabled={savingPassword}
-              className="bg-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60">
+              className="bg-primary text-inverse px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60">
               {savingPassword ? "Modification..." : "Changer le mot de passe"}
             </button>
           </div>
@@ -243,7 +243,7 @@ export default function ParametresPage() {
 
       {/* Notifications */}
       <div className="bg-white border border-border rounded-2xl p-6">
-        <h2 className="text-base font-bold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>
+        <h2 className="text-base font-semibold text-primary mb-5" style={{ fontFamily: "var(--font-heading)" }}>
           <Bell size={16} className="inline mr-2 text-tertiary" />
           Notifications
         </h2>
@@ -273,7 +273,7 @@ export default function ParametresPage() {
 
       {/* Export & Danger */}
       <div className="bg-white border border-border rounded-2xl p-6">
-        <h2 className="text-base font-bold text-primary mb-2" style={{ fontFamily: "var(--font-heading)" }}>Données</h2>
+        <h2 className="text-base font-semibold text-primary mb-2" style={{ fontFamily: "var(--font-heading)" }}>Données</h2>
         <p className="text-sm text-tertiary mb-4">Exportez ou supprimez vos données personnelles.</p>
         <div className="flex gap-3">
           <button onClick={handleExport}

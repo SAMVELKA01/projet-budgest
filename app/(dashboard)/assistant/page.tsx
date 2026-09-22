@@ -24,7 +24,7 @@ interface ForecastData {
 }
 
 const severityConfig = {
-  info: { icon: Info, color: "text-secondary", bg: "bg-secondary/10" },
+  info: { icon: Info, color: "text-info", bg: "bg-info/10" },
   warning: { icon: AlertTriangle, color: "text-warning", bg: "bg-warning/10" },
   success: { icon: CheckCircle, color: "text-success", bg: "bg-success/10" },
 };
@@ -78,8 +78,8 @@ function ChatPanel() {
       <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center">
-              <Sparkles size={22} className="text-secondary" />
+            <div className="w-12 h-12 rounded-2xl bg-info/10 flex items-center justify-center">
+              <Sparkles size={22} className="text-info" />
             </div>
             <p className="text-sm text-tertiary max-w-xs">
               Posez une question sur vos finances en langage naturel. Je réponds uniquement à partir de vos données.
@@ -89,7 +89,7 @@ function ChatPanel() {
                 <button
                   key={s}
                   onClick={() => send(s)}
-                  className="text-left text-xs font-medium text-primary bg-neutral border border-border rounded-xl px-3 py-2.5 hover:border-secondary transition-colors"
+                  className="text-left text-xs font-medium text-primary bg-neutral rounded-full px-4 py-2.5 hover:ring-2 hover:ring-primary transition-all"
                 >
                   {s}
                 </button>
@@ -101,7 +101,7 @@ function ChatPanel() {
           <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
             <div
               className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
-                m.role === "user" ? "bg-primary text-white" : "bg-neutral text-primary"
+                m.role === "user" ? "bg-primary text-inverse" : "bg-neutral text-primary"
               }`}
             >
               {m.content}
@@ -133,12 +133,12 @@ function ChatPanel() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && send(input)}
-          className="flex-1 bg-neutral border border-border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-secondary transition-colors"
+          className="flex-1 bg-neutral rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
         />
         <button
           onClick={() => send(input)}
           disabled={loading || !input.trim()}
-          className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-primary-light transition-colors disabled:opacity-40 shrink-0"
+          className="w-10 h-10 rounded-xl bg-primary text-inverse flex items-center justify-center hover:bg-primary-light transition-colors disabled:opacity-40 shrink-0"
         >
           <Send size={16} />
         </button>
@@ -236,8 +236,8 @@ function ForecastPanel() {
     <div className="flex flex-col gap-4">
       <div className="bg-white border border-border rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-5">
-          <TrendingUp size={18} className="text-secondary" />
-          <h3 className="font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
+          <TrendingUp size={18} className="text-info" />
+          <h3 className="font-semibold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
             Historique &amp; prévisions
           </h3>
         </div>
@@ -249,7 +249,7 @@ function ForecastPanel() {
                   className="flex-1 rounded-t-md"
                   style={{
                     height: `${(m.revenus / max) * 130}px`,
-                    background: m.projected ? "#22C55E80" : "#22C55E",
+                    background: m.projected ? "#4CAF7D80" : "#4CAF7D",
                     minHeight: m.revenus > 0 ? "3px" : "0",
                   }}
                 />
@@ -257,7 +257,7 @@ function ForecastPanel() {
                   className="flex-1 rounded-t-md"
                   style={{
                     height: `${(m.depenses / max) * 130}px`,
-                    background: m.projected ? "#EF444480" : "#EF4444",
+                    background: m.projected ? "#E15B5B80" : "#E15B5B",
                     minHeight: m.depenses > 0 ? "3px" : "0",
                   }}
                 />
@@ -266,17 +266,17 @@ function ForecastPanel() {
             </div>
           ))}
         </div>
-        <div className="flex items-center gap-4 text-xs text-tertiary mt-4">
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-success inline-block" /> Revenus</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-danger inline-block" /> Dépenses</span>
-          <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-tertiary/40 inline-block" /> Projection (mois futurs)</span>
+        <div className="flex items-center gap-2 mt-4">
+          <span className="inline-flex items-center gap-1.5 text-xs text-tertiary bg-neutral px-2.5 py-1 rounded-full"><span className="w-2.5 h-2.5 rounded-full bg-success inline-block" /> Revenus</span>
+          <span className="inline-flex items-center gap-1.5 text-xs text-tertiary bg-neutral px-2.5 py-1 rounded-full"><span className="w-2.5 h-2.5 rounded-full bg-danger inline-block" /> Dépenses</span>
+          <span className="inline-flex items-center gap-1.5 text-xs text-tertiary bg-neutral px-2.5 py-1 rounded-full"><span className="w-2.5 h-2.5 rounded-full bg-tertiary/50 inline-block" /> Projection</span>
         </div>
       </div>
 
       <div className="bg-white border border-border rounded-2xl p-6">
         <div className="flex items-center gap-2 mb-3">
-          <Lightbulb size={18} className="text-secondary" />
-          <h3 className="font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Analyse</h3>
+          <Lightbulb size={18} className="text-info" />
+          <h3 className="font-semibold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Analyse</h3>
         </div>
         <p className="text-sm text-tertiary leading-relaxed">{data.narrative}</p>
       </div>
@@ -284,9 +284,9 @@ function ForecastPanel() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {data.projected.map((p, i) => (
           <div key={i} className="bg-white border border-border rounded-2xl p-5">
-            <p className="text-xs font-semibold text-tertiary uppercase tracking-wide mb-2">{p.month}</p>
-            <p className="text-sm text-success font-bold">+{format(p.projectedRevenus)}</p>
-            <p className="text-sm text-danger font-bold">-{format(p.projectedDepenses)}</p>
+            <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider mb-2">{p.month}</p>
+            <p className="text-sm text-success font-bold tabular-nums">+{format(p.projectedRevenus)}</p>
+            <p className="text-sm text-danger font-bold tabular-nums">-{format(p.projectedDepenses)}</p>
           </div>
         ))}
       </div>
@@ -306,8 +306,8 @@ export default function AssistantPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary flex items-center gap-2" style={{ fontFamily: "var(--font-heading)" }}>
-          <Sparkles size={22} className="text-secondary" /> Assistant IA
+        <h1 className="text-2xl font-semibold text-primary flex items-center gap-2" style={{ fontFamily: "var(--font-heading)" }}>
+          <Sparkles size={22} className="text-info" /> Assistant IA
         </h1>
         <p className="text-tertiary text-sm mt-1">Posez des questions, recevez des suggestions et des prévisions basées sur vos données.</p>
       </div>
@@ -318,7 +318,7 @@ export default function AssistantPage() {
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`flex items-center gap-2 text-sm px-4 py-2 rounded-lg font-medium transition-colors ${
-              tab === t.key ? "bg-primary text-white" : "text-tertiary hover:text-primary"
+              tab === t.key ? "bg-primary text-inverse" : "text-tertiary hover:text-primary"
             }`}
           >
             <t.icon size={14} /> {t.label}

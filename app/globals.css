@@ -1,21 +1,44 @@
 @import "tailwindcss";
 
+/*
+ * Design system "Bento Neutre" : noir/blanc (accent-primary) comme seule
+ * couleur de marque, fond neutre chaud pour l'app et la sidebar (plus de
+ * sidebar/violet plein), cartes très légèrement en relief (bordure fine,
+ * quasi pas d'ombre en clair), une seule famille sans-serif géométrique
+ * (Geist) pour titres ET corps de texte, chiffres en tabular-nums.
+ * Les couleurs vives (vert/rouge/orange/bleu/violet) ne servent plus qu'aux
+ * données : badges de variation, graphiques, jauges — jamais en fond plein
+ * de bouton/sidebar/card.
+ */
 @theme {
-  --color-primary: #0B1F3A;
-  --color-primary-light: #1a3a5c;
-  --color-secondary: #3B82F6;
-  --color-secondary-hover: #2563EB;
-  --color-tertiary: #64748B;
-  --color-neutral: #F9FAFB;
-  --color-neutral-dark: #F1F5F9;
-  --color-success: #10B981;
-  --color-danger: #EF4444;
-  --color-warning: #F59E0B;
-  --color-border: #E2E8F0;
-  --color-sidebar: #0B1F3A;
+  --color-app: #F5F4F0;
+  --color-primary: #13141A;
+  --color-primary-light: #2C2D33;
+  --color-secondary: #13141A;
+  --color-secondary-hover: #2C2D33;
+  --color-inverse: #FFFFFF;
+  --color-sidebar: #FFFFFF;
 
-  --font-sans: "Inter", sans-serif;
-  --font-heading: "Manrope", sans-serif;
+  --color-tertiary: #9A9CA5;
+  --color-neutral: #ECEAE2;
+  --color-neutral-dark: #DFDCD2;
+  --color-border: #E6E4DC;
+
+  /* Couleurs de données : constantes entre clair/sombre. */
+  --color-success: #4CAF7D;
+  --color-danger: #E15B5B;
+  --color-warning: #E8A33D;
+  --color-info: #5B8DEF;
+  --color-violet: #8B7CF6;
+  --color-teal: #4CAF7D;
+
+  --font-sans: var(--font-geist), sans-serif;
+  --font-heading: var(--font-geist), sans-serif;
+
+  --radius-lg: 14px;
+  --radius-xl: 12px;
+  --radius-2xl: 22px;
+  --radius-3xl: 26px;
 }
 
 @layer base {
@@ -28,186 +51,165 @@
   html {
     font-family: var(--font-sans);
     color: var(--color-primary);
-    background: var(--color-neutral);
+    background: var(--color-app);
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
     font-weight: 600;
+    letter-spacing: -0.01em;
   }
 }
 
+/* Chiffres et montants : chasse fixe pour un alignement propre des colonnes
+   de nombres (cf. spec : "tabular-nums" sur toutes les métriques héro). */
+.tabular-nums,
+.font-tabular {
+  font-feature-settings: "tnum" 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===================== MODE SOMBRE ===================== */
+/* Même mécanisme que l'existant : les couleurs custom de @theme sont
+   inlinées par Tailwind (pas de var() runtime), donc le mode sombre passe
+   par des overrides ciblés par classe, au lieu d'une simple réaffectation
+   de variable CSS. */
+
 [data-theme="dark"] {
-  background: #0B1F3A;
-  color: #e2e8f0;
+  background: #0D0D0F;
+  color: #F5F5F2;
+}
+
+[data-theme="dark"] .bg-app {
+  background-color: #0D0D0F !important;
 }
 
 [data-theme="dark"] .bg-white {
-  background-color: #112240 !important;
+  background-color: #17171A !important;
 }
 
 [data-theme="dark"] .bg-neutral {
-  background-color: #0B1F3A !important;
+  background-color: #202023 !important;
 }
 
 [data-theme="dark"] .bg-neutral-dark {
-  background-color: #1a3a5c !important;
+  background-color: #26262A !important;
+}
+
+[data-theme="dark"] .bg-sidebar {
+  background-color: #0A0A0C !important;
 }
 
 [data-theme="dark"] .border-border {
-  border-color: #1e3a5f !important;
+  border-color: #27272B !important;
 }
 
 [data-theme="dark"] .text-primary {
-  color: #e2e8f0 !important;
+  color: #F5F5F2 !important;
+}
+
+[data-theme="dark"] .bg-primary {
+  background-color: #F5F5F2 !important;
+}
+
+[data-theme="dark"] .bg-secondary {
+  background-color: #F5F5F2 !important;
+}
+
+[data-theme="dark"] .text-inverse {
+  color: #13141A !important;
+}
+
+[data-theme="dark"] .bg-inverse {
+  background-color: #13141A !important;
 }
 
 [data-theme="dark"] .text-tertiary {
-  color: #94A3B8 !important;
-}
-
-[data-theme="dark"] aside {
-  background-color: #060f1e !important;
-}
-
-[data-theme="dark"] header {
-  background-color: #112240 !important;
-  border-color: #1e3a5f !important;
+  color: #6E6E72 !important;
 }
 
 [data-theme="dark"] input,
 [data-theme="dark"] select,
 [data-theme="dark"] textarea {
-  background-color: #112240 !important;
-  border-color: #1e3a5f !important;
-  color: #e2e8f0 !important;
+  background-color: #17171A !important;
+  border-color: #27272B !important;
+  color: #F5F5F2 !important;
 }
 
 [data-theme="dark"] input::placeholder {
-  color: #64748B !important;
+  color: #6E6E72 !important;
 }
 
 [data-theme="dark"] .divide-border > * + * {
-  border-color: #1e3a5f !important;
+  border-color: #27272B !important;
 }
 
 [data-theme="dark"] .hover\:bg-neutral:hover {
-  background-color: #1a3a5c !important;
+  background-color: #26262A !important;
 }
 
 [data-theme="dark"] .hover\:bg-neutral\/50:hover {
-  background-color: rgba(26,58,92,0.5) !important;
+  background-color: rgba(32, 32, 35, 0.6) !important;
 }
 
 [data-theme="dark"] .bg-neutral\/50 {
-  background-color: rgba(26,58,92,0.5) !important;
+  background-color: rgba(32, 32, 35, 0.6) !important;
 }
 
-/* Modals dark */
+/* Modales */
 [data-theme="dark"] .fixed.inset-0 > div.bg-white,
 [data-theme="dark"] .fixed.inset-0 > div > div.bg-white {
-  background-color: #112240 !important;
+  background-color: #17171A !important;
 }
 
-/* Badges et pills */
+/* Badges et pills teintés — alpha remontée en sombre pour rester visible
+   sur un fond très sombre (10% devient quasi invisible autrement). */
+[data-theme="dark"] .bg-primary\/10,
 [data-theme="dark"] .bg-secondary\/10 {
-  background-color: rgba(59,130,246,0.2) !important;
+  background-color: rgba(245, 245, 242, 0.14) !important;
 }
 
 [data-theme="dark"] .bg-success\/10 {
-  background-color: rgba(16,185,129,0.2) !important;
+  background-color: rgba(76, 175, 125, 0.2) !important;
 }
 
 [data-theme="dark"] .bg-danger\/10 {
-  background-color: rgba(239,68,68,0.2) !important;
+  background-color: rgba(225, 91, 91, 0.2) !important;
 }
 
 [data-theme="dark"] .bg-warning\/10 {
-  background-color: rgba(245,158,11,0.2) !important;
-}
-/* ============================================================
-   Landing page — identité "banque privée" (vert forêt + laiton)
-   Scope isolé : ne touche pas aux tokens de l'application (--color-*)
-   ============================================================ */
-.landing {
-  --land-ink: #0E1913;
-  --land-forest: #1D4A38;
-  --land-forest-light: #2C6349;
-  --land-brass: #B7935B;
-  --land-brass-light: #D8B888;
-  --land-parchment: #EEECE1;
-  --land-paper: #FBFAF6;
-  --land-text: #21261F;
-  --land-muted: #6B7268;
-  --land-line: #DAD6C6;
-  --land-line-on-dark: rgba(183, 147, 91, 0.28);
-  --land-muted-on-dark: #9CA79C;
-
-  font-family: var(--font-grotesk), sans-serif;
-  color: var(--land-text);
+  background-color: rgba(232, 163, 61, 0.2) !important;
 }
 
-.landing .font-display {
-  font-family: var(--font-serif-display), serif;
+[data-theme="dark"] .bg-info\/10 {
+  background-color: rgba(91, 141, 239, 0.2) !important;
 }
 
-.landing .font-mono {
-  font-family: var(--font-ledger-mono), monospace;
-  font-variant-numeric: tabular-nums;
+[data-theme="dark"] .bg-violet\/10 {
+  background-color: rgba(139, 124, 246, 0.2) !important;
 }
 
-.landing-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  font-family: var(--font-ledger-mono), monospace;
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.landing-eyebrow::before {
-  content: "";
-  display: block;
-  width: 22px;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.6;
-}
-
-@keyframes landing-fade-up {
-  from { opacity: 0; transform: translateY(18px); }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.landing-reveal {
-  animation: landing-fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+.reveal {
+  animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .landing-reveal { animation: none; }
+  .reveal { animation: none; }
 }
 
-.landing-hover-lift {
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-.landing-hover-lift:hover {
+.hover-lift:hover {
   transform: translateY(-3px);
-  box-shadow: 0 20px 48px rgba(14, 25, 19, 0.10);
-  border-color: var(--land-brass) !important;
+  box-shadow: 0 16px 40px rgba(19, 20, 26, 0.08);
 }
 
-.landing a:focus-visible,
-.landing button:focus-visible {
-  outline: 2px solid var(--land-brass);
-  outline-offset: 2px;
-}
-
-.landing-hero-grid {
-  grid-template-columns: 1fr;
-}
-@media (min-width: 1024px) {
-  .landing-hero-grid {
-    grid-template-columns: 1fr 460px;
-  }
+[data-theme="dark"] .hover-lift:hover {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
 }

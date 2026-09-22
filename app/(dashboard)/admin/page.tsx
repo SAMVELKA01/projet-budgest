@@ -70,16 +70,16 @@ export default function AdminDashboardPage() {
   }
 
   const kpis = [
-    { label: "Utilisateurs", value: data?.stats.totalUsers, icon: Users, color: "bg-blue-500/10 text-blue-500" },
-    { label: "Transactions", value: data?.stats.totalTransactions, icon: Receipt, color: "bg-green-500/10 text-green-500" },
-    { label: "Budgets", value: data?.stats.totalBudgets, icon: PieChart, color: "bg-purple-500/10 text-purple-500" },
-    { label: "Objectifs", value: data?.stats.totalObjectifs, icon: Target, color: "bg-orange-500/10 text-orange-500" },
+    { label: "Utilisateurs", value: data?.stats.totalUsers, icon: Users, iconColor: "text-primary" },
+    { label: "Transactions", value: data?.stats.totalTransactions, icon: Receipt, iconColor: "text-info" },
+    { label: "Budgets", value: data?.stats.totalBudgets, icon: PieChart, iconColor: "text-warning" },
+    { label: "Objectifs", value: data?.stats.totalObjectifs, icon: Target, iconColor: "text-violet" },
   ];
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
+        <h1 className="text-[28px] font-semibold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
           Dashboard Administrateur
         </h1>
         <p className="text-sm text-tertiary">Aperçu global de l&apos;activité de la plateforme Budgest.</p>
@@ -88,14 +88,14 @@ export default function AdminDashboardPage() {
       {/* KPI Blocks */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((kpi, i) => (
-          <div key={i} className="bg-white border border-border rounded-2xl p-5 shadow-sm">
+          <div key={i} className="bg-white border border-border rounded-2xl p-6">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-semibold text-tertiary uppercase tracking-wider">{kpi.label}</p>
-              <div className={`w-8 h-8 rounded-xl ${kpi.color} flex items-center justify-center`}>
-                <kpi.icon size={16} />
+              <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider">{kpi.label}</p>
+              <div className="w-8 h-8 rounded-xl bg-neutral flex items-center justify-center">
+                <kpi.icon size={16} className={kpi.iconColor} />
               </div>
             </div>
-            <p className="text-3xl font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
+            <p className="text-3xl font-bold text-primary tabular-nums">
               {kpi.value?.toLocaleString()}
             </p>
           </div>
@@ -104,11 +104,11 @@ export default function AdminDashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Users List */}
-        <div className="lg:col-span-2 bg-white border border-border rounded-2xl p-6 shadow-sm">
+        <div className="lg:col-span-2 bg-white border border-border rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <UserPlus className="text-secondary" size={20} />
-              <h2 className="text-lg font-bold text-primary">Nouveaux utilisateurs</h2>
+              <UserPlus className="text-primary" size={20} />
+              <h2 className="text-lg font-semibold text-primary">Nouveaux utilisateurs</h2>
             </div>
             <Link href="/admin/users" className="text-xs font-semibold text-secondary hover:underline flex items-center gap-1 no-underline">
               Voir tout <ArrowRight size={12} />
@@ -126,7 +126,7 @@ export default function AdminDashboardPage() {
               </thead>
               <tbody className="divide-y divide-border">
                 {data?.recentUsers.map((user) => (
-                  <tr key={user._id} className="group hover:bg-light/50 transition-colors">
+                  <tr key={user._id} className="group hover:bg-neutral/50 transition-colors">
                     <td className="py-4 text-sm font-medium text-primary">{user.name}</td>
                     <td className="py-4 text-sm text-tertiary">{user.email}</td>
                     <td className="py-4 text-sm text-tertiary">
@@ -144,10 +144,10 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* System Activity / Quick Stats */}
-        <div className="bg-white border border-border rounded-2xl p-6 shadow-sm">
+        <div className="bg-white border border-border rounded-2xl p-6">
           <div className="flex items-center gap-2 mb-6">
-            <Activity className="text-secondary" size={20} />
-            <h2 className="text-lg font-bold text-primary">Activité Système</h2>
+            <Activity className="text-primary" size={20} />
+            <h2 className="text-lg font-semibold text-primary">Activité Système</h2>
           </div>
           
           <div className="space-y-6">
@@ -156,13 +156,13 @@ export default function AdminDashboardPage() {
                 <span className="text-sm font-medium text-tertiary">Volume de transactions</span>
                 <span className="text-sm font-bold text-primary">{(data?.stats.totalVolume || 0).toLocaleString()} €</span>
               </div>
-              <div className="w-full h-2 bg-light rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-neutral rounded-full overflow-hidden">
                 <div className="h-full bg-secondary w-3/4 rounded-full" />
               </div>
             </div>
 
-            <div className="bg-light/50 rounded-xl p-4 border border-border">
-              <h3 className="text-xs font-bold text-tertiary uppercase mb-3">Tendance Inscriptions</h3>
+            <div className="bg-neutral rounded-xl p-4">
+              <h3 className="text-[11px] font-medium text-tertiary uppercase tracking-wider mb-3">Tendance Inscriptions</h3>
               <div className="flex items-end gap-1 h-20">
                 {data?.dailyStats.map((stat, i) => {
                   const max = Math.max(...(data?.dailyStats.map(d => d.count) || [1]));
@@ -182,11 +182,11 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="space-y-3">
-              <button className="w-full py-2.5 bg-primary text-white text-xs font-bold rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+              <button className="w-full py-2.5 bg-primary text-inverse text-xs font-bold rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
                 <TrendingUp size={14} />
                 Générer un rapport PDF
               </button>
-              <button className="w-full py-2.5 border border-border text-primary text-xs font-bold rounded-xl hover:bg-light transition-all">
+              <button className="w-full py-2.5 bg-neutral text-primary text-xs font-bold rounded-xl hover:bg-neutral-dark transition-all">
                 Paramètres globaux
               </button>
             </div>

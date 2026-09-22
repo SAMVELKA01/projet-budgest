@@ -91,7 +91,6 @@ export default function StatistiquesPage() {
       sub: "Sur la période",
       icon: TrendingUp,
       iconColor: "text-success",
-      iconBg: "bg-success/10",
     },
     {
       label: "Dépenses",
@@ -99,15 +98,13 @@ export default function StatistiquesPage() {
       sub: "Sur la période",
       icon: TrendingDown,
       iconColor: "text-danger",
-      iconBg: "bg-danger/10",
     },
     {
       label: "Épargne nette",
       value: data ? format(epargne) : "-",
       sub: "Revenus - Dépenses",
       icon: PiggyBank,
-      iconColor: "text-secondary",
-      iconBg: "bg-secondary/10",
+      iconColor: "text-info",
     },
     {
       label: "Taux d'épargne",
@@ -115,23 +112,20 @@ export default function StatistiquesPage() {
       sub: "Du revenu total",
       icon: Percent,
       iconColor: "text-warning",
-      iconBg: "bg-warning/10",
     },
     {
       label: "Transactions",
       value: data ? `${data.totals.count}` : "-",
       sub: "Toutes confondues",
       icon: Receipt,
-      iconColor: "text-warning",
-      iconBg: "bg-warning/10",
+      iconColor: "text-primary",
     },
     {
       label: "Catégorie dominante",
       value: dominante,
       sub: "Plus grosse dépense",
       icon: Tag,
-      iconColor: "text-secondary",
-      iconBg: "bg-secondary/10",
+      iconColor: "text-primary",
     },
   ];
 
@@ -139,7 +133,7 @@ export default function StatistiquesPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1
-          className="text-2xl font-bold text-primary"
+          className="text-[28px] font-semibold text-primary"
           style={{ fontFamily: "var(--font-heading)" }}
         >
           Statistiques
@@ -157,7 +151,7 @@ export default function StatistiquesPage() {
               onClick={() => changeGranularity(g.key)}
               className={`text-sm px-4 py-1.5 rounded-lg font-medium transition-colors ${
                 granularity === g.key
-                  ? "bg-primary text-white"
+                  ? "bg-primary text-inverse"
                   : "text-tertiary hover:text-primary"
               }`}
             >
@@ -206,22 +200,17 @@ export default function StatistiquesPage() {
             {kpis.map((kpi) => (
               <div
                 key={kpi.label}
-                className="bg-white border border-border rounded-2xl p-5"
+                className="bg-white border border-border rounded-2xl p-6"
               >
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-semibold text-tertiary uppercase tracking-wide">
+                  <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
                     {kpi.label}
                   </p>
-                  <div
-                    className={`w-8 h-8 rounded-xl ${kpi.iconBg} flex items-center justify-center`}
-                  >
+                  <div className="w-8 h-8 rounded-xl bg-neutral flex items-center justify-center">
                     <kpi.icon size={15} className={kpi.iconColor} />
                   </div>
                 </div>
-                <p
-                  className="text-2xl font-bold text-primary truncate"
-                  style={{ fontFamily: "var(--font-heading)" }}
-                >
+                <p className="text-3xl font-bold text-primary truncate tabular-nums">
                   {kpi.value}
                 </p>
                 <p className="text-xs text-tertiary mt-1">{kpi.sub}</p>
@@ -237,11 +226,11 @@ export default function StatistiquesPage() {
               >
                 Revenus vs Dépenses
               </h3>
-              <div className="flex items-center gap-4 text-xs text-tertiary">
-                <span className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 text-xs text-tertiary bg-neutral px-2.5 py-1 rounded-full">
                   <span className="w-2.5 h-2.5 rounded-full bg-success inline-block" /> Revenus
                 </span>
-                <span className="flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-1.5 text-xs text-tertiary bg-neutral px-2.5 py-1 rounded-full">
                   <span className="w-2.5 h-2.5 rounded-full bg-danger inline-block" /> Dépenses
                 </span>
               </div>
@@ -287,7 +276,7 @@ export default function StatistiquesPage() {
                         className="flex-1 rounded-t-md transition-all"
                         style={{
                           height: `${(b.revenus / maxBucket) * 140}px`,
-                          background: hoveredBar === i ? "#0B1F3A" : "#22C55E",
+                          background: hoveredBar === i ? "#13141A" : "#4CAF7D",
                           minHeight: b.revenus > 0 ? "3px" : "0",
                         }}
                       />
@@ -295,7 +284,7 @@ export default function StatistiquesPage() {
                         className="flex-1 rounded-t-md transition-all"
                         style={{
                           height: `${(b.depenses / maxBucket) * 140}px`,
-                          background: hoveredBar === i ? "#0B1F3A" : "#EF4444",
+                          background: hoveredBar === i ? "#13141A" : "#E15B5B",
                           minHeight: b.depenses > 0 ? "3px" : "0",
                         }}
                       />

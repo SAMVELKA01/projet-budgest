@@ -34,12 +34,12 @@ interface Stats {
 }
 
 const repartitionColors: Record<string, string> = {
-  Logement: "#3B82F6",
-  Alimentation: "#10B981",
-  Transport: "#F59E0B",
-  Loisirs: "#8B5CF6",
-  Abonnements: "#EC4899",
-  Santé: "#64748B",
+  Logement: "#8B7CF6",
+  Alimentation: "#5B8DEF",
+  Transport: "#E8A33D",
+  Loisirs: "#E15B5B",
+  Abonnements: "#5B8DEF",
+  Santé: "#4CAF7D",
 };
 
 export default function DashboardPage() {
@@ -85,7 +85,7 @@ export default function DashboardPage() {
           label,
           amount: amount as number,
           pct: Math.round(((amount as number) / (stats.depenses || 1)) * 100),
-          colorHex: repartitionColors[label] || "#64748B",
+          colorHex: repartitionColors[label] || "#9A9CA5",
         }))
     : [];
 
@@ -129,24 +129,21 @@ export default function DashboardPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white border border-border rounded-2xl p-5">
+        <div className="bg-white border border-border rounded-2xl p-6">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold text-tertiary uppercase tracking-wide">
+            <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
               Solde total
             </p>
-            <div className="w-8 h-8 rounded-xl bg-secondary/10 flex items-center justify-center">
-              <Wallet size={15} className="text-secondary" />
+            <div className="w-8 h-8 rounded-xl bg-neutral flex items-center justify-center">
+              <Wallet size={15} className="text-primary" />
             </div>
           </div>
-          <p
-            className="text-3xl font-bold text-primary"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <p className="text-4xl font-bold text-primary tabular-nums">
             {format(stats?.solde || 0)}
           </p>
-          <div className="flex items-center gap-1.5 mt-2">
-            <ArrowUpRight size={13} className="text-success" />
-            <span className="text-xs font-semibold text-success">
+          <div className="flex items-center gap-1.5 mt-3">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-success bg-success/10 px-2 py-0.5 rounded-full">
+              <ArrowUpRight size={12} />
               {stats?.evolutionRevenus}%
             </span>
             <span className="text-xs text-tertiary">
@@ -155,47 +152,41 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="bg-white border border-border rounded-2xl p-5">
+        <div className="bg-white border border-border rounded-2xl p-6">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold text-tertiary uppercase tracking-wide">
+            <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
               Revenus ce mois
             </p>
-            <div className="w-8 h-8 rounded-xl bg-success/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-neutral flex items-center justify-center">
               <TrendingUp size={15} className="text-success" />
             </div>
           </div>
-          <p
-            className="text-3xl font-bold text-success"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <p className="text-4xl font-bold text-primary tabular-nums">
             {format(stats?.revenus || 0)}
           </p>
-          <div className="flex items-center gap-1.5 mt-2">
-            <span className="text-xs font-semibold text-success">
+          <div className="flex items-center gap-1.5 mt-3">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-success bg-success/10 px-2 py-0.5 rounded-full">
               +{stats?.evolutionRevenus}%
             </span>
             <span className="text-xs text-tertiary">vs mois dernier</span>
           </div>
         </div>
 
-        <div className="bg-white border border-border rounded-2xl p-5">
+        <div className="bg-white border border-border rounded-2xl p-6">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold text-tertiary uppercase tracking-wide">
+            <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider">
               Dépenses
             </p>
-            <div className="w-8 h-8 rounded-xl bg-danger/10 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-neutral flex items-center justify-center">
               <TrendingDown size={15} className="text-danger" />
             </div>
           </div>
-          <p
-            className="text-3xl font-bold text-danger"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <p className="text-4xl font-bold text-primary tabular-nums">
             {format(stats?.depenses || 0)}
           </p>
-          <div className="flex items-center gap-1.5 mt-2">
-            <ArrowDownRight size={13} className="text-danger" />
-            <span className="text-xs font-semibold text-danger">
+          <div className="flex items-center gap-1.5 mt-3">
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-danger bg-danger/10 px-2 py-0.5 rounded-full">
+              <ArrowDownRight size={12} />
               +{stats?.evolutionDepenses}%
             </span>
             <span className="text-xs text-tertiary">vs mois dernier</span>
@@ -209,15 +200,15 @@ export default function DashboardPage() {
         className="no-underline bg-primary rounded-2xl px-5 py-4 flex items-center justify-between gap-4 hover:opacity-95 transition-opacity"
       >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
-            <Sparkles size={17} className="text-white" />
+          <div className="w-9 h-9 rounded-xl bg-inverse/10 flex items-center justify-center shrink-0">
+            <Sparkles size={17} className="text-inverse" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-white">Demandez à l&apos;assistant IA</p>
-            <p className="text-xs text-white/60 mt-0.5">Suggestions personnalisées, prévisions et réponses sur vos finances.</p>
+            <p className="text-sm font-semibold text-inverse">Demandez à l&apos;assistant IA</p>
+            <p className="text-xs text-inverse/60 mt-0.5">Suggestions personnalisées, prévisions et réponses sur vos finances.</p>
           </div>
         </div>
-        <ArrowUpRight size={16} className="text-white/60 shrink-0" />
+        <ArrowUpRight size={16} className="text-inverse/60 shrink-0" />
       </Link>
 
       {/* Graphiques */}
@@ -231,15 +222,13 @@ export default function DashboardPage() {
             >
               Évolution Mensuelle
             </h3>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-success" />
-                <span className="text-xs text-tertiary">Revenus</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-danger" />
-                <span className="text-xs text-tertiary">Dépenses</span>
-              </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 text-xs text-tertiary bg-neutral px-2.5 py-1 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-success" /> Revenus
+              </span>
+              <span className="inline-flex items-center gap-1.5 text-xs text-tertiary bg-neutral px-2.5 py-1 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-danger" /> Dépenses
+              </span>
             </div>
           </div>
 
@@ -275,7 +264,7 @@ export default function DashboardPage() {
                     style={{
                       height: `${maxVal > 0 ? (d.revenus / maxVal) * 100 : 0}%`,
                       background:
-                        hoveredBar === i ? "#10B981" : "rgba(16,185,129,0.4)",
+                        hoveredBar === i ? "#4CAF7D" : "rgba(76,175,125,0.45)",
                     }}
                   />
                   <div
@@ -283,7 +272,7 @@ export default function DashboardPage() {
                     style={{
                       height: `${maxVal > 0 ? (d.depenses / maxVal) * 100 : 0}%`,
                       background:
-                        hoveredBar === i ? "#EF4444" : "rgba(239,68,68,0.35)",
+                        hoveredBar === i ? "#E15B5B" : "rgba(225,91,91,0.4)",
                     }}
                   />
                 </div>
@@ -309,7 +298,7 @@ export default function DashboardPage() {
                   cy="18"
                   r="15.9"
                   fill="none"
-                  stroke="#F1F5F9"
+                  stroke="#ECEAE2"
                   strokeWidth="3.5"
                 />
                 {repartition.map((item, i) => {
@@ -377,14 +366,14 @@ export default function DashboardPage() {
       <div className="bg-white border border-border rounded-2xl overflow-hidden">
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <h3
-            className="font-bold text-primary"
+            className="font-semibold text-primary"
             style={{ fontFamily: "var(--font-heading)" }}
           >
             Transactions Récentes
           </h3>
           <Link
             href="/transactions"
-            className="text-xs font-semibold text-secondary no-underline hover:underline flex items-center gap-1"
+            className="text-xs font-semibold text-primary no-underline hover:underline flex items-center gap-1"
           >
             Voir tout <ArrowUpRight size={12} />
           </Link>
@@ -397,7 +386,7 @@ export default function DashboardPage() {
             </p>
             <Link
               href="/transactions"
-              className="text-xs text-secondary font-semibold no-underline hover:underline mt-2 inline-block"
+              className="text-xs text-primary font-semibold no-underline hover:underline mt-2 inline-block"
             >
               Ajouter une transaction →
             </Link>
@@ -410,14 +399,7 @@ export default function DashboardPage() {
                 className="flex items-center gap-4 px-5 py-3.5 hover:bg-neutral/50 transition-colors"
               >
                 <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shrink-0"
-                  style={{
-                    background:
-                      t.amount > 0
-                        ? "rgba(16,185,129,0.12)"
-                        : "rgba(239,68,68,0.1)",
-                    color: t.amount > 0 ? "#10B981" : "#EF4444",
-                  }}
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${t.amount > 0 ? "bg-success/10 text-success" : "bg-danger/10 text-danger"}`}
                 >
                   {t.name[0]}
                 </div>
@@ -430,16 +412,16 @@ export default function DashboardPage() {
                   </p>
                 </div>
                 <span
-                  className={`text-xs font-semibold px-2.5 py-1 rounded-lg ${
+                  className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                     t.category === "Revenus"
                       ? "bg-success/10 text-success"
-                      : "bg-secondary/10 text-secondary"
+                      : "bg-neutral text-tertiary"
                   }`}
                 >
                   {t.category}
                 </span>
                 <span
-                  className={`text-sm font-bold w-24 text-right shrink-0 ${t.amount > 0 ? "text-success" : "text-danger"}`}
+                  className={`text-sm font-bold w-24 text-right shrink-0 tabular-nums ${t.amount > 0 ? "text-success" : "text-danger"}`}
                 >
                   {t.amount > 0 ? "+" : ""}
                   {format(Math.abs(t.amount))}
