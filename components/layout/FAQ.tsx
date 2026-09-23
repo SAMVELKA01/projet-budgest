@@ -36,8 +36,8 @@ export default function FAQ() {
                   onClick={() => setOpenIndex(isOpen ? null : index)}
                   className="w-full px-6 py-5 flex justify-between items-center gap-4 text-left"
                 >
-                  <span className="text-base font-semibold text-primary">{faq.question}</span>
-                  <span className={`w-8 h-8 rounded-full bg-neutral text-primary flex items-center justify-center shrink-0 transition-transform ${isOpen ? "rotate-45" : ""}`}>
+                  <span className="text-base font-semibold text-ink">{faq.question}</span>
+                  <span className={`w-8 h-8 rounded-full bg-neutral text-ink flex items-center justify-center shrink-0 transition-transform ${isOpen ? "rotate-45" : ""}`}>
                     <Plus size={16} />
                   </span>
                 </button>

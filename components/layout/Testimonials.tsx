@@ -19,7 +19,7 @@ export default function Testimonials() {
           <div className="inline-flex items-center gap-2 bg-neutral text-tertiary text-xs font-bold px-4 py-2 rounded-full mb-5">
             Témoignages
           </div>
-          <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-semibold text-primary leading-tight">
+          <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-semibold text-ink leading-tight">
             Ils gèrent leur budget <span className="text-info">sereinement</span>
           </h2>
         </div>
@@ -33,7 +33,7 @@ export default function Testimonials() {
                   {t.avatar}
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-primary">{t.name}</div>
+                  <div className="text-sm font-bold text-ink">{t.name}</div>
                   <div className="text-xs text-tertiary">{t.role}</div>
                 </div>
               </div>

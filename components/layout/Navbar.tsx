@@ -34,19 +34,19 @@ export default function Navbar() {
           <div className="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center shrink-0">
             <Wallet size={18} className="text-inverse" />
           </div>
-          <span className="font-bold text-lg text-primary">BudGest</span>
+          <span className="font-bold text-lg text-ink">BudGest</span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((item) => (
-            <a key={item.label} href={item.href} className="text-sm font-medium text-tertiary hover:text-primary transition-colors no-underline">
+            <a key={item.label} href={item.href} className="text-sm font-medium text-tertiary hover:text-ink transition-colors no-underline">
               {item.label}
             </a>
           ))}
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/login" className="text-sm font-semibold text-primary px-4 py-2.5 hover:opacity-70 transition-opacity no-underline">
+          <Link href="/login" className="text-sm font-semibold text-ink px-4 py-2.5 hover:opacity-70 transition-opacity no-underline">
             Se connecter
           </Link>
           <Link href="/register" className="bg-primary text-inverse text-sm font-semibold px-5 py-2.5 rounded-full hover:bg-primary-light transition-colors no-underline">
@@ -58,7 +58,7 @@ export default function Navbar() {
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? "Fermer le menu" : "Ouvrir le menu"}
           aria-expanded={menuOpen}
-          className="md:hidden text-primary p-1"
+          className="md:hidden text-ink p-1"
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -68,13 +68,13 @@ export default function Navbar() {
         <div className="md:hidden bg-white border-t border-border px-6 pt-4 pb-6 flex flex-col gap-1">
           {navLinks.map((item) => (
             <a key={item.label} href={item.href} onClick={() => setMenuOpen(false)}
-              className="text-sm font-medium text-primary py-3 border-b border-border no-underline">
+              className="text-sm font-medium text-ink py-3 border-b border-border no-underline">
               {item.label}
             </a>
           ))}
           <div className="flex flex-col gap-3 mt-4">
             <Link href="/login" onClick={() => setMenuOpen(false)}
-              className="text-center text-sm font-semibold text-primary py-3 rounded-full border border-border no-underline">
+              className="text-center text-sm font-semibold text-ink py-3 rounded-full border border-border no-underline">
               Se connecter
             </Link>
             <Link href="/register" onClick={() => setMenuOpen(false)}

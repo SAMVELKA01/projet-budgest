@@ -70,10 +70,10 @@ export default function AdminDashboardPage() {
   }
 
   const kpis = [
-    { label: "Utilisateurs", value: data?.stats.totalUsers, icon: Users, iconColor: "text-primary" },
-    { label: "Transactions", value: data?.stats.totalTransactions, icon: Receipt, iconColor: "text-info" },
-    { label: "Budgets", value: data?.stats.totalBudgets, icon: PieChart, iconColor: "text-warning" },
-    { label: "Objectifs", value: data?.stats.totalObjectifs, icon: Target, iconColor: "text-violet" },
+    { label: "Utilisateurs", value: data?.stats.totalUsers, icon: Users, bg: "bg-pastel-sand" },
+    { label: "Transactions", value: data?.stats.totalTransactions, icon: Receipt, bg: "bg-pastel-sage" },
+    { label: "Budgets", value: data?.stats.totalBudgets, icon: PieChart, bg: "bg-pastel-mauve" },
+    { label: "Objectifs", value: data?.stats.totalObjectifs, icon: Target, bg: "bg-pastel-olive" },
   ];
 
   return (
@@ -88,14 +88,14 @@ export default function AdminDashboardPage() {
       {/* KPI Blocks */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map((kpi, i) => (
-          <div key={i} className="bg-white border border-border rounded-2xl p-6">
+          <div key={i} className={`${kpi.bg} rounded-2xl p-6`}>
             <div className="flex items-center justify-between mb-3">
-              <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider">{kpi.label}</p>
-              <div className="w-8 h-8 rounded-xl bg-neutral flex items-center justify-center">
-                <kpi.icon size={16} className={kpi.iconColor} />
+              <p className="text-[11px] font-medium text-ink/60 uppercase tracking-wider">{kpi.label}</p>
+              <div className="w-8 h-8 rounded-full bg-white/60 flex items-center justify-center">
+                <kpi.icon size={16} className="text-ink" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-primary tabular-nums">
+            <p className="text-3xl font-bold text-ink tabular-nums">
               {kpi.value?.toLocaleString()}
             </p>
           </div>
@@ -107,10 +107,10 @@ export default function AdminDashboardPage() {
         <div className="lg:col-span-2 bg-white border border-border rounded-2xl p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <UserPlus className="text-primary" size={20} />
-              <h2 className="text-lg font-semibold text-primary">Nouveaux utilisateurs</h2>
+              <UserPlus className="text-ink" size={20} />
+              <h2 className="text-lg font-semibold text-ink">Nouveaux utilisateurs</h2>
             </div>
-            <Link href="/admin/users" className="text-xs font-semibold text-secondary hover:underline flex items-center gap-1 no-underline">
+            <Link href="/admin/users" className="text-xs font-semibold text-ink hover:underline flex items-center gap-1 no-underline">
               Voir tout <ArrowRight size={12} />
             </Link>
           </div>
@@ -127,7 +127,7 @@ export default function AdminDashboardPage() {
               <tbody className="divide-y divide-border">
                 {data?.recentUsers.map((user) => (
                   <tr key={user._id} className="group hover:bg-neutral/50 transition-colors">
-                    <td className="py-4 text-sm font-medium text-primary">{user.name}</td>
+                    <td className="py-4 text-sm font-medium text-ink">{user.name}</td>
                     <td className="py-4 text-sm text-tertiary">{user.email}</td>
                     <td className="py-4 text-sm text-tertiary">
                       {new Date(user.createdAt).toLocaleDateString("fr-FR", {
@@ -146,18 +146,18 @@ export default function AdminDashboardPage() {
         {/* System Activity / Quick Stats */}
         <div className="bg-white border border-border rounded-2xl p-6">
           <div className="flex items-center gap-2 mb-6">
-            <Activity className="text-primary" size={20} />
-            <h2 className="text-lg font-semibold text-primary">Activité Système</h2>
+            <Activity className="text-ink" size={20} />
+            <h2 className="text-lg font-semibold text-ink">Activité Système</h2>
           </div>
           
           <div className="space-y-6">
             <div>
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-tertiary">Volume de transactions</span>
-                <span className="text-sm font-bold text-primary">{(data?.stats.totalVolume || 0).toLocaleString()} €</span>
+                <span className="text-sm font-medium text-tertiary/80">Volume de transactions</span>
+                <span className="text-sm font-bold text-ink">{(data?.stats.totalVolume || 0).toLocaleString()} €</span>
               </div>
               <div className="w-full h-2 bg-neutral rounded-full overflow-hidden">
-                <div className="h-full bg-secondary w-3/4 rounded-full" />
+                <div className="h-full bg-gold w-3/4 rounded-full" />
               </div>
             </div>
 
@@ -170,7 +170,7 @@ export default function AdminDashboardPage() {
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center gap-1 group">
                       <div 
-                        className="w-full bg-secondary/20 group-hover:bg-secondary rounded-sm transition-all" 
+                        className="w-full bg-gold/40 group-hover:bg-gold rounded-sm transition-all" 
                         style={{ height }}
                         title={`${stat._id}: ${stat.count} inscrits`}
                       />
@@ -182,11 +182,11 @@ export default function AdminDashboardPage() {
             </div>
 
             <div className="space-y-3">
-              <button className="w-full py-2.5 bg-primary text-inverse text-xs font-bold rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+              <button className="w-full py-2.5 bg-gold text-ink text-xs font-bold rounded-xl hover:opacity-90 transition-all flex items-center justify-center gap-2">
                 <TrendingUp size={14} />
                 Générer un rapport PDF
               </button>
-              <button className="w-full py-2.5 bg-neutral text-primary text-xs font-bold rounded-xl hover:bg-neutral-dark transition-all">
+              <button className="w-full py-2.5 bg-neutral text-ink text-xs font-bold rounded-xl hover:bg-neutral-dark transition-all">
                 Paramètres globaux
               </button>
             </div>

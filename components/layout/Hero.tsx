@@ -37,7 +37,7 @@ export default function Hero() {
             <Link href="/register" className="inline-flex items-center gap-2 bg-primary text-inverse font-semibold px-7 py-4 rounded-full hover:bg-primary-light transition-colors no-underline">
               Ouvrir un compte gratuit <ArrowRight size={18} />
             </Link>
-            <Link href="#fonctionnalites" className="inline-flex items-center gap-2 bg-white text-primary font-semibold px-7 py-4 rounded-full border border-border hover:border-primary transition-colors no-underline">
+            <Link href="#fonctionnalites" className="inline-flex items-center gap-2 bg-white text-ink font-semibold px-7 py-4 rounded-full border border-border hover:border-ink/40 transition-colors no-underline">
               Découvrir BudGest
             </Link>
           </div>
@@ -68,12 +68,12 @@ export default function Hero() {
               {categories.map((cat) => (
                 <div key={cat.label} className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-xl bg-neutral flex items-center justify-center shrink-0">
-                    <cat.icon size={16} className="text-primary" />
+                    <cat.icon size={16} className="text-ink" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-baseline mb-1">
-                      <span className="text-sm font-semibold text-primary">{cat.label}</span>
-                      <span className="text-sm font-bold text-primary tabular-nums">{cat.amount} €</span>
+                      <span className="text-sm font-semibold text-ink">{cat.label}</span>
+                      <span className="text-sm font-bold text-ink tabular-nums">{cat.amount} €</span>
                     </div>
                     <div className="w-full h-1.5 rounded-full bg-neutral overflow-hidden">
                       <div className={`h-full rounded-full ${cat.colorClass}`} style={{ width: `${cat.pct}%` }} />

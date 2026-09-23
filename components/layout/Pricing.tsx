@@ -45,16 +45,16 @@ export default function Pricing() {
                   RECOMMANDÉ
                 </div>
               )}
-              <h3 className={`text-lg font-semibold mb-2 ${plan.highlighted ? "text-inverse" : "text-primary"}`}>{plan.name}</h3>
+              <h3 className={`text-lg font-semibold mb-2 ${plan.highlighted ? "text-inverse" : "text-ink"}`}>{plan.name}</h3>
               <p className={`text-sm mb-7 leading-relaxed ${plan.highlighted ? "text-inverse/75" : "text-tertiary"}`}>{plan.description}</p>
               <div className="flex items-baseline gap-1.5 mb-8">
-                <span className={`text-4xl font-bold tabular-nums ${plan.highlighted ? "text-inverse" : "text-primary"}`}>{plan.price} €</span>
+                <span className={`text-4xl font-bold tabular-nums ${plan.highlighted ? "text-inverse" : "text-ink"}`}>{plan.price} €</span>
                 <span className={`text-sm ${plan.highlighted ? "text-inverse/75" : "text-tertiary"}`}>/ mois</span>
               </div>
               <div className="flex flex-col gap-3.5 mb-8">
                 {plan.features.map((feature) => (
                   <div key={feature} className="flex items-center gap-2.5">
-                    <Check size={15} className={`shrink-0 ${plan.highlighted ? "text-inverse" : "text-primary"}`} />
+                    <Check size={15} className={`shrink-0 ${plan.highlighted ? "text-inverse" : "text-ink"}`} />
                     <span className={`text-sm ${plan.highlighted ? "text-inverse/90" : "text-tertiary"}`}>{feature}</span>
                   </div>
                 ))}

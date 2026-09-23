@@ -129,7 +129,7 @@ export default function AdminUsersPage() {
             placeholder="Rechercher par nom ou email..."
             value={search}
             onChange={(e) => { setPage(1); setSearch(e.target.value); }}
-            className="bg-transparent outline-none text-sm text-primary placeholder:text-tertiary flex-1"
+            className="bg-transparent outline-none text-sm text-ink placeholder:text-tertiary flex-1"
           />
         </div>
         <select
@@ -177,7 +177,7 @@ export default function AdminUsersPage() {
                 {users.map((u) => (
                   <tr key={u._id} className="hover:bg-neutral/50 transition-colors">
                     <td className="px-5 py-4">
-                      <p className="text-sm font-semibold text-primary">{u.name}</p>
+                      <p className="text-sm font-semibold text-ink">{u.name}</p>
                       <p className="text-xs text-tertiary">{u.email}</p>
                     </td>
                     <td className="px-5 py-4">
@@ -198,7 +198,7 @@ export default function AdminUsersPage() {
                         <button
                           onClick={() => handleToggleRole(u)}
                           title={u.role === "admin" ? "Retirer les droits admin" : "Promouvoir admin"}
-                          className="w-8 h-8 rounded-lg flex items-center justify-center text-tertiary hover:text-secondary hover:bg-secondary/10 transition-colors"
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-tertiary hover:text-ink hover:bg-ink/10 transition-colors"
                         >
                           <ShieldCheck size={15} />
                         </button>
@@ -231,7 +231,7 @@ export default function AdminUsersPage() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
-            className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-tertiary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-tertiary hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ChevronLeft size={15} />
           </button>
@@ -239,7 +239,7 @@ export default function AdminUsersPage() {
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page >= totalPages}
-            className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-tertiary hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
+            className="w-8 h-8 rounded-lg border border-border flex items-center justify-center text-tertiary hover:text-ink disabled:opacity-30 disabled:cursor-not-allowed"
           >
             <ChevronRight size={15} />
           </button>
@@ -264,19 +264,19 @@ export default function AdminUsersPage() {
       {tempPasswordFor && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-            <h2 className="text-lg font-bold text-primary mb-2" style={{ fontFamily: "var(--font-heading)" }}>
+            <h2 className="text-lg font-semibold text-ink mb-2" style={{ fontFamily: "var(--font-heading)" }}>
               Mot de passe temporaire généré
             </h2>
             <p className="text-sm text-tertiary mb-4">
               Communiquez ce mot de passe à <strong>{tempPasswordFor.user.name}</strong> par un canal sûr.
               Il ne sera plus affiché après fermeture de cette fenêtre.
             </p>
-            <div className="bg-neutral border border-border rounded-xl px-4 py-3 font-mono text-sm text-primary mb-5 select-all">
+            <div className="bg-neutral border border-border rounded-xl px-4 py-3 font-mono text-sm text-ink mb-5 select-all">
               {tempPasswordFor.password}
             </div>
             <button
               onClick={() => setTempPasswordFor(null)}
-              className="w-full bg-primary text-inverse py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors"
+              className="w-full bg-ink text-white py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-colors"
             >
               J&apos;ai noté le mot de passe
             </button>

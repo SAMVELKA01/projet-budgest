@@ -25,11 +25,11 @@ export default function DashboardHeader() {
   };
 
   return (
-    <header className="hidden lg:flex h-16 bg-white border-b border-border items-center justify-between px-6 flex-shrink-0">
+    <header className="hidden lg:flex h-16 bg-app items-center justify-between px-6 shrink-0">
 
       {/* Recherche */}
-      <div className="flex items-center gap-3 bg-neutral border border-border rounded-xl px-4 py-2 w-72 focus-within:border-secondary transition-colors">
-        <Search size={15} className="text-tertiary flex-shrink-0" />
+      <div className="flex items-center gap-3 bg-neutral rounded-full px-4 py-2 w-72 focus-within:ring-2 focus-within:ring-gold transition-all">
+        <Search size={15} className="text-tertiary shrink-0" />
         <input
           type="text"
           placeholder="Rechercher une transaction..."
@@ -51,7 +51,7 @@ export default function DashboardHeader() {
         <ThemeToggle />
 
         {/* Notifications */}
-        <button className="relative w-9 h-9 rounded-xl bg-neutral border border-border flex items-center justify-center hover:bg-neutral-dark transition-colors">
+        <button className="relative w-9 h-9 rounded-full bg-neutral flex items-center justify-center hover:bg-neutral-dark transition-colors">
           <Bell size={16} className="text-tertiary" />
           <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-danger rounded-full" />
         </button>
@@ -59,7 +59,7 @@ export default function DashboardHeader() {
         {/* Aide */}
         <button
           onClick={() => router.push("/parametres")}
-          className="w-9 h-9 rounded-xl bg-neutral border border-border flex items-center justify-center hover:bg-neutral-dark transition-colors">
+          className="w-9 h-9 rounded-full bg-neutral flex items-center justify-center hover:bg-neutral-dark transition-colors">
           <HelpCircle size={16} className="text-tertiary" />
         </button>
 

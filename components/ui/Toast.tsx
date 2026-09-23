@@ -56,8 +56,8 @@ function ToastItem({ toast, onRemove }: { toast: ToastData; onRemove: (id: strin
       style={{ opacity: visible ? 1 : 0, transform: visible ? "translateX(0)" : "translateX(100%)" }}
     >
       <Icon size={18} className={`${config.iconColor} shrink-0 mt-0.5`} />
-      <p className="text-sm font-medium text-primary flex-1">{toast.message}</p>
-      <button onClick={() => onRemove(toast.id)} className="text-tertiary hover:text-primary transition-colors shrink-0">
+      <p className="text-sm font-medium text-ink flex-1">{toast.message}</p>
+      <button onClick={() => onRemove(toast.id)} className="text-tertiary hover:text-ink transition-colors shrink-0">
         <X size={14} />
       </button>
       <div className={`absolute bottom-0 left-0 h-0.5 ${config.bar} animate-shrink`} style={{ width: "100%" }} />

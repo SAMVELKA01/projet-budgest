@@ -16,8 +16,8 @@ export default function ConfirmModal({ title, message, confirmLabel = "Supprimer
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>{title}</h2>
-          <button onClick={onCancel} className="w-8 h-8 rounded-lg bg-neutral flex items-center justify-center text-tertiary hover:text-primary transition-colors">
+          <h2 className="text-lg font-semibold text-ink" style={{ fontFamily: "var(--font-heading)" }}>{title}</h2>
+          <button onClick={onCancel} className="w-8 h-8 rounded-lg bg-neutral flex items-center justify-center text-tertiary hover:text-ink transition-colors">
             <X size={16} />
           </button>
         </div>
@@ -26,7 +26,7 @@ export default function ConfirmModal({ title, message, confirmLabel = "Supprimer
           <button onClick={onCancel} className="flex-1 border border-border text-tertiary py-3 rounded-xl text-sm font-semibold hover:bg-neutral transition-colors">
             Annuler
           </button>
-          <button onClick={onConfirm} className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-colors ${danger ? "bg-danger text-white hover:opacity-90" : "bg-primary text-inverse hover:bg-primary-light"}`}>
+          <button onClick={onConfirm} className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-colors ${danger ? "bg-danger text-white hover:opacity-90" : "bg-ink text-white hover:opacity-90"}`}>
             {confirmLabel}
           </button>
         </div>

@@ -3,11 +3,11 @@
 import { Wallet, LineChart, Target, Trophy, Repeat2, Sparkles } from "lucide-react";
 
 const features = [
-  { icon: Wallet, title: "Suivi des transactions", description: "Enregistrez revenus et dépenses en quelques secondes et gardez une vue claire de chaque opération.", iconColor: "text-primary" },
-  { icon: LineChart, title: "Analyse par jour, semaine, mois", description: "Visualisez vos habitudes à la granularité qui compte pour vous, et comprenez où va votre argent.", iconColor: "text-primary" },
+  { icon: Wallet, title: "Suivi des transactions", description: "Enregistrez revenus et dépenses en quelques secondes et gardez une vue claire de chaque opération.", iconColor: "text-ink" },
+  { icon: LineChart, title: "Analyse par jour, semaine, mois", description: "Visualisez vos habitudes à la granularité qui compte pour vous, et comprenez où va votre argent.", iconColor: "text-ink" },
   { icon: Target, title: "Budgets par catégorie", description: "Fixez des plafonds de dépenses personnalisés et suivez leur progression au centime près.", iconColor: "text-warning" },
   { icon: Trophy, title: "Objectifs d'épargne", description: "Créez des objectifs financiers et suivez votre progression — vacances, achat, ou tranquillité d'esprit.", iconColor: "text-success" },
-  { icon: Repeat2, title: "Transactions récurrentes", description: "Loyer, abonnements, salaire — configurez une fois, BudGest s'occupe du reste automatiquement.", iconColor: "text-primary" },
+  { icon: Repeat2, title: "Transactions récurrentes", description: "Loyer, abonnements, salaire — configurez une fois, BudGest s'occupe du reste automatiquement.", iconColor: "text-ink" },
   { icon: Sparkles, title: "Assistant IA intégré", description: "Posez vos questions en langage naturel et recevez des suggestions personnalisées sur votre budget.", iconColor: "text-info" },
 ];
 
@@ -19,7 +19,7 @@ export default function Features() {
           <div className="inline-flex items-center gap-2 bg-neutral text-tertiary text-xs font-bold px-4 py-2 rounded-full mb-5">
             Fonctionnalités
           </div>
-          <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-semibold text-primary leading-tight mb-4">
+          <h2 className="text-[clamp(1.75rem,3.5vw,2.5rem)] font-semibold text-ink leading-tight mb-4">
             Tout ce qu&apos;il faut, <span className="text-info">rien de superflu</span>
           </h2>
           <p className="text-tertiary text-base leading-relaxed">
@@ -33,7 +33,7 @@ export default function Features() {
               <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center mb-5">
                 <feature.icon size={22} className={feature.iconColor} strokeWidth={2} />
               </div>
-              <h3 className="text-lg font-semibold text-primary mb-2">{feature.title}</h3>
+              <h3 className="text-lg font-semibold text-ink mb-2">{feature.title}</h3>
               <p className="text-sm text-tertiary leading-relaxed">{feature.description}</p>
             </div>
           ))}

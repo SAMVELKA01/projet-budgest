@@ -129,7 +129,7 @@ export default function ResetPasswordPage() {
         </div>
       </div>
 
-      <div className="flex flex-col justify-center items-center p-8 lg:p-24 bg-white">
+      <div className="flex flex-col justify-center items-center p-8 lg:p-24 bg-white auth-panel">
         <div className="w-full max-w-sm">
           <div className="mb-8">
             <h2 className="text-3xl font-semibold text-primary mb-2">

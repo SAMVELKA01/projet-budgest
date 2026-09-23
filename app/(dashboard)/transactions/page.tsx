@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Wallet, CreditCard, Banknote, Landmark, Repeat, Receipt } from "lucide-react";
 import { apiPost, apiDelete } from "@/lib/hooks/useApi";
 import ConfirmModal from "@/components/ui/ConfirmModal";
 import ToastContainer from "@/components/ui/Toast";
@@ -30,6 +30,16 @@ const quickCreatePalette = ["#5B8DEF", "#4CAF7D", "#E8A33D", "#E15B5B", "#8B7CF6
 
 const types = ["Type : Tout", "Dépenses", "Revenus"];
 const ITEMS_PER_PAGE = 8;
+const JOURS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+
+const methodIcons: Record<string, typeof CreditCard> = {
+  "Carte Débit": CreditCard,
+  "Carte Crédit": CreditCard,
+  "Virement SEPA": Landmark,
+  "Prélèvement": Repeat,
+  "Espèces": Banknote,
+  "Apple Pay": Wallet,
+};
 
 export default function TransactionsPage() {
   const { toasts, toast, remove } = useToast();
@@ -159,17 +169,17 @@ export default function TransactionsPage() {
   };
 
   const totalPages = Math.ceil(transactions.length / ITEMS_PER_PAGE);
-  const paginated = transactions.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE,
-  );
-  const totalDepenses = transactions
-    .filter((t) => t.amount < 0)
-    .reduce((s, t) => s + Math.abs(t.amount), 0);
-  const totalRevenus = transactions
-    .filter((t) => t.amount > 0)
-    .reduce((s, t) => s + t.amount, 0);
+  const paginated = transactions.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const totalDepenses = transactions.filter((t) => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
+  const totalRevenus = transactions.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0);
   const solde = totalRevenus - totalDepenses;
+  const moyenne = transactions.length > 0 ? (totalRevenus + totalDepenses) / transactions.length : 0;
+
+  const parJour = JOURS.map((_, i) => transactions.filter((t) => {
+    const d = new Date(t.date).getDay();
+    return (d === 0 ? 6 : d - 1) === i;
+  }).length);
+  const maxJour = Math.max(...parJour, 1);
 
   return (
     <div className="flex flex-col gap-6">
@@ -177,177 +187,134 @@ export default function TransactionsPage() {
 
       <div className="flex items-start justify-between">
         <div>
-          <h1
-            className="text-[28px] font-semibold text-primary"
-            style={{ fontFamily: "var(--font-heading)" }}
-          >
+          <h1 className="text-[28px] font-semibold text-primary" style={{ fontFamily: "var(--font-heading)" }}>
             Historique des Transactions
           </h1>
-          <p className="text-tertiary text-sm mt-1">
-            Gérez et analysez vos flux financiers avec précision.
-          </p>
+          <p className="text-tertiary text-sm mt-1">Gérez et analysez vos flux financiers avec précision.</p>
         </div>
-        <button
-          onClick={openModal}
-          className="bg-primary text-inverse px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center gap-2"
-        >
+        <button onClick={openModal} className="bg-gold text-ink px-5 py-2.5 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity flex items-center gap-2">
           <Plus size={16} /> Ajouter une transaction
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          {
-            label: "Dépenses ce mois",
-            value: format(totalDepenses),
-            color: "text-danger",
-          },
-          {
-            label: "Revenus ce mois",
-            value: format(totalRevenus),
-            color: "text-success",
-          },
-          {
-            label: "Solde disponible",
-            value: format(solde),
-            color: "text-primary",
-          },
+          { label: "Dépenses ce mois", value: format(totalDepenses), bg: "bg-pastel-mauve" },
+          { label: "Revenus ce mois", value: format(totalRevenus), bg: "bg-pastel-sage" },
+          { label: "Solde disponible", value: format(solde), bg: "bg-pastel-sand" },
+          { label: "Transaction moyenne", value: format(moyenne), bg: "bg-pastel-olive" },
         ].map((kpi) => (
-          <div
-            key={kpi.label}
-            className="bg-white border border-border rounded-2xl p-6"
-          >
-            <p className="text-[11px] font-medium text-tertiary uppercase tracking-wider mb-2">
-              {kpi.label}
-            </p>
-            <p className={`text-3xl font-bold tabular-nums ${kpi.color}`}>
-              {kpi.value}
-            </p>
+          <div key={kpi.label} className={`${kpi.bg} rounded-2xl p-6`}>
+            <p className="text-[11px] font-medium text-ink/60 uppercase tracking-wider mb-2">{kpi.label}</p>
+            <p className="text-3xl font-bold text-ink tabular-nums">{kpi.value}</p>
           </div>
         ))}
       </div>
+
+      {transactions.length > 0 && (
+        <div className="bg-white border border-border rounded-2xl p-5">
+          <h3 className="text-sm font-semibold text-ink mb-4">Transactions par jour de la semaine</h3>
+          <div className="flex items-end gap-3" style={{ height: "80px" }}>
+            {JOURS.map((j, i) => (
+              <div key={j} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                <div className="w-full rounded-t-md bg-gold" style={{ height: `${(parJour[i] / maxJour) * 100}%`, minHeight: parJour[i] > 0 ? "4px" : "0" }} />
+                <span className="text-[10px] text-tertiary">{j}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="bg-white border border-border rounded-2xl p-5">
         <div className="flex items-center gap-3 mb-5 flex-wrap">
           <select
             value={categorieId}
-            onChange={(e) => {
-              setCategorieId(e.target.value);
-              setPage(1);
-            }}
-            className="text-sm rounded-full px-4 py-2 text-primary bg-neutral outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
+            onChange={(e) => { setCategorieId(e.target.value); setPage(1); }}
+            className="text-sm rounded-full px-4 py-2 text-ink bg-neutral outline-none focus:ring-2 focus:ring-gold transition-all cursor-pointer"
           >
             <option value="">Toutes les catégories</option>
             {categories.map((c) => (
-              <option key={c._id} value={c._id}>
-                {c.icon} {c.name}
-              </option>
+              <option key={c._id} value={c._id}>{c.icon} {c.name}</option>
             ))}
           </select>
           <select
             value={type}
-            onChange={(e) => {
-              setType(e.target.value);
-              setPage(1);
-            }}
-            className="text-sm rounded-full px-4 py-2 text-primary bg-neutral outline-none focus:ring-2 focus:ring-primary transition-all cursor-pointer"
+            onChange={(e) => { setType(e.target.value); setPage(1); }}
+            className="text-sm rounded-full px-4 py-2 text-ink bg-neutral outline-none focus:ring-2 focus:ring-gold transition-all cursor-pointer"
           >
-            {types.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
+            {types.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
           </select>
           <span className="text-xs text-tertiary ml-auto">
-            {loading
-              ? "Chargement..."
-              : `${transactions.length} transaction${transactions.length > 1 ? "s" : ""}`}
+            {loading ? "Chargement..." : `${transactions.length} transaction${transactions.length > 1 ? "s" : ""}`}
           </span>
         </div>
 
         <div className="hidden md:grid grid-cols-6 gap-4 px-4 py-2 mb-1">
-          {["DATE", "DESCRIPTION", "CATÉGORIE", "MÉTHODE", "MONTANT", ""].map(
-            (h) => (
-              <span
-                key={h}
-                className="text-xs font-semibold text-tertiary uppercase tracking-wide"
-              >
-                {h}
-              </span>
-            ),
-          )}
+          {["DATE", "DESCRIPTION", "CATÉGORIE", "MÉTHODE", "MONTANT", ""].map((h) => (
+            <span key={h} className="text-xs font-semibold text-tertiary uppercase tracking-wide">{h}</span>
+          ))}
         </div>
 
         {loading ? (
           <div className="py-12 text-center">
-            <div className="w-6 h-6 border-2 border-secondary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            <div className="w-6 h-6 border-2 border-ink border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             <p className="text-sm text-tertiary">Chargement...</p>
           </div>
         ) : paginated.length === 0 ? (
-          <div className="py-12 text-center">
+          <div className="py-12 text-center flex flex-col items-center gap-3">
+            <div className="w-14 h-14 rounded-full bg-pastel-sand flex items-center justify-center">
+              <Receipt size={24} className="text-ink" />
+            </div>
             <p className="text-sm text-tertiary">Aucune transaction trouvée.</p>
+            <button onClick={openModal} className="inline-flex items-center gap-1.5 text-xs text-ink bg-gold font-semibold px-4 py-2 rounded-full hover:opacity-90 transition-opacity">
+              <Plus size={12} /> Ajouter ma première transaction
+            </button>
           </div>
         ) : (
           <div className="flex flex-col gap-1">
-            {paginated.map((t) => (
-              <div
-                key={t._id}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral transition-colors"
-              >
-                <div className="w-9 h-9 rounded-full bg-neutral border border-border flex items-center justify-center text-xs font-bold text-tertiary shrink-0">
-                  {t.name[0]}
+            {paginated.map((t) => {
+              const cat = categories.find((c) => c._id === t.categorieId || c.name === t.category);
+              const MethodIcon = methodIcons[t.method] || CreditCard;
+              return (
+                <div key={t._id} className="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-neutral transition-colors">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm shrink-0" style={{ background: `${cat?.colorHex || "#9A9CA5"}22` }}>
+                    {cat?.icon || t.name[0]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-ink truncate">{t.name}</p>
+                    <p className="text-xs text-tertiary">{new Date(t.date).toLocaleDateString("fr-FR")} · {t.category}</p>
+                  </div>
+                  <div className="hidden sm:flex items-center gap-1.5 text-xs text-tertiary shrink-0">
+                    <MethodIcon size={13} /> {t.method}
+                  </div>
+                  <span className={`text-sm font-bold shrink-0 tabular-nums ${t.amount > 0 ? "text-success" : "text-danger"}`}>
+                    {t.amount > 0 ? "+" : ""}{format(Math.abs(t.amount))}
+                  </span>
+                  <button onClick={() => setDeleteId(t._id)} className="w-7 h-7 rounded-lg flex items-center justify-center text-tertiary hover:text-danger hover:bg-danger/10 transition-colors shrink-0">
+                    <X size={14} />
+                  </button>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-primary truncate">
-                    {t.name}
-                  </p>
-                  <p className="text-xs text-tertiary">
-                    {new Date(t.date).toLocaleDateString("fr-FR")} ·{" "}
-                    {t.category}
-                  </p>
-                </div>
-                <span
-                  className={`text-sm font-bold shrink-0 ${t.amount > 0 ? "text-success" : "text-danger"}`}
-                >
-                  {t.amount > 0 ? "+" : ""}
-                  {format(Math.abs(t.amount))}
-                </span>
-                <button
-                  onClick={() => setDeleteId(t._id)}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center text-tertiary hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-5 pt-4 border-t border-border">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="text-sm text-tertiary px-4 py-2 rounded-lg border border-border hover:bg-neutral transition-colors disabled:opacity-40"
-            >
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
+              className="text-sm text-tertiary px-4 py-2 rounded-lg border border-border hover:bg-neutral transition-colors disabled:opacity-40">
               ← Précédent
             </button>
             <div className="flex gap-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setPage(p)}
-                  className={`w-8 h-8 rounded-lg text-sm font-semibold transition-colors ${page === p ? "bg-primary text-inverse" : "text-tertiary hover:bg-neutral border border-border"}`}
-                >
+                <button key={p} onClick={() => setPage(p)}
+                  className={`w-8 h-8 rounded-full text-sm font-semibold transition-colors ${page === p ? "bg-gold text-ink" : "text-tertiary hover:bg-neutral border border-border"}`}>
                   {p}
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="text-sm text-tertiary px-4 py-2 rounded-lg border border-border hover:bg-neutral transition-colors disabled:opacity-40"
-            >
+            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+              className="text-sm text-tertiary px-4 py-2 rounded-lg border border-border hover:bg-neutral transition-colors disabled:opacity-40">
               Suivant →
             </button>
           </div>
@@ -356,62 +323,34 @@ export default function TransactionsPage() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md">
-            <div className="flex items-center justify-between mb-5">
-              <h2
-                className="text-lg font-bold text-primary"
-                style={{ fontFamily: "var(--font-heading)" }}
-              >
-                Nouvelle transaction
-              </h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="w-8 h-8 rounded-lg bg-neutral flex items-center justify-center text-tertiary hover:text-primary transition-colors"
-              >
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-pastel-sand flex items-center justify-center shrink-0">
+                <Plus size={18} className="text-ink" />
+              </div>
+              <h2 className="text-lg font-semibold text-ink flex-1" style={{ fontFamily: "var(--font-heading)" }}>Nouvelle transaction</h2>
+              <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-lg bg-neutral flex items-center justify-center text-tertiary hover:text-ink transition-colors">
                 <X size={16} />
               </button>
             </div>
             <div className="flex flex-col gap-4">
               <div>
-                <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">
-                  Description
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ex: Supermarché"
-                  value={form.name}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, name: e.target.value }))
-                  }
-                  className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
-                />
+                <label className="text-[11px] font-semibold text-tertiary uppercase tracking-wide mb-2 block">Description</label>
+                <input type="text" placeholder="Ex: Supermarché" value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gold transition-all" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">
-                    Montant ({symbol})
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="0.00"
-                    value={form.amount}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, amount: e.target.value }))
-                    }
-                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
-                  />
+                  <label className="text-[11px] font-semibold text-tertiary uppercase tracking-wide mb-2 block">Montant ({symbol})</label>
+                  <input type="number" placeholder="0.00" value={form.amount}
+                    onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))}
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gold transition-all" />
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">
-                    Type
-                  </label>
-                  <select
-                    value={form.type}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, type: e.target.value }))
-                    }
-                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
-                  >
+                  <label className="text-[11px] font-semibold text-tertiary uppercase tracking-wide mb-2 block">Type</label>
+                  <select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gold transition-all">
                     <option value="depense">Dépense</option>
                     <option value="revenu">Revenu</option>
                   </select>
@@ -419,44 +358,24 @@ export default function TransactionsPage() {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">
-                  Catégorie
-                </label>
+                <label className="text-[11px] font-semibold text-tertiary uppercase tracking-wide mb-2 block">Catégorie</label>
                 {categories.length === 0 ? (
-                  <p className="text-xs text-tertiary mb-2">
-                    Aucune catégorie pour l&apos;instant, crée la première ci-dessous.
-                  </p>
+                  <p className="text-xs text-tertiary mb-2">Aucune catégorie pour l&apos;instant, crée la première ci-dessous.</p>
                 ) : (
-                  <select
-                    value={form.categorieId || NEW_CATEGORY_VALUE}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, categorieId: e.target.value === NEW_CATEGORY_VALUE ? "" : e.target.value }))
-                    }
-                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
-                  >
-                    {categories.map((c) => (
-                      <option key={c._id} value={c._id}>
-                        {c.icon} {c.name}
-                      </option>
-                    ))}
+                  <select value={form.categorieId || NEW_CATEGORY_VALUE}
+                    onChange={(e) => setForm((f) => ({ ...f, categorieId: e.target.value === NEW_CATEGORY_VALUE ? "" : e.target.value }))}
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gold transition-all">
+                    {categories.map((c) => <option key={c._id} value={c._id}>{c.icon} {c.name}</option>)}
                     <option value={NEW_CATEGORY_VALUE}>+ Nouvelle catégorie…</option>
                   </select>
                 )}
                 {(categories.length === 0 || !form.categorieId) && (
                   <div className="flex gap-2 mt-2">
-                    <input
-                      type="text"
-                      placeholder="Nom de la nouvelle catégorie"
-                      value={newCatName}
+                    <input type="text" placeholder="Nom de la nouvelle catégorie" value={newCatName}
                       onChange={(e) => setNewCatName(e.target.value)}
-                      className="flex-1 bg-neutral rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={handleCreateCategory}
-                      disabled={creatingCat}
-                      className="px-4 py-2.5 rounded-lg bg-secondary text-inverse text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60 shrink-0"
-                    >
+                      className="flex-1 bg-neutral rounded-lg px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-gold transition-all" />
+                    <button type="button" onClick={handleCreateCategory} disabled={creatingCat}
+                      className="px-4 py-2.5 rounded-lg bg-ink text-white text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60 shrink-0">
                       {creatingCat ? "…" : "Créer"}
                     </button>
                   </div>
@@ -465,55 +384,25 @@ export default function TransactionsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">
-                    Méthode
-                  </label>
-                  <select
-                    value={form.method}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, method: e.target.value }))
-                    }
-                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
-                  >
-                    {[
-                      "Carte Débit",
-                      "Carte Crédit",
-                      "Virement SEPA",
-                      "Prélèvement",
-                      "Espèces",
-                      "Apple Pay",
-                    ].map((m) => (
-                      <option key={m}>{m}</option>
-                    ))}
+                  <label className="text-[11px] font-semibold text-tertiary uppercase tracking-wide mb-2 block">Méthode</label>
+                  <select value={form.method} onChange={(e) => setForm((f) => ({ ...f, method: e.target.value }))}
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gold transition-all">
+                    {["Carte Débit", "Carte Crédit", "Virement SEPA", "Prélèvement", "Espèces", "Apple Pay"].map((m) => <option key={m}>{m}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-primary uppercase tracking-wide mb-2 block">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    value={form.date}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, date: e.target.value }))
-                    }
-                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary transition-all"
-                  />
+                  <label className="text-[11px] font-semibold text-tertiary uppercase tracking-wide mb-2 block">Date</label>
+                  <input type="date" value={form.date} onChange={(e) => setForm((f) => ({ ...f, date: e.target.value }))}
+                    className="w-full bg-neutral rounded-lg px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gold transition-all" />
                 </div>
               </div>
             </div>
             <div className="flex gap-3 mt-6">
-              <button
-                onClick={() => setShowModal(false)}
-                className="flex-1 border border-border text-tertiary py-3 rounded-xl text-sm font-semibold hover:bg-neutral transition-colors"
-              >
+              <button onClick={() => setShowModal(false)} className="flex-1 border border-border text-tertiary py-3 rounded-xl text-sm font-semibold hover:bg-neutral transition-colors">
                 Annuler
               </button>
-              <button
-                onClick={handleAdd}
-                disabled={saving}
-                className="flex-1 bg-primary text-inverse py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60"
-              >
+              <button onClick={handleAdd} disabled={saving}
+                className="flex-1 bg-ink text-white py-3 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
                 {saving ? "Ajout..." : "Ajouter →"}
               </button>
             </div>

@@ -19,7 +19,7 @@ export default function Footer() {
               <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shrink-0">
                 <Wallet size={16} className="text-inverse" />
               </div>
-              <span className="font-bold text-lg text-primary">BudGest</span>
+              <span className="font-bold text-lg text-ink">BudGest</span>
             </div>
             <p className="text-sm text-tertiary leading-relaxed max-w-60">
               Votre budget personnel, géré avec clarté et simplicité.
@@ -32,9 +32,9 @@ export default function Footer() {
               <div className="flex flex-col gap-3">
                 {col.links.map((link) =>
                   link.href.startsWith("#") ? (
-                    <a key={link.label} href={link.href} className="text-sm text-tertiary hover:text-primary transition-colors no-underline">{link.label}</a>
+                    <a key={link.label} href={link.href} className="text-sm text-tertiary hover:text-ink transition-colors no-underline">{link.label}</a>
                   ) : (
-                    <Link key={link.label} href={link.href} className="text-sm text-tertiary hover:text-primary transition-colors no-underline">{link.label}</Link>
+                    <Link key={link.label} href={link.href} className="text-sm text-tertiary hover:text-ink transition-colors no-underline">{link.label}</Link>
                   )
                 )}
               </div>

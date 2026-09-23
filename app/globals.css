@@ -1,30 +1,49 @@
 @import "tailwindcss";
 
 /*
- * Design system "Bento Neutre" : noir/blanc (accent-primary) comme seule
- * couleur de marque, fond neutre chaud pour l'app et la sidebar (plus de
- * sidebar/violet plein), cartes très légèrement en relief (bordure fine,
- * quasi pas d'ombre en clair), une seule famille sans-serif géométrique
- * (Geist) pour titres ET corps de texte, chiffres en tabular-nums.
- * Les couleurs vives (vert/rouge/orange/bleu/violet) ne servent plus qu'aux
- * données : badges de variation, graphiques, jauges — jamais en fond plein
- * de bouton/sidebar/card.
+ * Design system "Bento Pastel + Gold" (v2 de "Bento Neutre") : coquille de
+ * l'app (fond + sidebar) toujours neutre et s'inverse avec le thème (crème
+ * en clair / noir profond en sombre) ; les CONTENUS (cards blanches et
+ * pastel) ne s'inversent JAMAIS — elles restent claires avec du texte sombre
+ * dans les deux modes, exactement comme la maquette de référence (cards
+ * pastel posées sur un fond noir). --color-gold est l'accent signature
+ * (item de nav actif, bouton d'action flottant, highlights ponctuels) ;
+ * --color-primary reste utilisé pour les boutons d'action noir/blanc
+ * "de travail". Une seule famille sans-serif (Geist), chiffres en
+ * tabular-nums.
  */
 @theme {
-  --color-app: #F5F4F0;
-  --color-primary: #13141A;
+  /* Coquille de l'app : s'inverse avec le thème. */
+  --color-app: #F4F3EF;
+  --color-sidebar: #F4F3EF;
+  --color-primary: #14151A;
   --color-primary-light: #2C2D33;
-  --color-secondary: #13141A;
+  --color-secondary: #14151A;
   --color-secondary-hover: #2C2D33;
   --color-inverse: #FFFFFF;
-  --color-sidebar: #FFFFFF;
+  --color-tertiary: #6B6D76;
 
-  --color-tertiary: #9A9CA5;
-  --color-neutral: #ECEAE2;
-  --color-neutral-dark: #DFDCD2;
-  --color-border: #E6E4DC;
+  /* Surfaces de contenu (cards) : NE s'inversent jamais, texte fixe. */
+  --color-ink: #14151A;
+  --color-neutral: #EFEDE4;
+  --color-neutral-dark: #E4E1D4;
+  --color-border: #E3E0D5;
 
-  /* Couleurs de données : constantes entre clair/sombre. */
+  /* Palette pastel des cards — rotation utilisée à travers tout le bento. */
+  --color-gold: #E8C94A;
+  --color-pastel-sand: #E8DFC4;
+  --color-pastel-sage: #D6E8DA;
+  --color-pastel-mauve: #DEDCEB;
+  --color-pastel-olive: #E6DFB8;
+
+  /* Badges de variation : fond pastel + texte foncé, ne s'inversent pas. */
+  --color-badge-pos-bg: #C9F0D4;
+  --color-badge-pos-text: #1E5C34;
+  --color-badge-neg-bg: #F9D8D0;
+  --color-badge-neg-text: #8C2E1E;
+
+  /* Couleurs de données : constantes entre clair/sombre, visibles aussi bien
+     en chrome (sidebar/header) que sur les cards (glyphes, graphiques). */
   --color-success: #4CAF7D;
   --color-danger: #E15B5B;
   --color-warning: #E8A33D;
@@ -70,38 +89,22 @@
 }
 
 /* ===================== MODE SOMBRE ===================== */
-/* Même mécanisme que l'existant : les couleurs custom de @theme sont
-   inlinées par Tailwind (pas de var() runtime), donc le mode sombre passe
-   par des overrides ciblés par classe, au lieu d'une simple réaffectation
-   de variable CSS. */
+/* Principe : seule la COQUILLE de l'app (fond de page, sidebar, header,
+   boutons d'action noir/blanc) s'inverse. Les cards de contenu (blanches
+   et pastel) et leur texte restent identiques dans les deux modes — c'est
+   la maquette de référence : des cards claires posées sur un fond noir. */
 
 [data-theme="dark"] {
-  background: #0D0D0F;
+  background: #0A0A0A;
   color: #F5F5F2;
 }
 
 [data-theme="dark"] .bg-app {
-  background-color: #0D0D0F !important;
-}
-
-[data-theme="dark"] .bg-white {
-  background-color: #17171A !important;
-}
-
-[data-theme="dark"] .bg-neutral {
-  background-color: #202023 !important;
-}
-
-[data-theme="dark"] .bg-neutral-dark {
-  background-color: #26262A !important;
+  background-color: #0A0A0A !important;
 }
 
 [data-theme="dark"] .bg-sidebar {
-  background-color: #0A0A0C !important;
-}
-
-[data-theme="dark"] .border-border {
-  border-color: #27272B !important;
+  background-color: #0A0A0A !important;
 }
 
 [data-theme="dark"] .text-primary {
@@ -117,76 +120,98 @@
 }
 
 [data-theme="dark"] .text-inverse {
-  color: #13141A !important;
+  color: #14151A !important;
 }
 
 [data-theme="dark"] .bg-inverse {
-  background-color: #13141A !important;
+  background-color: #14151A !important;
 }
 
-[data-theme="dark"] .text-tertiary {
-  color: #6E6E72 !important;
+/* Variantes d'opacité (text-primary/45, bg-inverse/15, etc.) : Tailwind
+   calcule ces classes au build avec la valeur CLAIRE du token (le mix
+   d'opacité est figé à la compilation, il ne peut pas suivre le
+   `[data-theme="dark"]` au runtime) — chaque fraction utilisée dans le
+   code doit donc être réécrite explicitement ici pour rester visible en
+   mode sombre. */
+[data-theme="dark"] .text-primary\/40 { color: rgba(245, 245, 242, 0.4) !important; }
+[data-theme="dark"] .text-primary\/45 { color: rgba(245, 245, 242, 0.45) !important; }
+[data-theme="dark"] .text-primary\/50 { color: rgba(245, 245, 242, 0.5) !important; }
+[data-theme="dark"] .bg-primary\/5 { background-color: rgba(245, 245, 242, 0.05) !important; }
+[data-theme="dark"] .bg-primary\/10 { background-color: rgba(245, 245, 242, 0.1) !important; }
+[data-theme="dark"] .text-inverse\/50 { color: rgba(20, 21, 26, 0.5) !important; }
+[data-theme="dark"] .text-inverse\/70 { color: rgba(20, 21, 26, 0.7) !important; }
+[data-theme="dark"] .text-inverse\/75 { color: rgba(20, 21, 26, 0.75) !important; }
+[data-theme="dark"] .text-inverse\/90 { color: rgba(20, 21, 26, 0.9) !important; }
+[data-theme="dark"] .bg-inverse\/15 { background-color: rgba(20, 21, 26, 0.15) !important; }
+
+/* Panneau formulaire des pages d'auth : contrairement aux cards de contenu,
+   ce panneau EST la moitié de l'écran (pas une card posée sur le shell), il
+   doit donc suivre le thème comme le reste de la coquille de l'app plutôt
+   que de rester figé en blanc. */
+[data-theme="dark"] .auth-panel {
+  background-color: #17171A !important;
+}
+
+[data-theme="dark"] .bg-gold {
+  background-color: #F0DE7A !important;
+}
+
+[data-theme="dark"] .bg-pastel-sand {
+  background-color: #C4BA9C !important;
+}
+
+[data-theme="dark"] .bg-pastel-sage {
+  background-color: #A9C2AE !important;
+}
+
+[data-theme="dark"] .bg-pastel-mauve {
+  background-color: #B7B3CC !important;
+}
+
+[data-theme="dark"] .bg-pastel-olive {
+  background-color: #C9BE85 !important;
+}
+
+[data-theme="dark"] .bg-badge-pos-bg {
+  background-color: #8FE0A8 !important;
+}
+
+[data-theme="dark"] .bg-badge-neg-bg {
+  background-color: #F5A99A !important;
+}
+
+/* Le shell (recherche, notifications, aide) garde une tonalité neutre
+   discrète sur le fond noir plutôt que du blanc plein. */
+[data-theme="dark"] .bg-neutral {
+  background-color: rgba(245, 245, 242, 0.08) !important;
+}
+
+[data-theme="dark"] .bg-neutral-dark {
+  background-color: rgba(245, 245, 242, 0.14) !important;
+}
+
+[data-theme="dark"] .hover\:bg-neutral:hover {
+  background-color: rgba(245, 245, 242, 0.14) !important;
+}
+
+[data-theme="dark"] .hover\:bg-neutral\/50:hover {
+  background-color: rgba(245, 245, 242, 0.08) !important;
+}
+
+[data-theme="dark"] .bg-neutral\/50 {
+  background-color: rgba(245, 245, 242, 0.06) !important;
 }
 
 [data-theme="dark"] input,
 [data-theme="dark"] select,
 [data-theme="dark"] textarea {
-  background-color: #17171A !important;
-  border-color: #27272B !important;
+  background-color: rgba(245, 245, 242, 0.08) !important;
+  border-color: rgba(245, 245, 242, 0.14) !important;
   color: #F5F5F2 !important;
 }
 
 [data-theme="dark"] input::placeholder {
-  color: #6E6E72 !important;
-}
-
-[data-theme="dark"] .divide-border > * + * {
-  border-color: #27272B !important;
-}
-
-[data-theme="dark"] .hover\:bg-neutral:hover {
-  background-color: #26262A !important;
-}
-
-[data-theme="dark"] .hover\:bg-neutral\/50:hover {
-  background-color: rgba(32, 32, 35, 0.6) !important;
-}
-
-[data-theme="dark"] .bg-neutral\/50 {
-  background-color: rgba(32, 32, 35, 0.6) !important;
-}
-
-/* Modales */
-[data-theme="dark"] .fixed.inset-0 > div.bg-white,
-[data-theme="dark"] .fixed.inset-0 > div > div.bg-white {
-  background-color: #17171A !important;
-}
-
-/* Badges et pills teintés — alpha remontée en sombre pour rester visible
-   sur un fond très sombre (10% devient quasi invisible autrement). */
-[data-theme="dark"] .bg-primary\/10,
-[data-theme="dark"] .bg-secondary\/10 {
-  background-color: rgba(245, 245, 242, 0.14) !important;
-}
-
-[data-theme="dark"] .bg-success\/10 {
-  background-color: rgba(76, 175, 125, 0.2) !important;
-}
-
-[data-theme="dark"] .bg-danger\/10 {
-  background-color: rgba(225, 91, 91, 0.2) !important;
-}
-
-[data-theme="dark"] .bg-warning\/10 {
-  background-color: rgba(232, 163, 61, 0.2) !important;
-}
-
-[data-theme="dark"] .bg-info\/10 {
-  background-color: rgba(91, 141, 239, 0.2) !important;
-}
-
-[data-theme="dark"] .bg-violet\/10 {
-  background-color: rgba(139, 124, 246, 0.2) !important;
+  color: rgba(245, 245, 242, 0.4) !important;
 }
 
 @keyframes fade-up {
@@ -207,9 +232,9 @@
 }
 .hover-lift:hover {
   transform: translateY(-3px);
-  box-shadow: 0 16px 40px rgba(19, 20, 26, 0.08);
+  box-shadow: 0 16px 40px rgba(19, 20, 26, 0.1);
 }
 
 [data-theme="dark"] .hover-lift:hover {
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 }

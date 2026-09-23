@@ -53,9 +53,12 @@ function NewTransactionModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-lg font-bold text-primary" style={{ fontFamily: "var(--font-heading)" }}>Nouvelle transaction</h2>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-neutral flex items-center justify-center text-tertiary hover:text-primary transition-colors">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-10 h-10 rounded-xl bg-pastel-sage flex items-center justify-center shrink-0">
+            <Plus size={18} className="text-ink" />
+          </div>
+          <h2 className="text-lg font-semibold text-ink flex-1" style={{ fontFamily: "var(--font-heading)" }}>Nouvelle transaction</h2>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-neutral flex items-center justify-center text-tertiary hover:text-ink transition-colors">
             <X size={16} />
           </button>
         </div>
@@ -108,7 +111,7 @@ function NewTransactionModal({ onClose }: { onClose: () => void }) {
         <div className="flex gap-3 mt-6">
           <button onClick={onClose} className="flex-1 border border-border text-tertiary py-3 rounded-xl text-sm font-semibold hover:bg-neutral transition-colors">Annuler</button>
           <button onClick={handleAdd} disabled={saving}
-            className="flex-1 bg-primary text-inverse py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors disabled:opacity-60">
+            className="flex-1 bg-ink text-white py-3 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-60">
             {saving ? "Ajout..." : "Ajouter →"}
           </button>
         </div>
@@ -146,23 +149,24 @@ function SidebarContent({
 
   return (
     <>
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-border">
+      <div className="flex items-center gap-3 px-6 py-5">
         <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-inverse font-bold text-sm shrink-0">B</div>
         <span className="text-primary font-bold text-lg" style={{ fontFamily: "var(--font-heading)" }}>BudGest</span>
-        <button onClick={onCloseMobile} className="ml-auto lg:hidden text-tertiary hover:text-primary">
+        <button onClick={onCloseMobile} className="ml-auto lg:hidden text-primary/50 hover:text-primary">
           <X size={20} />
         </button>
       </div>
 
-      <nav className="flex-1 px-3 py-4 flex flex-col gap-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-4 flex flex-col gap-1.5 overflow-y-auto">
         {currentNavItems.map((item) => {
           const isActive = pathname === item.href;
           const IconComponent = item.icon;
           return (
             <Link key={item.href} href={item.href}
-              className={`relative flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all no-underline ${isActive ? "bg-neutral text-primary" : "text-tertiary hover:text-primary hover:bg-neutral/60"}`}>
-              {isActive && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-4 rounded-full bg-primary" />}
-              <IconComponent size={17} />
+              className={`flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all no-underline ${isActive ? "text-primary" : "text-primary/45 hover:text-primary hover:bg-primary/5"}`}>
+              <span className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors ${isActive ? "bg-gold text-ink" : ""}`}>
+                <IconComponent size={17} />
+              </span>
               {item.label}
             </Link>
           );
@@ -172,23 +176,23 @@ function SidebarContent({
       {!isAdmin && (
         <div className="px-3 pb-4">
           <button onClick={onNewTransaction}
-            className="w-full bg-primary text-inverse py-3 rounded-xl text-sm font-semibold hover:bg-primary-light transition-colors flex items-center justify-center gap-2">
+            className="w-full bg-gold text-ink py-3 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
             <Plus size={16} /> Nouvelle transaction
           </button>
         </div>
       )}
 
-      <div className="px-3 py-3 border-t border-border">
-        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-neutral transition-colors">
-          <div className="w-8 h-8 rounded-full bg-neutral border border-border flex items-center justify-center shrink-0 text-primary text-xs font-bold">
+      <div className="px-3 py-3">
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-primary/5 transition-colors">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 text-primary text-xs font-bold">
             {initials}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-primary text-xs font-semibold truncate">{userName}</p>
-            <p className="text-tertiary text-xs truncate">{userEmail}</p>
+            <p className="text-primary/45 text-xs truncate">{userEmail}</p>
           </div>
           <button onClick={onSignOut} title="Se déconnecter"
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-tertiary hover:text-danger hover:bg-danger/10 transition-all shrink-0">
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-primary/40 hover:text-danger hover:bg-danger/10 transition-all shrink-0">
             <LogOut size={14} />
           </button>
         </div>
@@ -230,7 +234,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-64 h-screen flex-col bg-sidebar border-r border-border shrink-0">
+      <aside className="hidden lg:flex w-64 h-screen flex-col bg-sidebar shrink-0">
         <SidebarContent
           session={session ?? null}
           onCloseMobile={() => setMobileOpen(false)}
@@ -240,7 +244,7 @@ export default function Sidebar() {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-sidebar flex items-center justify-between px-4 py-3 border-b border-border">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-sidebar flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center text-inverse font-bold text-sm">B</div>
           <span className="text-primary font-bold text-base" style={{ fontFamily: "var(--font-heading)" }}>BudGest</span>

@@ -720,3 +720,202 @@ Traitement systématique appliqué à `dashboard`, `transactions`, `budgets`,
   serif, texte lisible dans les deux modes). Compte de test supprimé après
   vérification (`DELETE /api/users/profile`), aucune donnée de test
   laissée en base.
+
+## Phase 8 — Palette "Bento Pastel + Gold" et enrichissement du contenu (2026-09-23)
+
+Nouvelle demande de l'utilisateur, sur la base d'une image de référence
+(dashboard à cards pastel — beige, vert sauge, mauve — sur fond noir, cercle
+doré pour l'item de sidebar actif) : remplacer la palette noir/blanc de la
+Phase 7 par une palette pastel + accent doré, ET enrichir le contenu de
+toutes les pages du dashboard (jugées trop vides/simples). Deux demandes
+distinctes traitées ensemble, en autonomie complète.
+
+### Nouveau principe de fond : les cards ne s'inversent plus avec le thème
+
+Différence fondamentale avec la Phase 7 : dans la maquette de référence, les
+cards blanches et pastel restent **claires dans les deux modes** — seule la
+coquille de l'app (fond de page, sidebar) passe du blanc/crème au noir. Ce
+n'était pas le cas avant (tout s'inversait ensemble). Conséquence directe :
+il fallait désormais **deux familles de texte** distinctes plutôt qu'une —
+une qui s'inverse avec le thème (`text-primary`, pour le texte posé
+directement sur le fond de page/sidebar) et une fixe (nouveau token
+`--color-ink`, toujours `#14151A`, pour le texte posé sur les cards
+blanches/pastel qui ne bougent pas). Oublier cette distinction produit un
+bug silencieux et grave : en mode sombre, un texte `text-primary` (qui
+devient clair) posé sur une card qui reste claire devient illisible (clair
+sur clair) — **exactement le genre de bug invisible au build/lint qu'une
+vraie vérification visuelle permet seul de détecter** (voir plus bas, deux
+occurrences réelles trouvées et corrigées de cette façon).
+
+### `app/globals.css` — nouveaux tokens
+
+- `--color-app`/`--color-sidebar` : crème `#F4F3EF` en clair, noir quasi pur
+  `#0A0A0A` en sombre (au lieu du gris neutre de la Phase 7). La sidebar n'a
+  plus de fond ni de bordure propres — elle se fond dans le canevas noir/
+  crème de l'app, comme sur la référence.
+- `--color-ink` (nouveau, ne s'inverse jamais) : texte des cards.
+- `--color-gold` : `#E8C94A` en clair / `#F0DE7A` en sombre — nouvel accent
+  signature, utilisé pour le cercle de l'item de sidebar actif, le bouton
+  "Nouvelle transaction", et ponctuellement pour des highlights (bouton
+  d'envoi de l'assistant, action rapide "Ajouter").
+- `--color-pastel-sand` / `-sage` / `-mauve` / `-olive` : les quatre teintes
+  pastel utilisées en rotation sur toutes les cards de résumé/métriques à
+  travers l'app (beige, vert sauge, mauve, kaki doré). Un premier essai avec
+  un kaki trop proche du vert sauge a été corrigé (`#E6DFB8` clair /
+  `#C9BE85` sombre) après une vérification visuelle où les deux teintes
+  étaient quasiment indiscernables l'une de l'autre.
+- `--color-badge-pos-bg`/`-text` et `--color-badge-neg-bg`/`-text` : les
+  badges de variation (%) utilisent maintenant ce système dédié (fond pastel
+  vert/rouge très doux + texte foncé de la même teinte) plutôt que les
+  couleurs de données `success`/`danger`, qui restent réservées aux glyphes
+  d'icônes et aux graphiques.
+- `--color-success`/`danger`/`warning`/`info`/`violet` : **laissées vives**
+  (comme en Phase 7), pas recolorées en tons foncés — une première tentative
+  de les foncer pour servir de couleur de texte de badge a été annulée en
+  cours de route en réalisant qu'elles sont aussi utilisées en contexte
+  "chrome" (ex. l'icône de déconnexion dans la sidebar), où un ton foncé
+  serait devenu illisible sur fond noir en mode sombre.
+- Nouveau composant `components/ui/TrendBadge.tsx` : pill de variation
+  (+/-X%) réutilisable, construit sur les tokens badge-pos/neg ci-dessus.
+
+### Bug réel trouvé et corrigé : les classes d'opacité Tailwind ne suivent
+pas le mode sombre
+
+Deuxième bug invisible au build, trouvé uniquement grâce aux captures
+d'écran en mode sombre : les items de navigation inactifs de la sidebar
+(`text-primary/45`) et le panneau de gauche des pages d'authentification
+(`text-inverse/70`, etc.) devenaient **quasi invisibles** en mode sombre.
+Cause : Tailwind calcule une classe comme `text-primary/45` **à la
+compilation**, en mélangeant l'opacité avec la valeur CLAIRE du token — ce
+calcul est figé dans le CSS généré et ne peut pas suivre la réaffectation
+`[data-theme="dark"] .text-primary { color: ... }` qui n'existe qu'au
+runtime. Résultat : en mode sombre, `text-primary/45` continuait d'utiliser
+l'encre foncée à 45% d'opacité au lieu du blanc cassé attendu — un gris
+presque noir sur fond noir. Corrigé en ajoutant, dans `globals.css`, une
+règle `[data-theme="dark"]` explicite pour **chaque fraction d'opacité
+réellement utilisée dans le code** (`text-primary/40`, `/45`, `/50`,
+`bg-primary/5`, `/10`, `text-inverse/50`, `/70`, `/75`, `/90`,
+`bg-inverse/15`). Point de vigilance documenté pour la suite : toute
+nouvelle classe `token-qui-s inverse/NN` ajoutée au code devra recevoir le
+même traitement.
+
+### Bug de design trouvé et corrigé : les pages d'authentification devenaient illisibles en sombre
+
+Troisième bug trouvé par capture d'écran : les pages `/login`, `/register`,
+`/forgot-password`, `/reset-password` ont un panneau gauche en
+`accent-primary` (s'inverse : sombre en clair, clair en sombre) et un
+panneau droit `bg-white` (card, ne s'inverse plus depuis la Phase 8). En
+mode sombre, le panneau gauche devient donc clair ET le panneau droit reste
+blanc → toute la page devient presque uniformément claire, sans aucune
+différence visible avec le mode clair. Corrigé en distinguant : ces
+panneaux de connexion sont conceptuellement des **moitiés d'écran** (une
+extension de la coquille de l'app), pas des cards de contenu — le panneau
+droit a reçu une classe dédiée (`auth-panel`) avec son propre override
+sombre (`#17171A`), pour qu'il s'inverse comme le reste du shell plutôt que
+de rester figé en blanc.
+
+### Sidebar (`components/layout/Sidebar.tsx`)
+
+- Fond : plus de fond ni de bordure dédiés (`bg-sidebar` sans `border-r`),
+  fusion visuelle avec le canevas de l'app, conforme à la référence.
+- Item de navigation actif : l'icône est désormais entourée d'un cercle
+  plein `bg-gold` (au lieu de la pastille verticale de la Phase 7).
+- Bouton "Nouvelle transaction" et modale associée : recolorés en
+  `bg-gold`/`text-ink` (bouton) et `bg-ink`/`text-white` (bouton de
+  validation de la modale, qui est une card blanche — texte fixe donc).
+- Textes muets (items inactifs, email utilisateur, icône de déconnexion) :
+  passés de `text-tertiary` (fixe, aurait été invisible sur fond noir) à
+  `text-primary/NN` (s'inverse) — voir le bug d'opacité ci-dessus.
+
+### `DashboardHeader` et `ThemeToggle`
+
+- Header : n'a plus de fond ni de bordure propres (`bg-app`, transparent
+  dans la coquille), conforme au principe "un seul canevas".
+- Barre de recherche, boutons notifications/aide, `ThemeToggle` : passés en
+  pilules pleinement arrondies (`rounded-full`), sans bordure — le contraste
+  vient uniquement de `bg-neutral`.
+
+### Tableau de bord — reconstruction complète
+
+La page était jugée trop pauvre ; reconstruite avec une grille bento
+beaucoup plus riche, dans l'ordre demandé :
+- 4 cards héros (Solde, Revenus, Dépenses, **Taux d'épargne** — nouvelle
+  4ᵉ carte, calculée côté client à partir des données déjà renvoyées par
+  `/api/dashboard/stats`), chacune sur un pastel différent.
+- Bandeau Assistant IA enrichi d'un mini-insight dynamique (texte généré
+  côté client selon le taux d'épargne et l'évolution des dépenses — pas
+  d'appel IA supplémentaire, pour rester réactif et gratuit).
+- Évolution Mensuelle + nouvelle card "Résumé rapide" (solde moyen mensuel,
+  meilleur mois — calculés à partir de `monthlyEvolution`).
+- Répartition (donut) enrichie d'icônes de catégorie réelles (jointure avec
+  `/api/categories` par nom).
+- Deux nouvelles cards : **Budgets en cours** (aperçu des 3 budgets les plus
+  utilisés, avec mini-barres colorées vert/orange/rouge) et **Objectifs
+  d'épargne** (aperçu des 2 objectifs les plus avancés) — toutes deux
+  nécessitent un appel supplémentaire à `/api/budgets` et `/api/objectifs`
+  depuis le tableau de bord (absent avant).
+- Nouvelle section **Actions rapides** (4 raccourcis vers les pages de
+  création).
+- Transactions récentes enrichies d'icônes de catégorie réelles.
+
+### Autres pages du dashboard
+
+Même traitement appliqué à Transactions, Budgets, Objectifs, Statistiques,
+Catégories, Assistant IA, Paramètres, Admin (vue d'ensemble + utilisateurs) :
+recoloration en rotation pastel des cards de résumé, chiffres en
+tabular-nums, et pour chaque page l'enrichissement spécifique demandé :
+- **Transactions** : 4ᵉ card "Transaction moyenne", mini-histogramme des
+  transactions par jour de la semaine (calculé côté client), icônes de
+  méthode de paiement dans le tableau, état vide avec CTA.
+- **Budgets** : budgets affichés en grille de cards (plus en liste), card
+  "Recommandation IA" heuristique (pas d'appel IA — déclenchée localement
+  si un budget dépasse 80% d'utilisation), aperçu en direct dans la modale
+  de création.
+- **Objectifs** : progression en anneau circulaire SVG (nouveau composant
+  `CircularProgress` local), estimation du temps restant avant échéance,
+  card de motivation en tête de page.
+- **Statistiques** : graphique Revenus vs Dépenses transformé en area chart
+  SVG (zones remplies sous les courbes, remplace les barres), card "Analyse
+  IA" heuristique (texte généré localement à partir du taux d'épargne et de
+  la catégorie dominante — pas d'appel IA supplémentaire).
+- **Catégories** : cards enrichies, état vide avec suggestions de
+  catégories prédéfinies cliquables (création en un clic).
+- **Assistant IA** : bandeau d'en-tête pastel, suggestions transformées en
+  cards cliquables avec icône, nouvelle section "Aperçu rapide" (2
+  mini-insights calculés depuis `/api/dashboard/stats`, affichés avant la
+  première question).
+- **Paramètres** : éclaté en grille bento de cards pastel distinctes
+  (Profil, Apparence, Sécurité, Notifications, Données, Zone dangereuse) au
+  lieu d'un empilement vertical uniforme.
+- **Landing page** (Hero, Features, Pricing, Testimonials, FAQ, Navbar,
+  Footer) : mêmes corrections de fond (texte `text-ink` sur les sections/
+  cards `bg-white` qui ne s'inversent plus) pour que le site reste lisible
+  en mode sombre — vérifié par capture d'écran, effet de bandes noir/blanc
+  alternées entre les sections, cohérent avec le reste de l'app.
+
+### Non fait / limites connues
+
+- **Distinction visuelle catégories de revenus vs dépenses** (demandée pour
+  la page Catégories) : non implémentée. Le modèle `Categorie` actuel n'a
+  pas de champ `type` (revenu/dépense) — l'ajouter aurait nécessité une
+  migration de schéma et des changements dans plusieurs routes API,
+  au-delà du périmètre d'une refonte visuelle. Signalé ici pour un futur
+  chantier si cette distinction est jugée utile.
+- Les recommandations "IA" ajoutées (Budgets, Statistiques) sont en réalité
+  des heuristiques calculées côté client, pas de vrais appels au modèle
+  Gemini — choix délibéré pour rester gratuit et réactif, cohérent avec la
+  page Assistant IA qui, elle, utilise les vraies routes `/api/ai/*`.
+
+### Vérification
+
+- `pnpm build` et `pnpm lint` : sans erreur (deux allers-retours ont été
+  nécessaires — une erreur `react-hooks/purity` sur un `Date.now()` appelé
+  pendant le rendu dans Objectifs, corrigée en le figeant une fois par
+  montage via `useState(() => Date.now())`, et deux variables inutilisées).
+- Vérification visuelle complète (Playwright, compte de test créé avec des
+  transactions/budgets/objectifs de démonstration puis supprimé) sur les 8
+  pages du dashboard + connexion + landing, en clair **et** en sombre — les
+  trois bugs décrits plus haut (contraste des cards, opacité Tailwind figée,
+  pages d'auth trop claires en sombre) ont tous été trouvés à cette étape,
+  aucun n'aurait été visible avec un simple `pnpm build`.
+  laissée en base.
